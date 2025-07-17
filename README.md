@@ -2,7 +2,7 @@
 
 ## Introduction
 
-<img src="https://firebasestorage.googleapis.com/v0/b/portfolio-aa70a.appspot.com/o/projects%2Flockwebsitedisplay.webp?alt=media" width="600px" />
+<img src="https://firebasestorage.googleapis.com/v0/b/portfolio-aa70a.appspot.com/o/projects%2Funbranded_unlocked.webp?alt=media" width="600px" />
 
 ### Background
 
