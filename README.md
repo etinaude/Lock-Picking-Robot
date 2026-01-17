@@ -10,7 +10,7 @@ An open source Lock picking robot. Basically, there are many skeleton keys in us
 
 ### 🔒 ➡️ 🔑🤖 ➡️ 🔓
 
-So, lock-picking robot!!! The idea behind this robot is that it will be able to open difficult-to-lick locks. However, it takes a bit of time. That means you can get a lock which this robot would take 5 min to pick, but would require hundreds of keys (rather than a set of 7), and waiting with a very overt device by a lock for 5 min is a lot more obvious than unlocking it with a key which makes it look like you own the lock. 
+So, lock-picking robot!!! The idea behind this robot is that it will be able to open difficult-to-pick locks. However, it takes a bit of time. That means you can get a lock which this robot would take 5 min to pick, but would require hundreds of keys (rather than a set of 7), and waiting with a very overt device by a lock for 5 min is a lot more obvious than unlocking it with a key which makes it look like you own the lock. 
 
 ### How it works
 
