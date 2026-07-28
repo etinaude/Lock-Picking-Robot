@@ -1,0 +1,3 @@
+Placement file: '/home/etienne/Documents/git/Lock-Picking-Robot/PCB/unlocked-PCB/lock-picking-all-pos.csv'.
+Info: Component count: 12.
+Info: Done.
