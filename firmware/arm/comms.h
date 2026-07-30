@@ -8,8 +8,22 @@
 
 TwoWire commWire(0);
 
-void receiveEvent(int howMany) {
-  // TODO: I2C
+void receiveEvent(int incomingData) {
+  // Read the incoming bytes into a buffer
+  String jsonString;
+  while (commWire.available()) {
+    char c = commWire.read();
+    jsonString += c;
+  }
+
+  if (incomingData >= sizeof(float)) {
+    float incomingGoal = 0.0;
+    // Read the incoming bytes directly into the float's memory address
+    commWire.readBytes((char *)&incomingGoal, sizeof(float));
+
+    // Safely update setpoint
+    targetDistance = incomingGoal;
+  }
 }
 
 void sendData() {

@@ -8,7 +8,10 @@
 PID motorPID(&currentDistance, &motorPWM, &targetDistance, settings.Kp,
              settings.Ki, settings.Kd, DIRECT);
 
-void setupMotor() {}
+void setupMotor() {
+  motorPID.SetOutputLimits(-255, 255);
+  motorPID.SetMode(AUTOMATIC);
+}
 
 void setMotorSpeed(int speed) {
   if (speed < 0)
