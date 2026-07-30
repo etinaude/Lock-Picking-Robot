@@ -4,59 +4,6 @@
 
 #include <ArduinoJson.h>
 
-class MagnetData {
-public:
-  float x;
-  float y;
-  float z;
-  float t;
-  double pos;
-
-  MagnetData() : x(0), y(0), z(0), t(0), pos(0) {}
-};
-
-class ArmData {
-public:
-  MagnetData magnet;
-  double motorSpeed;
-  float motorCurrent;
-
-  ArmData() : motorSpeed(0), motorCurrent(0) {}
-
-  String toJson() {
-    StaticJsonDocument<200> doc;
-    doc["magnet"]["x"] = magnet.x;
-    doc["magnet"]["y"] = magnet.y;
-    doc["magnet"]["z"] = magnet.z;
-    doc["magnet"]["t"] = magnet.t;
-    doc["magnet"]["pos"] = magnet.pos;
-    doc["motorSpeed"] = motorSpeed;
-    doc["motorCurrent"] = motorCurrent;
-
-    String jsonString;
-    serializeJson(doc, jsonString);
-    return jsonString;
-  }
-
-  void fromJson(const String &jsonString) {
-    StaticJsonDocument<200> doc;
-    DeserializationError error = deserializeJson(doc, jsonString);
-    if (error) {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return;
-    }
-
-    magnet.x = doc["magnet"]["x"] | 0.0;
-    magnet.y = doc["magnet"]["y"] | 0.0;
-    magnet.z = doc["magnet"]["z"] | 0.0;
-    magnet.t = doc["magnet"]["t"] | 0.0;
-    magnet.pos = doc["magnet"]["pos"] | 0.0;
-    motorSpeed = doc["motorSpeed"] | 0.0;
-    motorCurrent = doc["motorCurrent"] | 0.0;
-  }
-};
-
 class ArmSettings {
 public:
   String macAddress;
@@ -105,5 +52,50 @@ public:
     i2cAddress = doc["i2cAddress"] | 0;
   }
 };
+
+struct __attribute__((packed)) ArmStatePayload {
+  struct {
+    float x;
+    float y;
+    float z;
+    float t;
+    float pos;
+  } magnet;
+  float motorPWM;
+  float motorCurrent;
+};
+
+String payloadToJson(const ArmStatePayload &payload) {
+  StaticJsonDocument<200> doc;
+  doc["magnet"]["x"] = payload.magnet.x;
+  doc["magnet"]["y"] = payload.magnet.y;
+  doc["magnet"]["z"] = payload.magnet.z;
+  doc["magnet"]["t"] = payload.magnet.t;
+  doc["magnet"]["pos"] = payload.magnet.pos;
+  doc["motorPWM"] = payload.motorPWM;
+  doc["motorCurrent"] = payload.motorCurrent;
+
+  String jsonString;
+  serializeJson(doc, jsonString);
+  return jsonString;
+}
+
+void payloadFromJson(ArmStatePayload &payload, const String &jsonString) {
+  StaticJsonDocument<200> doc;
+  DeserializationError error = deserializeJson(doc, jsonString);
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+  payload.magnet.x = doc["magnet"]["x"] | 0.0;
+  payload.magnet.y = doc["magnet"]["y"] | 0.0;
+  payload.magnet.z = doc["magnet"]["z"] | 0.0;
+  payload.magnet.t = doc["magnet"]["t"] | 0.0;
+  payload.magnet.pos = doc["magnet"]["pos"] | 0.0;
+  payload.motorPWM = doc["motorPWM"] | 0.0;
+  payload.motorCurrent = doc["motorCurrent"] | 0.0;
+}
 
 #endif
