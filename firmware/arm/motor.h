@@ -5,9 +5,7 @@
 #include "state.h"
 #include <PID_v1.h>
 
-double Setpoint, dist, Output;
-
-PID motorPID(&state.magnet.pos, &state.motorSpeed, &Setpoint, settings.Kp,
+PID motorPID(&currentDistance, &motorPWM, &targetDistance, settings.Kp,
              settings.Ki, settings.Kd, DIRECT);
 
 void setupMotor() {}
@@ -24,7 +22,7 @@ void setMotorSpeed(int speed) {
 void handlePID() {
   calculateDistance();
   motorPID.Compute();
-  setMotorSpeed(Output);
+  setMotorSpeed(motorPWM);
 }
 
 #endif

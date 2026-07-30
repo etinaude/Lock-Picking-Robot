@@ -6,12 +6,15 @@
 #include <Wire.h>
 #include <esp_mac.h>
 
+TwoWire commWire(0);
+
 void receiveEvent(int howMany) {
   // TODO: I2C
 }
 
-void requestEvent() {
-  // TODO: I2C
+void sendData() {
+  setPayload();
+  commWire.write(payloadToJson(state).c_str());
 }
 
 void setupComms() {
@@ -43,15 +46,15 @@ void setupComms() {
   }
 
   // Initialize I2C communication
-  Wire.begin(settings.i2cAddress, COMMS_SDA_PIN, COMMS_SCL_PIN);
-  Wire.onReceive(receiveEvent);
-  Wire.onRequest(requestEvent);
+  commWire.begin(settings.i2cAddress, COMMS_SDA_PIN, COMMS_SCL_PIN);
+  commWire.onReceive(receiveEvent);
+  commWire.onRequest(sendData);
 }
 
 void sendSerial() {
   if (millis() - lastSentTime >= 1000) { // Send data every 1 second
-    String jsonString = state.toJson();
-    Serial.println(jsonString);
+    String jsonString;
+    Serial.println(payloadToJson(state));
     lastSentTime = millis();
   }
 }
@@ -59,7 +62,7 @@ void sendSerial() {
 void receiveSerial() {
   if (Serial.available() > 0) {
     String jsonString = Serial.readStringUntil('\n');
-    state.fromJson(jsonString);
+    payloadFromJson(state, jsonString);
   }
 }
 

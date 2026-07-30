@@ -7,23 +7,23 @@
 #include <MLX90393.h>
 
 MLX90393 mlx;
-MLX90393::txyz data;
+TwoWire magnetWire(1);
 
 void setupMagnet() {
-  Wire.begin(MAG_SDA_PIN, MAG_SCL_PIN);
+  magnetWire.begin(MAG_SDA_PIN, MAG_SCL_PIN);
 
   uint8_t status = mlx.begin(0, 0);
 }
 
 float readMagnetData() {
-  mlx.readData(data);
+  mlx.readData(magnetData);
 
-  Serial.print(data.x);
-  Serial.print(data.y);
-  Serial.print(data.z);
-  Serial.println(data.t);
+  Serial.print(magnetData.x);
+  Serial.print(magnetData.y);
+  Serial.print(magnetData.z);
+  Serial.println(magnetData.t);
 
-  return data.z;
+  return magnetData.z;
 }
 
 float calculateDistance() {
