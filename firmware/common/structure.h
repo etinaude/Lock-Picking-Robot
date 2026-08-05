@@ -53,49 +53,19 @@ public:
   }
 };
 
-struct __attribute__((packed)) ArmStatePayload {
+struct ArmData {
   struct {
-    float x;
-    float y;
-    float z;
+    uint8_t status;
+    float totalDist;
+    float motionDist;
+    float xmT;
+    float ymT;
+    float zmT;
     float t;
-    float pos;
+    int state;
   } magnet;
   float motorPWM;
   float motorCurrent;
 };
-
-String payloadToJson(const ArmStatePayload &payload) {
-  StaticJsonDocument<200> doc;
-  doc["magnet"]["x"] = payload.magnet.x;
-  doc["magnet"]["y"] = payload.magnet.y;
-  doc["magnet"]["z"] = payload.magnet.z;
-  doc["magnet"]["t"] = payload.magnet.t;
-  doc["magnet"]["pos"] = payload.magnet.pos;
-  doc["motorPWM"] = payload.motorPWM;
-  doc["motorCurrent"] = payload.motorCurrent;
-
-  String jsonString;
-  serializeJson(doc, jsonString);
-  return jsonString;
-}
-
-void payloadFromJson(ArmStatePayload &payload, const String &jsonString) {
-  StaticJsonDocument<200> doc;
-  DeserializationError error = deserializeJson(doc, jsonString);
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    return;
-  }
-
-  payload.magnet.x = doc["magnet"]["x"] | 0.0;
-  payload.magnet.y = doc["magnet"]["y"] | 0.0;
-  payload.magnet.z = doc["magnet"]["z"] | 0.0;
-  payload.magnet.t = doc["magnet"]["t"] | 0.0;
-  payload.magnet.pos = doc["magnet"]["pos"] | 0.0;
-  payload.motorPWM = doc["motorPWM"] | 0.0;
-  payload.motorCurrent = doc["motorCurrent"] | 0.0;
-}
 
 #endif

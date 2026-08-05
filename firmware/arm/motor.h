@@ -23,7 +23,6 @@ void setMotorSpeed(int speed) {
 }
 
 void handlePID() {
-  calculateDistance();
   motorPID.Compute();
   setMotorSpeed(motorPWM);
 }

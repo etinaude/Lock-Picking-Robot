@@ -9,7 +9,9 @@ void setup() {
 }
 
 void loop() {
+  readMagnet();
   handlePID();
   sendSerial();
   receiveSerial();
+  delay(50);
 }

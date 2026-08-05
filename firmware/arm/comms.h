@@ -27,13 +27,13 @@ void receiveEvent(int incomingData) {
 }
 
 void sendData() {
-  setPayload();
-  commWire.write(payloadToJson(state).c_str());
+  // setPayload();
+  // commWire.write(payloadToJson(state).c_str());
 }
 
 void setupComms() {
   // Initialize Serial communication
-  Serial.begin(9600);
+  Serial.begin(115200);
   lastSentTime = millis();
 
   // get mac
@@ -68,7 +68,7 @@ void setupComms() {
 void sendSerial() {
   if (millis() - lastSentTime >= 1000) { // Send data every 1 second
     String jsonString;
-    Serial.println(payloadToJson(state));
+    // Serial.println(payloadToJson(state));
     lastSentTime = millis();
   }
 }
@@ -76,7 +76,7 @@ void sendSerial() {
 void receiveSerial() {
   if (Serial.available() > 0) {
     String jsonString = Serial.readStringUntil('\n');
-    payloadFromJson(state, jsonString);
+    // payloadFromJson(state, jsonString);
   }
 }
 
