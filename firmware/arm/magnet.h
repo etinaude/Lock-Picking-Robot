@@ -86,7 +86,6 @@ void printMagnet() {
     Serial.println(state.magnet.totalDist, 2);
     Serial.print(">Motion Dist: ");
     Serial.println(state.magnet.motionDist, 2);
-    // Serial.println(" mm");
   }
 }
 
@@ -98,6 +97,7 @@ void readMagnet() {
     state.magnet.ymT = fabs(y_uT) / 1000.0f;
     state.magnet.totalDist = solveTotalDistance(state.magnet.zmT);
     state.magnet.motionDist = state.magnet.totalDist - Z_OFFSET_MM;
+    currentDistance = state.magnet.motionDist;
 
   } else {
     state.magnet.status = 1;
