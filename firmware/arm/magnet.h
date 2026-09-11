@@ -51,16 +51,11 @@ float solveTotalDistance(float target_B_mT) {
   return z;
 }
 
-void setupMagnet() {
+bool setupMagnet() {
   magnetWire.begin(MAG_SDA_PIN, MAG_SCL_PIN);
 
-  // sensor.begin_I2C(magnetWire)
-
-  if (!sensor.begin_I2C()) {
-    Serial.println("Error: MLX90393 magnetometer not detected!");
-    while (1)
-      delay(100);
-  }
+  if (!sensor.begin_I2C(MLX90393_DEFAULT_ADDR, &magnetWire))
+    return false;
 
   sensor.setGain(MLX90393_GAIN_1X);
   sensor.setResolution(MLX90393_X, MLX90393_RES_16);
@@ -68,9 +63,10 @@ void setupMagnet() {
   sensor.setResolution(MLX90393_Z, MLX90393_RES_16);
   sensor.setOversampling(MLX90393_OSR_2);
   sensor.setFilter(MLX90393_FILTER_4);
+  return true;
 }
 
-void printPacket() {
+void printMagnet() {
   if (state.magnet.status != 0) {
     Serial.println("MAGNET ERROR -> Can not read data.");
   } else if (state.magnet.zmT >= SATURATION_THRESHOLD_MT) {
@@ -84,13 +80,13 @@ void printPacket() {
     Serial.print(state.magnet.zmT, 2);
     Serial.println(" mT)");
   } else {
-    Serial.print("B_z: ");
-    Serial.print(state.magnet.zmT, 2);
-    Serial.print(" mT | Total Dist: ");
-    Serial.print(state.magnet.totalDist, 2);
-    Serial.print(" mm | Motion Dist: ");
-    Serial.print(state.magnet.motionDist, 2);
-    Serial.println(" mm");
+    Serial.print(">B_z: ");
+    Serial.println(state.magnet.zmT, 2);
+    Serial.print(">Total Dist: ");
+    Serial.println(state.magnet.totalDist, 2);
+    Serial.print(">Motion Dist: ");
+    Serial.println(state.magnet.motionDist, 2);
+    // Serial.println(" mm");
   }
 }
 
