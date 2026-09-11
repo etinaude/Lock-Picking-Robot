@@ -1,15 +1,16 @@
+#include "comms.h"
 #include "motor.h"
 #include <Arduino.h>
 
 TaskHandle_t SensingTask;
 TaskHandle_t MovementTask;
 
-static void motorTask(void *parameter) {
+static void motorTaskCode(void *parameter) {
   setupMotor();
 
   while (true) {
     handlePID();
-    vTaskDelay(pdMS_TO_TICKS(10));
+    vTaskDelay(pdMS_TO_TICKS(20));
   }
 }
 
@@ -23,23 +24,22 @@ static void sensingTaskCode(void *parameter) {
     float currentCurrent = readMotorCurrent();
     readMagnet();
     printMagnet();
+    receiveSerial();
 
     Serial.print(">Motor Current:");
-    Serial.print(currentCurrent, 2);
-    Serial.println(" mA");
+    Serial.println(currentCurrent, 2);
 
     vTaskDelay(pdMS_TO_TICKS(20));
   }
 }
 
 void setup() {
-  Serial.begin(115200);
-  Serial.setTimeout(10);
+  setupComms();
 
   xTaskCreatePinnedToCore(sensingTaskCode, "sensing", 10000, NULL, 1,
                           &SensingTask, 0);
-  // xTaskCreatePinnedToCore(motorTask, "motor", 2048, nullptr, 1, MovementTask,
-  // 1);
+  xTaskCreatePinnedToCore(motorTaskCode, "motor", 2048, nullptr, 1,
+                          &MovementTask, 1);
 }
 
 void loop() { vTaskDelay(pdMS_TO_TICKS(1000)); }

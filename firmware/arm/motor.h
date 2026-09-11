@@ -14,6 +14,8 @@ PID motorPID(&currentDistance, &motorPWM, &targetDistance, settings.Kp,
              settings.Ki, settings.Kd, DIRECT);
 
 void setupMotor() {
+  settings = *lookupTable[0];
+
   analogReadResolution(12); // Sets ADC resolution to 0 - 4095
   analogSetPinAttenuation(PIN_CS, ADC_11db);
   pinMode(IN1_EN, OUTPUT);
@@ -25,6 +27,7 @@ void setupMotor() {
   ledcAttachPin(IN1_EN, IN1_EN);
 
   motorPID.SetOutputLimits(-255, 255);
+  motorPID.SetTunings(settings.Kp, settings.Ki, settings.Kd);
   motorPID.SetMode(AUTOMATIC);
 }
 
@@ -65,8 +68,21 @@ void setMotorPID(double pidValue) {
 }
 
 void handlePID() {
+  if (fabs(currentDistance - targetDistance) <= DISTANCE_DEADBAND) {
+    motorPID.SetMode(MANUAL);
+    motorPWM = 0.0;
+    motorPID.SetMode(AUTOMATIC);
+    stopMotor();
+    return;
+  }
+
   motorPID.Compute();
   setMotorPID(motorPWM);
+
+  Serial.print(">motorPWM:");
+  Serial.println(motorPWM, 4);
+  Serial.print(">targetDistance:");
+  Serial.println(targetDistance, 2);
 }
 
 #endif
