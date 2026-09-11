@@ -10,7 +10,7 @@
 #include <PID_v1.h>
 float filteredCurrent = 0.0f;
 
-PID motorPID(&currentDistance, &motorPWM, &targetDistance, settings.Kp,
+PID motorPID(&currentDistance, &motorPIDOut, &targetDistance, settings.Kp,
              settings.Ki, settings.Kd, DIRECT);
 
 void setupMotor() {
@@ -27,7 +27,7 @@ void setupMotor() {
   ledcAttachPin(IN1_EN, IN1_EN);
 
   motorPID.SetOutputLimits(-255, 255);
-  motorPID.SetTunings(settings.Kp, settings.Ki, settings.Kd);
+  motorPID.SetTunings(10, 0, 0);
   motorPID.SetMode(AUTOMATIC);
 }
 
@@ -52,6 +52,13 @@ static float readMotorCurrent() {
 
 void stopMotor() { ledcWrite(IN1_EN, 0); }
 
+void setTargetDistance(double target) {
+  motorPID.SetMode(MANUAL);
+  targetDistance = target;
+  motorPIDOut = 0.0;
+  motorPID.SetMode(AUTOMATIC);
+}
+
 void setMotorPID(double pidValue) {
   if (pidValue == 0.0) {
     stopMotor();
@@ -59,9 +66,9 @@ void setMotorPID(double pidValue) {
   }
 
   bool driveBackward = pidValue > 0.0;
-  double pwmValue = fabs(pidValue);
-  if (pwmValue > 255.0)
-    pwmValue = 255.0;
+  pwmValue = fabs(pidValue);
+  if (pwmValue > 200.0)
+    pwmValue = 200.0;
 
   digitalWrite(IN2_PH, driveBackward ? HIGH : LOW);
   ledcWrite(IN1_EN, static_cast<uint8_t>(pwmValue));
@@ -70,19 +77,14 @@ void setMotorPID(double pidValue) {
 void handlePID() {
   if (fabs(currentDistance - targetDistance) <= DISTANCE_DEADBAND) {
     motorPID.SetMode(MANUAL);
-    motorPWM = 0.0;
+    motorPIDOut = 0.0;
     motorPID.SetMode(AUTOMATIC);
     stopMotor();
     return;
   }
 
   motorPID.Compute();
-  setMotorPID(motorPWM);
-
-  Serial.print(">motorPWM:");
-  Serial.println(motorPWM, 4);
-  Serial.print(">targetDistance:");
-  Serial.println(targetDistance, 2);
+  setMotorPID(motorPIDOut);
 }
 
 #endif

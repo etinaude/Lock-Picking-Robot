@@ -64,7 +64,7 @@ struct ArmData {
     float t;
     int state;
   } magnet;
-  float motorPWM;
+  float motorPIDOut;
   float motorCurrent;
 };
 

@@ -8,9 +8,10 @@ int lastSentTime = 0;
 ArmSettings settings;
 ArmData state;
 
-double motorPWM = 0.0;
+double motorPIDOut = 0.0;
 double motorCurrent = 0.0;
 double currentDistance = 0.0;
-double targetDistance = 0.0;
+double targetDistance = 6.0;
+double pwmValue = 0.0;
 
 #endif // STATE_H

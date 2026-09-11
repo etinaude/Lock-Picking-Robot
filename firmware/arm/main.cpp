@@ -21,13 +21,10 @@ static void sensingTaskCode(void *parameter) {
   }
 
   while (true) {
-    float currentCurrent = readMotorCurrent();
+    readMotorCurrent();
     readMagnet();
-    printMagnet();
+    printStatus();
     receiveSerial();
-
-    Serial.print(">Motor Current:");
-    Serial.println(currentCurrent, 2);
 
     vTaskDelay(pdMS_TO_TICKS(20));
   }
