@@ -2,6 +2,7 @@
 #define MOTOR_H
 
 // DRV8876 MOTOR
+// PH low is towards Motor, PH high is away from Motor
 
 #include "config.h"
 #include "magnet.h"
@@ -27,7 +28,7 @@ void setupMotor() {
   ledcAttachPin(IN1_EN, IN1_EN);
 
   motorPID.SetOutputLimits(-255, 255);
-  motorPID.SetTunings(10, 0, 0);
+  motorPID.SetTunings(5, 0, 0);
   motorPID.SetMode(AUTOMATIC);
 }
 
@@ -60,6 +61,10 @@ void setTargetDistance(double target) {
 }
 
 void setMotorPID(double pidValue) {
+  if (abs(targetDistance - currentDistance) < 0.3) {
+    stopMotor();
+    return;
+  }
   if (pidValue == 0.0) {
     stopMotor();
     return;
@@ -67,8 +72,10 @@ void setMotorPID(double pidValue) {
 
   bool driveBackward = pidValue > 0.0;
   pwmValue = fabs(pidValue);
-  if (pwmValue > 200.0)
-    pwmValue = 200.0;
+  if (pwmValue > 255.0)
+    pwmValue = 255.0;
+  pwmValue *=
+      driveBackward ? MOTOR_POSITIVE_PWM_SCALE : MOTOR_NEGATIVE_PWM_SCALE;
 
   digitalWrite(IN2_PH, driveBackward ? HIGH : LOW);
   ledcWrite(IN1_EN, static_cast<uint8_t>(pwmValue));

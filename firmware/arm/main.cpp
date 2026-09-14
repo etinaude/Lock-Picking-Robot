@@ -8,6 +8,8 @@ TaskHandle_t MovementTask;
 static void motorTaskCode(void *parameter) {
   setupMotor();
 
+  vTaskDelay(pdMS_TO_TICKS(1000));
+
   while (true) {
     handlePID();
     vTaskDelay(pdMS_TO_TICKS(20));

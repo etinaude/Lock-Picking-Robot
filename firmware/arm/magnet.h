@@ -80,12 +80,10 @@ void printMagnet() {
     Serial.print(state.magnet.zmT, 2);
     Serial.println(" mT)");
   } else {
-    Serial.print(">B_z: ");
-    Serial.println(state.magnet.zmT, 2);
-    Serial.print(">Total Dist: ");
-    Serial.println(state.magnet.totalDist, 2);
-    Serial.print(">Motion Dist: ");
-    Serial.println(state.magnet.motionDist, 2);
+    // Serial.print(">B_z: ");
+    // Serial.println(state.magnet.zmT, 2);
+    // Serial.print(">Motion Dist: ");
+    // Serial.println(state.magnet.motionDist, 2);
   }
 }
 
@@ -98,7 +96,7 @@ void readMagnet() {
     state.magnet.totalDist = solveTotalDistance(state.magnet.zmT);
     state.magnet.motionDist = state.magnet.totalDist - Z_OFFSET_MM;
     currentDistance = state.magnet.motionDist;
-
+    state.magnet.status = 0;
   } else {
     state.magnet.status = 1;
     Serial.println("Failed to read sensor.");

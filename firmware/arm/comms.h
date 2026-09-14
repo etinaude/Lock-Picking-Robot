@@ -17,8 +17,6 @@ void printStatus() {
   Serial.println(motorPIDOut, 4);
   Serial.print(">currentDistance:");
   Serial.println(currentDistance, 2);
-  Serial.print(">pidError:");
-  Serial.println(targetDistance - currentDistance, 2);
   Serial.print(">targetDistance:");
   Serial.println(targetDistance, 2);
   Serial.print(">pwmValue:");
