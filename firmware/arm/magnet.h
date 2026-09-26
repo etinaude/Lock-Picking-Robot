@@ -12,7 +12,7 @@ const float MAGNET_D_MM = 4.0;               // Diameter (mm)
 const float MAGNET_R_MM = MAGNET_D_MM / 2.0; // Radius (mm)
 const float MAGNET_T_MM = 2.0;               // Thickness (mm)
 const float Z_OFFSET_MM = 3.5;               // 0 point (mm)
-const float SATURATION_THRESHOLD_MT = 6.5;
+const float SATURATION_THRESHOLD_MT = 20.0; // RES_18 on Z: 0.968 uT/LSB
 
 Adafruit_MLX90393 sensor = Adafruit_MLX90393();
 TwoWire magnetWire(1);
@@ -58,9 +58,9 @@ bool setupMagnet() {
     return false;
 
   sensor.setGain(MLX90393_GAIN_1X);
-  sensor.setResolution(MLX90393_X, MLX90393_RES_16);
-  sensor.setResolution(MLX90393_Y, MLX90393_RES_16);
-  sensor.setResolution(MLX90393_Z, MLX90393_RES_16);
+  sensor.setResolution(MLX90393_X, MLX90393_RES_18);
+  sensor.setResolution(MLX90393_Y, MLX90393_RES_18);
+  sensor.setResolution(MLX90393_Z, MLX90393_RES_18);
   sensor.setOversampling(MLX90393_OSR_2);
   sensor.setFilter(MLX90393_FILTER_4);
   return true;

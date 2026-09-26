@@ -24,7 +24,8 @@ int COMMS_SCL_PIN = 22;
 #define CURRENT_SAMPLE_COUNT 32
 #define CURRENT_FILTER_ALPHA 0.15f
 #define DISTANCE_DEADBAND 0.05
-#define MOTOR_POSITIVE_PWM_SCALE 0.60f
-#define MOTOR_NEGATIVE_PWM_SCALE 1.50f
+#define MOTOR_POSITIVE_PWM_SCALE 1.00f
+#define MOTOR_NEGATIVE_PWM_SCALE 1.00f
+#define MOTOR_MIN_PWM 40.0f // lowest PWM that reliably moves the motor
 
 #endif

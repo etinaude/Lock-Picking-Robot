@@ -2,7 +2,7 @@
 #define MOTOR_H
 
 // DRV8876 MOTOR
-// PH low is towards Motor, PH high is away from Motor
+// PH high is towards Motor, PH low is away from Motor (PH/EN mode)
 
 #include "config.h"
 #include "magnet.h"
@@ -22,12 +22,13 @@ void setupMotor() {
   pinMode(IN1_EN, OUTPUT);
   pinMode(IN2_PH, OUTPUT);
   pinMode(MODE_PIN, OUTPUT);
-  digitalWrite(MODE_PIN, HIGH); // Set to PH/EN mode
+  digitalWrite(MODE_PIN, LOW); // PMODE low = PH/EN mode (high = IN/IN PWM mode)
 
   ledcSetup(IN1_EN, PWM_FREQUENCY, PWM_RESOLUTION);
   ledcAttachPin(IN1_EN, IN1_EN);
 
   motorPID.SetOutputLimits(-255, 255);
+  motorPID.SetSampleTime(20); // match the motor task period (default is 100ms)
   motorPID.SetTunings(5, 0, 0);
   motorPID.SetMode(AUTOMATIC);
 }
@@ -61,23 +62,19 @@ void setTargetDistance(double target) {
 }
 
 void setMotorPID(double pidValue) {
-  if (abs(targetDistance - currentDistance) < 0.3) {
-    stopMotor();
-    return;
-  }
   if (pidValue == 0.0) {
     stopMotor();
     return;
   }
 
   bool driveBackward = pidValue > 0.0;
-  pwmValue = fabs(pidValue);
+  pwmValue = fabs(pidValue) *
+             (driveBackward ? MOTOR_POSITIVE_PWM_SCALE : MOTOR_NEGATIVE_PWM_SCALE);
+  pwmValue += MOTOR_MIN_PWM; // overcome static friction for small errors
   if (pwmValue > 255.0)
     pwmValue = 255.0;
-  pwmValue *=
-      driveBackward ? MOTOR_POSITIVE_PWM_SCALE : MOTOR_NEGATIVE_PWM_SCALE;
 
-  digitalWrite(IN2_PH, driveBackward ? HIGH : LOW);
+  digitalWrite(IN2_PH, driveBackward ? LOW : HIGH);
   ledcWrite(IN1_EN, static_cast<uint8_t>(pwmValue));
 }
 
