@@ -1,0 +1,4 @@
+(version 1)
+(rule "MLX90393 sits on the board edge by design (magnet position)"
+	(condition "A.memberOfFootprint('U3')")
+	(constraint edge_clearance (min 0.35mm)))

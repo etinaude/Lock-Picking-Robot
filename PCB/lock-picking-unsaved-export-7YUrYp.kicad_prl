@@ -1,6 +1,6 @@
 {
   "board": {
-    "active_layer": 2,
+    "active_layer": 0,
     "active_layer_preset": "",
     "auto_track_width": true,
     "hidden_netclasses": [],
@@ -63,34 +63,12 @@
     "ssh_key": ""
   },
   "meta": {
-    "filename": "lock-picking.kicad_prl",
+    "filename": "lock-picking-unsaved-export-7YUrYp.kicad_prl",
     "version": 5
   },
   "net_inspector_panel": {
-    "col_hidden": [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    "col_order": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9
-    ],
+    "col_hidden": [],
+    "col_order": [],
     "col_widths": [],
     "custom_group_rules": [],
     "expanded_rows": [],

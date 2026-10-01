@@ -23,9 +23,18 @@ void setupMotor() {
   pinMode(IN2_PH, OUTPUT);
   pinMode(MODE_PIN, OUTPUT);
   digitalWrite(MODE_PIN, LOW); // PMODE low = PH/EN mode (high = IN/IN PWM mode)
+#ifdef NSLEEP_PIN
+  // PMODE is only latched when nSLEEP goes high, so wake the driver after it
+  pinMode(NSLEEP_PIN, OUTPUT);
+  digitalWrite(NSLEEP_PIN, HIGH);
+  delay(2); // tWAKE is 1 ms max
+#endif
+#ifdef NFAULT_PIN
+  pinMode(NFAULT_PIN, INPUT_PULLUP);
+#endif
 
-  ledcSetup(IN1_EN, PWM_FREQUENCY, PWM_RESOLUTION);
-  ledcAttachPin(IN1_EN, IN1_EN);
+  ledcSetup(MOTOR_PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
+  ledcAttachPin(IN1_EN, MOTOR_PWM_CHANNEL);
 
   motorPID.SetOutputLimits(-255, 255);
   motorPID.SetSampleTime(20); // match the motor task period (default is 100ms)
@@ -43,8 +52,8 @@ static float readMotorCurrent() {
   float adcRaw = adcTotal / (float)CURRENT_SAMPLE_COUNT;
   float voltage = (adcRaw / 4095.0f) * 3.3f; // Measured voltage on CS pin
 
-  // Calculate motor current (scale assumes standard 2.5 V/A ratio)
-  float currentAmps = voltage / 2.5;
+  // Calculate motor current (IPROPI volts per amp depends on its resistor)
+  float currentAmps = voltage / CURRENT_SENSE_V_PER_A;
   float currentMilliamps = currentAmps * 1000.0f;
   filteredCurrent +=
       CURRENT_FILTER_ALPHA * (currentMilliamps - filteredCurrent);
@@ -52,7 +61,7 @@ static float readMotorCurrent() {
   return filteredCurrent;
 }
 
-void stopMotor() { ledcWrite(IN1_EN, 0); }
+void stopMotor() { ledcWrite(MOTOR_PWM_CHANNEL, 0); }
 
 void setTargetDistance(double target) {
   motorPID.SetMode(MANUAL);
@@ -75,7 +84,7 @@ void setMotorPID(double pidValue) {
     pwmValue = 255.0;
 
   digitalWrite(IN2_PH, driveBackward ? LOW : HIGH);
-  ledcWrite(IN1_EN, static_cast<uint8_t>(pwmValue));
+  ledcWrite(MOTOR_PWM_CHANNEL, static_cast<uint8_t>(pwmValue));
 }
 
 void handlePID() {
