@@ -86,12 +86,6 @@ public:
     }
   }
 
-  float distance() const { return distanceMM; }       // rolling average (mm)
-  float rawDistance() const { return rawDistanceMM; } // latest reading (mm)
-  float fieldZ() const { return zmT; }
-  float temperature() const { return tempC; }
-
-private:
   // On-axis field of a cylindrical magnet at distance z from its face
   float fieldAt(float z) const {
     float z1 = z + MAGNET_T_MM;
@@ -172,8 +166,8 @@ private:
   float zmT = 0.0f;
   float tempC = DEFAULT_CALIBRATION_TEMP_C;
   uint32_t lastTempRead = 0;
-  float rawDistanceMM = 0.0f;
-  float distanceMM = 0.0f;
+  float rawDistanceMM = 0.0f; // latest reading
+  float distanceMM = 0.0f;    // rolling average
 
   float samples[DISTANCE_AVERAGE_COUNT];
   uint8_t sampleIndex = 0;

@@ -6,25 +6,26 @@ TaskHandle_t SensingTask;
 TaskHandle_t MovementTask;
 
 static void motorTaskCode(void *parameter) {
-  setupMotor();
+  motor.begin();
 
   vTaskDelay(pdMS_TO_TICKS(1000));
 
   while (true) {
-    handlePID();
+    motor.update(magnet.distanceMM);
     vTaskDelay(pdMS_TO_TICKS(20));
   }
 }
 
 static void sensingTaskCode(void *parameter) {
-  while (!setupMagnet()) {
+  while (!magnet.begin(MAG_SDA_PIN, MAG_SCL_PIN)) {
     Serial.println("Error: MLX90393 magnetometer not detected, retrying...");
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 
   while (true) {
-    readMotorCurrent();
-    readMagnet();
+    motor.readCurrent();
+    if (!magnet.read())
+      Serial.println("Failed to read sensor.");
     printStatus();
     receiveSerial();
 

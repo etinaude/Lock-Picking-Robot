@@ -3,7 +3,8 @@
 
 #include "magnet.h"
 #include "motor.h"
-#include "state.h"
+
+int lastSentTime = 0;
 
 void setupComms() { Serial.begin(115200); }
 
@@ -11,20 +12,20 @@ void printStatus() {
   if (millis() - lastSentTime < 500)
     return;
   Serial.print(">Motor Current:");
-  Serial.println(filteredCurrent, 2);
+  Serial.println(motor.filteredCurrent, 2);
 
   Serial.print(">motor PID:");
-  Serial.println(motorPIDOut, 4);
+  Serial.println(motor.output, 4);
   Serial.print(">currentDistance:");
-  Serial.println(currentDistance, 3);
+  Serial.println(magnet.distanceMM, 3);
   Serial.print(">targetDistance:");
-  Serial.println(targetDistance, 3);
+  Serial.println(motor.setpoint, 3);
   Serial.print(">pwmValue:");
-  Serial.println(pwmValue, 2);
+  Serial.println(motor.pwmValue, 2);
   Serial.print(">Magnet Temp:");
-  Serial.println(state.magnet.t, 2);
+  Serial.println(magnet.tempC, 2);
 
-  printMagnet();
+  magnet.printErrors();
   lastSentTime = millis();
 }
 
@@ -32,7 +33,7 @@ void receiveSerial() {
   if (Serial.available() > 0) {
     String jsonString = Serial.readStringUntil('\n');
     // receive as a number
-    setTargetDistance(jsonString.toFloat());
+    motor.setTarget(jsonString.toFloat());
   }
 }
 
