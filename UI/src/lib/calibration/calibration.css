@@ -1,0 +1,200 @@
+/* Shared styles for the calibration modes, scoped under .calibration */
+
+.calibration h2 {
+	margin: 0 0 4px;
+	font-size: 16px;
+}
+
+.calibration h3 {
+	margin: 0 0 8px;
+	font-size: 14px;
+}
+
+.calibration .mode {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.calibration .note {
+	margin: 0 0 12px;
+	color: var(--text-secondary);
+	font-size: 14px;
+}
+
+.calibration .warn {
+	color: var(--critical);
+}
+
+.calibration .card {
+	min-width: 0;
+	padding: 16px;
+	background: var(--surface-1);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+}
+
+.calibration .card-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.calibration .split {
+	display: grid;
+	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+	gap: 16px;
+}
+
+@media (max-width: 900px) {
+	.calibration .split {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.calibration textarea,
+.calibration input {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 8px;
+	border: 1px solid var(--baseline);
+	border-radius: 6px;
+	background: #fff;
+	color: var(--text-primary);
+	font: inherit;
+}
+
+.calibration textarea {
+	font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+	font-size: 13px;
+	resize: vertical;
+}
+
+.calibration .fields {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.calibration label {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 13px;
+	color: var(--text-secondary);
+}
+
+.calibration button {
+	padding: 6px 12px;
+	border: 1px solid var(--series-1);
+	border-radius: 6px;
+	background: var(--series-1);
+	color: #fff;
+	font: inherit;
+	font-size: 14px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.calibration button.secondary {
+	background: transparent;
+	border-color: var(--baseline);
+	color: var(--text-primary);
+}
+
+.calibration .table-wrap {
+	overflow-x: auto;
+}
+
+.calibration table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+}
+
+.calibration th,
+.calibration td {
+	padding: 6px 10px;
+	text-align: right;
+	white-space: nowrap;
+	border-bottom: 1px solid var(--gridline);
+}
+
+.calibration th {
+	color: var(--text-secondary);
+	font-weight: 500;
+	vertical-align: bottom;
+	white-space: normal;
+}
+
+.calibration tbody tr:hover {
+	background: var(--hover);
+}
+
+/* The probe column is the one being typed into, so it stands out */
+.calibration .probe-col {
+	background: rgba(42, 120, 214, 0.06);
+}
+
+.calibration th.probe-col {
+	color: var(--text-primary);
+	font-weight: 600;
+}
+
+.calibration input.probe {
+	width: 110px;
+	padding: 6px 8px;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.calibration input.probe:focus {
+	outline: 2px solid var(--series-1);
+	outline-offset: -1px;
+}
+
+.calibration .muted {
+	color: var(--text-muted);
+}
+
+.calibration .stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 32px;
+	margin-bottom: 16px;
+}
+
+.calibration .stats > div {
+	display: flex;
+	flex-direction: column;
+}
+
+.calibration .stat-label,
+.calibration .stat-sub {
+	color: var(--text-secondary);
+	font-size: 13px;
+}
+
+.calibration .stat-value {
+	font-size: 24px;
+	font-weight: 600;
+}
+
+.calibration pre {
+	margin: 8px 0 0;
+	padding: 12px;
+	overflow-x: auto;
+	border-radius: 6px;
+	background: var(--page);
+	border: 1px solid var(--border);
+	font-size: 13px;
+}
+
+.calibration .placeholder {
+	padding: 48px 16px;
+	text-align: center;
+	color: var(--text-secondary);
+}

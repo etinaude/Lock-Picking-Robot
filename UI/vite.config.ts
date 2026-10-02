@@ -3,6 +3,8 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+	server: { port: 5199 },
+	preview: { port: 5199 },
 	plugins: [
 		sveltekit({
 			compilerOptions: {
