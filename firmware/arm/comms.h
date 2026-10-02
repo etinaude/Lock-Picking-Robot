@@ -16,11 +16,13 @@ void printStatus() {
   Serial.print(">motor PID:");
   Serial.println(motorPIDOut, 4);
   Serial.print(">currentDistance:");
-  Serial.println(currentDistance, 2);
+  Serial.println(currentDistance, 3);
   Serial.print(">targetDistance:");
-  Serial.println(targetDistance, 2);
+  Serial.println(targetDistance, 3);
   Serial.print(">pwmValue:");
   Serial.println(pwmValue, 2);
+  Serial.print(">Magnet Temp:");
+  Serial.println(state.magnet.t, 2);
 
   printMagnet();
   lastSentTime = millis();

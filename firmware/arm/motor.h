@@ -38,7 +38,8 @@ void setupMotor() {
 
   motorPID.SetOutputLimits(-255, 255);
   motorPID.SetSampleTime(20); // match the motor task period (default is 100ms)
-  motorPID.SetTunings(5, 0, 0);
+  // Kp cut from 5 for the ~55 ms the distance rolling average adds
+  motorPID.SetTunings(3, 0.1, 1);
   motorPID.SetMode(AUTOMATIC);
 }
 
@@ -77,8 +78,8 @@ void setMotorPID(double pidValue) {
   }
 
   bool driveBackward = pidValue > 0.0;
-  pwmValue = fabs(pidValue) *
-             (driveBackward ? MOTOR_POSITIVE_PWM_SCALE : MOTOR_NEGATIVE_PWM_SCALE);
+  pwmValue = fabs(pidValue) * (driveBackward ? MOTOR_POSITIVE_PWM_SCALE
+                                             : MOTOR_NEGATIVE_PWM_SCALE);
   pwmValue += MOTOR_MIN_PWM; // overcome static friction for small errors
   if (pwmValue > 255.0)
     pwmValue = 255.0;

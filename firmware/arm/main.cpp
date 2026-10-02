@@ -28,7 +28,9 @@ static void sensingTaskCode(void *parameter) {
     printStatus();
     receiveSerial();
 
-    vTaskDelay(pdMS_TO_TICKS(20));
+    // readData() already blocks ~25 ms for the conversion, so only yield here
+    // to keep the read period (and the rolling average's lag) short
+    vTaskDelay(pdMS_TO_TICKS(1));
   }
 }
 
