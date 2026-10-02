@@ -14,6 +14,7 @@ const uint32_t STABLE_TIME_MS = 200; // in the deadband this long = arrived
 const uint32_t SETTLE_TIMEOUT_MS = 5000;
 const uint32_t HOLD_TIME_MS = 2000;     // pause at each set point for the probe
 const uint32_t SAMPLE_WINDOW_MS = 1000; // average the end of the hold
+const uint32_t PROBE_RESET_MS = 10000;  // extra hold on the first point
 const uint32_t DEBUG_INTERVAL_MS = 200;
 
 const int DEFAULT_REPEATS = 10;
@@ -77,6 +78,7 @@ void printMenu() {
   Serial.println("  C   motor current (not implemented yet)");
   Serial.println("  M   magnetometer sweep, 3-10 mm in 0.5 mm steps");
   Serial.println("  R   repeatability, 3 <-> 10 mm x10 (R5 = 5 times)");
+  Serial.println("  #   go to that distance in mm, e.g. 7.5");
 }
 
 void printDebug() {
@@ -131,9 +133,14 @@ int32_t moveTo(float targetMM) {
 }
 
 // Move, hold for the probe, and average the readings from the end of the hold
-Row measureAt(float targetMM) {
+Row measureAt(float targetMM, uint32_t extraHoldMs = 0) {
   Serial.printf("-> %.2f mm\n", targetMM);
   Row row = {targetMM, 0.0f, 0.0f, moveTo(targetMM)};
+
+  if (extraHoldMs > 0) {
+    Serial.printf("Reset the probe, waiting %d s\n", extraHoldMs / 1000);
+    waitWithDebug(extraHoldMs);
+  }
 
   waitWithDebug(HOLD_TIME_MS - SAMPLE_WINDOW_MS);
   xQueueReset(sampleQueue);
@@ -187,13 +194,14 @@ void finish(int rowCount, bool withTime) {
 void runMagnetometer() {
   int steps = lround((SWEEP_END_MM - SWEEP_START_MM) / SWEEP_STEP_MM) + 1;
   for (int i = 0; i < steps; i++)
-    rows[i] = measureAt(SWEEP_START_MM + i * SWEEP_STEP_MM);
+    rows[i] = measureAt(SWEEP_START_MM + i * SWEEP_STEP_MM,
+                        i == 0 ? PROBE_RESET_MS : 0);
   finish(steps, false);
 }
 
 void runRepeatability(int repeats) {
   int rowCount = 0;
-  rows[rowCount++] = measureAt(SWEEP_START_MM);
+  rows[rowCount++] = measureAt(SWEEP_START_MM, PROBE_RESET_MS);
   for (int i = 0; i < repeats; i++) {
     rows[rowCount++] = measureAt(SWEEP_END_MM);
     rows[rowCount++] = measureAt(SWEEP_START_MM);
@@ -227,6 +235,16 @@ void loop() {
   command.toUpperCase();
   if (command.isEmpty())
     return;
+
+  if (isDigit(command[0]) || command[0] == '.') {
+    float targetMM = command.toFloat();
+    Serial.printf("-> %.2f mm\n", targetMM);
+    int32_t timeToTargetMs = moveTo(targetMM);
+    if (timeToTargetMs >= 0)
+      Serial.printf("Arrived in %d ms, reading %.3f mm\n", timeToTargetMs,
+                    magnet.distanceMM);
+    return;
+  }
 
   switch (command[0]) {
   case 'P':
