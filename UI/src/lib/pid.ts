@@ -26,7 +26,7 @@ const FINAL_WINDOW_MS = 500;
 
 export interface PidSample {
 	timeMs: number; // since the step's target was set
-	distanceMM: number; // the rolling average the PID runs on
+	distanceMM: number; // the rolling median the PID runs on
 	pwm: number; // signed, positive drives towards larger distances
 	currentMA: number;
 }
@@ -201,3 +201,40 @@ export const pidCommand = (gains: PidGains) =>
 // would have hit the stop
 export const pastLimitClass = (pastMM: number, graceMM: number) =>
 	pastMM <= 0 ? '' : pastMM < graceMM ? 'error-fine' : 'error-bad';
+
+export interface PulseTest {
+	readMs: number | null;
+	pulses: { pwm: number; speedMMs: number; lagMs: number | null }[];
+	speedPerPWM: number | null; // mm/s per PWM above the minimum
+	creepMMs: number | null; // speed at the minimum PWM
+	motorLagMs: number | null;
+	sensingMs: number | null;
+	gains: PidGains | null;
+	warnings: string[];
+}
+
+// The calibration firmware's pulse test (command A)
+export function parsePulseTest(text: string): PulseTest {
+	const value = (label: string) => {
+		const match = text.match(new RegExp(`^${label}:\\s*(-?[\\d.]+)`, 'm'));
+		return match ? Number(match[1]) : null;
+	};
+	const gains = text.match(/Suggested gains\s+Kp\s+(\S+)\s+Ki\s+(\S+)\s+Kd\s+(\S+)/);
+	const pulses = [...text.matchAll(/^(-?\d+)\s+(-?[\d.]+)\s+(-|\d+)\s*$/gm)].map((match) => ({
+		pwm: Number(match[1]),
+		speedMMs: Number(match[2]),
+		lagMs: match[3] === '-' ? null : Number(match[3])
+	}));
+	const readMs = text.match(/Pulse test\s+Read period\s+([\d.]+)/);
+
+	return {
+		readMs: readMs ? Number(readMs[1]) : null,
+		pulses,
+		speedPerPWM: value('Speed per PWM'),
+		creepMMs: value('Creep at minimum PWM'),
+		motorLagMs: value('Motor lag'),
+		sensingMs: value('Sensing delay'),
+		gains: gains ? { kp: Number(gains[1]), ki: Number(gains[2]), kd: Number(gains[3]) } : null,
+		warnings: [...text.matchAll(/^WARNING:\s*(.*)$/gm)].map((match) => match[1])
+	};
+}

@@ -4,10 +4,11 @@
 import { DEFAULT_GAINS, type PidGains } from '#lib/pid.ts';
 import { serial } from '#lib/serial/serial.svelte.ts';
 
-export type RunMode = 'pid' | 'magnetometer' | 'repeatability';
+export type RunMode = 'pid' | 'pulse' | 'magnetometer' | 'repeatability';
 
 const MODE_LABELS: Record<RunMode, string> = {
 	pid: 'PID tuning',
+	pulse: 'PID tuning',
 	magnetometer: 'Magnetometer',
 	repeatability: 'Repeatability'
 };
@@ -15,6 +16,7 @@ const MODE_LABELS: Record<RunMode, string> = {
 // The firmware prints the table, then the temperature, once it's back at neutral
 const TABLE_HEADER: Record<RunMode, RegExp> = {
 	pid: /^PID step test/,
+	pulse: /^Pulse test/,
 	magnetometer: /^Set Distance \(mm\)/,
 	repeatability: /^Set Distance \(mm\)/
 };
@@ -33,6 +35,7 @@ class CalibrationRunner {
 	// Finished tables waiting for their tab, which clears them once shown
 	results = $state<Record<RunMode, string | null>>({
 		pid: null,
+		pulse: null,
 		magnetometer: null,
 		repeatability: null
 	});

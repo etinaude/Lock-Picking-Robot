@@ -5,6 +5,7 @@
 #include <Adafruit_MLX90393.h>
 #include <Arduino.h>
 #include <Wire.h>
+#include <algorithm>
 
 const float DEFAULT_REMANENCE_MT = 1114.0f;
 const float DEFAULT_Z_OFFSET_MM = 2.85f;
@@ -18,6 +19,13 @@ const uint32_t TEMP_READ_INTERVAL_MS = 1000;
 const float SATURATION_THRESHOLD_MT = 20.0f; // RES_18 on Z: 0.968 uT/LSB
 const float OUT_OF_RANGE_THRESHOLD_MT = 2.0f;
 const uint8_t MLX90393_STATUS_ERROR_BIT = 0x10;
+
+// Reads taken under heavy motor current are sometimes wildly wrong, a few in a
+// row. A jump faster than the carriage can move (~8 mm/s flat out) is dropped,
+// unless it keeps happening, in which case the carriage really is there.
+const float MAX_SPEED_MM_S = 20.0f;
+const float JUMP_MARGIN_MM = 0.1f; // read noise on top
+const uint8_t MAX_REJECTED_READS = 3;
 
 class Magnet {
 public:
@@ -53,7 +61,8 @@ public:
   }
 
   // One X/Y/Z conversion (blocks ~25 ms), plus a temperature read once a
-  // second. Returns false if the sensor didn't respond.
+  // second. Returns false if the sensor didn't respond or the reading was
+  // dropped as implausible.
   bool read() {
     if (millis() - lastTempRead >= TEMP_READ_INTERVAL_MS) {
       readTemperature(&tempC); // keeps last value on failure
@@ -65,10 +74,26 @@ public:
     if (!ok)
       return false;
 
-    zmT = fabs(z_uT) / 1000.0f;
+    float field = fabs(z_uT) / 1000.0f;
     float fieldScale = 1.0f + MAGNET_TEMPCO_PER_C * (tempC - calibrationTempC);
-    rawDistanceMM = solveDistance(zmT / fieldScale) - zOffsetMM;
-    distanceMM = average(rawDistanceMM);
+    float raw = solveDistance(field / fieldScale) - zOffsetMM;
+
+    uint32_t now = millis();
+    float allowedMM = MAX_SPEED_MM_S * (now - lastGoodRead) / 1000.0f +
+                      JUMP_MARGIN_MM;
+    if (sampleCount > 0 && fabs(raw - rawDistanceMM) > allowedMM &&
+        rejectedReads < MAX_REJECTED_READS) {
+      rejectedReads++;
+      return false;
+    }
+    if (rejectedReads >= MAX_REJECTED_READS)
+      sampleCount = 0; // it really moved, so restart the median there
+    rejectedReads = 0;
+    lastGoodRead = now;
+
+    zmT = field;
+    rawDistanceMM = raw;
+    distanceMM = smooth(rawDistanceMM);
     if (readingTask)
       xTaskNotifyGive(readingTask);
     return true;
@@ -118,7 +143,9 @@ public:
     return z;
   }
 
-  float average(float sample) {
+  // Median of the last DISTANCE_AVERAGE_COUNT reads. A single bad read (seen
+  // at high motor current) can't move it, where a mean would shift for N reads.
+  float smooth(float sample) {
     if (sampleCount == 0)
       sampleIndex = 0;
     samples[sampleIndex] = sample;
@@ -126,10 +153,12 @@ public:
     if (sampleCount < DISTANCE_AVERAGE_COUNT)
       sampleCount++;
 
-    float total = 0.0f;
-    for (uint8_t i = 0; i < sampleCount; i++)
-      total += samples[i];
-    return total / sampleCount;
+    float sorted[DISTANCE_AVERAGE_COUNT];
+    std::copy(samples, samples + sampleCount, sorted);
+    std::sort(sorted, sorted + sampleCount);
+    int middle = sampleCount / 2;
+    return sampleCount % 2 ? sorted[middle]
+                           : (sorted[middle - 1] + sorted[middle]) / 2.0f;
   }
 
   // The Adafruit driver only measures X/Y/Z, so run a temperature-only single
@@ -168,8 +197,10 @@ public:
   float zmT = 0.0f;
   float tempC = DEFAULT_CALIBRATION_TEMP_C;
   uint32_t lastTempRead = 0;
+  uint32_t lastGoodRead = 0;
+  uint8_t rejectedReads = 0; // in a row
   float rawDistanceMM = 0.0f; // latest reading
-  float distanceMM = 0.0f;    // rolling average
+  float distanceMM = 0.0f;    // rolling median, what the PID runs on
   TaskHandle_t readingTask = nullptr; // notified after each new reading
 
   float samples[DISTANCE_AVERAGE_COUNT];

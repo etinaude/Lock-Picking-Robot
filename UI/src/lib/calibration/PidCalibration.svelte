@@ -6,6 +6,7 @@
 		SAMPLE_MS,
 		formatGain,
 		parsePidRun,
+		parsePulseTest,
 		pastLimitClass,
 		stepMetrics,
 		summariseRun,
@@ -22,6 +23,7 @@
 		type Suggestion
 	} from '#lib/pidModel.ts';
 	import { errorClass, loadState, mm, saveState, signedMM } from './shared.ts';
+	import { serial } from '#lib/serial/serial.svelte.ts';
 	import { runner } from './runner.svelte.ts';
 
 	const STORAGE_KEY = 'pid-calibration';
@@ -46,6 +48,7 @@ Temperature: 25.40 C`;
 		selectedId: number | null;
 		compareIds: number[];
 		gains: PidGains;
+		pulseText: string;
 	}
 
 	let stored = $state<StoredRun[]>([]);
@@ -74,12 +77,13 @@ Temperature: 25.40 C`;
 			selectedId = saved.selectedId ?? null;
 			compareIds = saved.compareIds ?? [];
 			runner.pidGains = { ...DEFAULT_GAINS, ...saved.gains };
+			pulseText = saved.pulseText ?? '';
 		}
 		loaded = true;
 	});
 
 	$effect(() => {
-		const snapshot = { runs: stored, selectedId, compareIds, gains: runner.pidGains };
+		const snapshot = { runs: stored, selectedId, compareIds, gains: runner.pidGains, pulseText };
 		if (loaded) saveState(STORAGE_KEY, snapshot);
 	});
 
@@ -89,6 +93,18 @@ Temperature: 25.40 C`;
 		if (!loaded || result === null) return;
 		untrack(() => addRun(result));
 		runner.results.pid = null;
+	});
+
+	// The latest pulse test (command A), kept until the next one
+	let pulseText = $state('');
+	const pulse = $derived(pulseText ? parsePulseTest(pulseText) : null);
+	const canRun = $derived(serial.connected && serial.calibrationFirmware && !runner.running);
+
+	$effect(() => {
+		const result = runner.results.pulse;
+		if (!loaded || result === null) return;
+		pulseText = result;
+		runner.results.pulse = null;
 	});
 
 	function addRun(text: string) {
@@ -272,7 +288,7 @@ Temperature: 25.40 C`;
 				<h3>Response{selected ? `: ${runLabel(selected)}` : ''}</h3>
 				{#if timeline.position.length}
 					<p class="note">
-						Distance is the rolling average the PID runs on, so the real carriage leads it slightly.
+						Distance is the rolling median the PID runs on, so the real carriage leads it slightly.
 					</p>
 					<Chart
 						series={timeline.position}
@@ -516,6 +532,63 @@ Temperature: 25.40 C`;
 				<button class="secondary" onclick={() => (runner.pidGains = { ...DEFAULT_GAINS })}>
 					Reset to firmware defaults
 				</button>
+			</section>
+
+			<section class="card">
+				<div class="card-head">
+					<h3>Pulse test</h3>
+					<button onclick={() => runner.run('pulse', 'A')} disabled={!canRun}>
+						{runner.running?.mode === 'pulse' ? 'Running...' : pulse ? 'Run again' : 'Run'}
+					</button>
+				</div>
+				{#if !serial.connected || !serial.calibrationFirmware}
+					<p class="note">Connect to the calibration firmware on the Serial monitor tab first.</p>
+				{/if}
+				{#if pulse}
+					{#each pulse.warnings as warning (warning)}
+						<p class="note warn">{warning}</p>
+					{/each}
+					{#if pulse.gains}
+						<table class="error-stats">
+							<tbody>
+								<tr>
+									<th scope="row">Suggested</th>
+									<td>{gainsLabel(pulse.gains)}</td>
+								</tr>
+								<tr>
+									<th scope="row">Speed per PWM</th>
+									<td>{pulse.speedPerPWM?.toFixed(4) ?? '–'} mm/s</td>
+								</tr>
+								<tr>
+									<th scope="row">Creep at minimum PWM</th>
+									<td>{pulse.creepMMs?.toFixed(2) ?? '–'} mm/s</td>
+								</tr>
+								<tr>
+									<th scope="row">Motor lag</th>
+									<td>{ms(pulse.motorLagMs)} ms</td>
+								</tr>
+								<tr>
+									<th scope="row">Sensing delay</th>
+									<td>{ms(pulse.sensingMs)} ms</td>
+								</tr>
+								<tr>
+									<th scope="row">Magnet read every</th>
+									<td>{pulse.readMs?.toFixed(1) ?? '–'} ms</td>
+								</tr>
+							</tbody>
+						</table>
+						<button onclick={() => (runner.pidGains = { ...pulse.gains! })}>Use these gains</button>
+						<p class="note model">
+							Gains for no overshoot on a simple model, without the deadband or braking. Check them
+							with a <code>P</code> run.
+						</p>
+					{/if}
+				{:else}
+					<p class="note">
+						Fires four short pulses at the motor from 6.5 mm, PID off, and works out gains from how
+						it responds. Takes about 5 s and stays within 4–9 mm.
+					</p>
+				{/if}
 			</section>
 
 			<section class="card">

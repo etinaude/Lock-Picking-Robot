@@ -12,6 +12,9 @@ const double DEFAULT_KP = 3.0;
 const double DEFAULT_KI = 0.1;
 const double DEFAULT_KD = 1.0;
 const double DEFAULT_TARGET_MM = 6.0;
+// PID_v1 scales Ki and Kd by this, but Compute runs once per magnet reading
+// (~25 ms). It must stay below the reading period or readings get skipped.
+const int PID_SAMPLE_TIME_MS = 20;
 
 class Motor {
 public:
@@ -22,13 +25,11 @@ public:
     pinMode(IN2_PH, OUTPUT);
     pinMode(MODE_PIN, OUTPUT);
     digitalWrite(MODE_PIN, LOW);
-    ledcSetup(MOTOR_PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
-    ledcAttachPin(IN1_EN, MOTOR_PWM_CHANNEL);
+    ledcSetup(0, 10000, 8);
+    ledcAttachPin(IN1_EN, 0);
 
     pid.SetOutputLimits(-255, 255);
-    // Compute runs once per magnet reading (~25 ms). The sample time must stay
-    // below that or readings get skipped; Ki and Kd are scaled by it.
-    pid.SetSampleTime(20);
+    pid.SetSampleTime(PID_SAMPLE_TIME_MS);
     pid.SetMode(AUTOMATIC);
   }
 
@@ -66,7 +67,7 @@ public:
   }
 
   void stop() {
-    ledcWrite(MOTOR_PWM_CHANNEL, 0);
+    ledcWrite(0, 0);
     pwmValue = 0.0;
   }
 
@@ -94,14 +95,21 @@ public:
     }
 
     bool driveBackward = pidValue > 0.0;
-    pwmValue = fabs(pidValue) * (driveBackward ? MOTOR_POSITIVE_PWM_SCALE
-                                               : MOTOR_NEGATIVE_PWM_SCALE);
-    pwmValue += MOTOR_MIN_PWM; // overcome static friction for small errors
-    if (pwmValue > 255.0)
-      pwmValue = 255.0;
+    double pwm = fabs(pidValue);
+    pwm += MOTOR_MIN_PWM; // overcome static friction for small errors
+    setPWM(driveBackward ? pwm : -pwm);
+  }
 
-    digitalWrite(IN2_PH, driveBackward ? LOW : HIGH);
-    ledcWrite(MOTOR_PWM_CHANNEL, static_cast<uint8_t>(pwmValue));
+  // Signed PWM straight to the driver, no minimum added; positive drives
+  // towards larger distances
+  void setPWM(double pwm) {
+    if (pwm == 0.0) {
+      stop();
+      return;
+    }
+    pwmValue = fmin(fabs(pwm), MOTOR_MAX_PWM);
+    digitalWrite(IN2_PH, pwm > 0.0 ? LOW : HIGH);
+    ledcWrite(0, static_cast<uint8_t>(pwmValue));
   }
 
   double input = 0.0;

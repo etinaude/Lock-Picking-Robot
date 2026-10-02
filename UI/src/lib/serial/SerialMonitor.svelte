@@ -8,6 +8,7 @@
 		{ command: 'R', label: 'Repeatability ×10' },
 		{ command: 'R5', label: 'Repeatability ×5' },
 		{ command: 'P', label: 'PID tuning' },
+		{ command: 'A', label: 'Pulse test' },
 		{ command: 'C', label: 'Motor current' }
 	];
 

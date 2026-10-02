@@ -13,10 +13,10 @@ import {
 } from './pid.ts';
 
 // Mirrors firmware/common/config.h and motor.h
-const MOTOR_MIN_PWM = 80;
-const MAX_PWM = 255;
+const MOTOR_MIN_PWM = 20;
+const MAX_PWM = 254; // MOTOR_MAX_PWM
 const OUTPUT_LIMIT = 255; // pid.SetOutputLimits
-const AVERAGE_COUNT = 5; // DISTANCE_AVERAGE_COUNT
+const AVERAGE_COUNT = 3; // DISTANCE_AVERAGE_COUNT
 // Mirrors the step test in firmware/calibration/main.cpp
 // PID_v1's sample time: it computes on each magnet reading, unless this
 // hasn't passed since the last compute
@@ -41,8 +41,14 @@ export interface PlantFit {
 	steps: number;
 }
 
+function median(values: number[]) {
+	const sorted = [...values].sort((a, b) => a - b);
+	const middle = sorted.length >> 1;
+	return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
 // The carriage and magnet: the speed follows the PWM with a lag, and the PID
-// sees the rolling average of periodic magnet reads
+// sees the rolling median of periodic magnet reads
 class Rig {
 	positionMM: number;
 	measuredMM: number;
@@ -68,7 +74,7 @@ class Rig {
 		if (read) {
 			this.#reads[this.#readIndex] = this.positionMM;
 			this.#readIndex = (this.#readIndex + 1) % AVERAGE_COUNT;
-			this.measuredMM = this.#reads.reduce((sum, read) => sum + read, 0) / AVERAGE_COUNT;
+			this.measuredMM = median(this.#reads);
 			this.#nextReadMs += this.#plant.sensorPeriodMs;
 		}
 		const speedPerPWM = this.#plant.speedPerPWM[pwm > 0 ? 1 : 0];
@@ -94,14 +100,17 @@ function restingSteps(runs: PidRun[]) {
 	);
 }
 
-// The logged distance only changes when the magnet is read, so while moving
-// the share of samples that changed gives the read period
+// The logged distance only changes when the magnet is read, so while the
+// carriage is moving the share of samples that changed gives the read period.
+// Driven but stuck (below the friction) doesn't count as moving.
+const MOVING_MM = 0.02; // across the two neighbouring samples
+
 function sensorPeriod(steps: PidStep[]) {
 	let pairs = 0;
 	let changes = 0;
 	for (const { samples } of steps) {
-		for (let i = 1; i < samples.length; i++) {
-			if (samples[i].pwm === 0 || samples[i - 1].pwm === 0) continue;
+		for (let i = 1; i + 1 < samples.length; i++) {
+			if (Math.abs(samples[i + 1].distanceMM - samples[i - 1].distanceMM) < MOVING_MM) continue;
 			pairs++;
 			if (samples[i].distanceMM !== samples[i - 1].distanceMM) changes++;
 		}
