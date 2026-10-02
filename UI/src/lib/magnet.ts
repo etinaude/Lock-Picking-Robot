@@ -1,0 +1,167 @@
+// Mirrors the magnet model in firmware/arm/magnet.h so the UI predicts exactly
+// what the firmware will compute.
+
+export const MAGNET_TEMPCO_PER_C = -0.0012;
+
+export interface MagnetParams {
+	remanenceMT: number;
+	diameterMM: number;
+	thicknessMM: number;
+	zOffsetMM: number;
+	calibrationTempC: number;
+}
+
+// Current firmware defaults (DEFAULT_* and MAGNET_* constants in magnet.h)
+export const FIRMWARE_DEFAULTS: MagnetParams = {
+	remanenceMT: 1114.0,
+	diameterMM: 4.0,
+	thicknessMM: 2.0,
+	zOffsetMM: 2.85,
+	calibrationTempC: 25.0
+};
+
+export interface CalibrationRow {
+	setMM: number;
+	bzMT: number;
+	predictedMM: number;
+	timeMs: number | null; // repeatability tables only; null on timeout
+}
+
+export interface ParsedCalibration {
+	rows: CalibrationRow[];
+	temperatureC: number | null;
+	hasTime: boolean; // repeatability table, with a time-to-target column
+}
+
+// On-axis field of a cylindrical magnet at distance z (mm) from its face
+export function fieldAt(z: number, remanenceMT: number, radiusMM: number, thicknessMM: number) {
+	const z1 = z + thicknessMM;
+	const r2 = radiusMM * radiusMM;
+	return (remanenceMT / 2) * (z1 / Math.sqrt(z1 * z1 + r2) - z / Math.sqrt(z * z + r2));
+}
+
+// Field the sensor sees at a carriage position, including the temperature drift
+export function fieldAtMotion(motionMM: number, p: MagnetParams, tempC: number | null) {
+	const scale = tempC === null ? 1 : 1 + MAGNET_TEMPCO_PER_C * (tempC - p.calibrationTempC);
+	return fieldAt(motionMM + p.zOffsetMM, p.remanenceMT, p.diameterMM / 2, p.thicknessMM) * scale;
+}
+
+// Inverse of fieldAt. The field falls monotonically with distance, so bisection
+// always converges (the firmware's Newton loop lands on the same root).
+export function solveDistance(bzMT: number, p: MagnetParams) {
+	let near = 0.001;
+	let far = 500;
+	for (let i = 0; i < 60; i++) {
+		const mid = (near + far) / 2;
+		if (fieldAt(mid, p.remanenceMT, p.diameterMM / 2, p.thicknessMM) > bzMT) near = mid;
+		else far = mid;
+	}
+	return (near + far) / 2;
+}
+
+// Carriage position the firmware would report for a raw reading
+export function predictMotion(bzMT: number, p: MagnetParams, tempC: number | null) {
+	const scale = tempC === null ? 1 : 1 + MAGNET_TEMPCO_PER_C * (tempC - p.calibrationTempC);
+	return solveDistance(bzMT / scale, p) - p.zOffsetMM;
+}
+
+// Accepts the tables printed by the calibration firmware (M or R), with any
+// step size. Any line whose first three fields are numbers is a row.
+export function parseCalibration(text: string): ParsedCalibration {
+	const rows: CalibrationRow[] = [];
+	let temperatureC: number | null = null;
+	let hasTime = false;
+
+	for (const line of text.split(/\r?\n/)) {
+		const temperature = line.match(/Temperature:\s*(-?\d+(?:\.\d+)?)/i);
+		if (temperature) {
+			temperatureC = Number(temperature[1]);
+			continue;
+		}
+
+		const fields = line.trim().split(/\s+/);
+		if (fields.length < 3) continue;
+		const [setMM, bzMT, predictedMM] = fields.slice(0, 3).map(Number);
+		if (![setMM, bzMT, predictedMM].every(Number.isFinite)) continue;
+
+		if (fields.length > 3) hasTime = true;
+		const time = fields.length > 3 ? Number(fields[3]) : NaN;
+		rows.push({ setMM, bzMT, predictedMM, timeMs: Number.isFinite(time) ? time : null });
+	}
+	return { rows, temperatureC, hasTime };
+}
+
+export interface FitPoint {
+	motionMM: number; // true position from the probe
+	bzMT: number;
+}
+
+export interface FitResult {
+	remanenceMT: number;
+	zOffsetMM: number;
+}
+
+// Least squares (Levenberg-Marquardt) on effective remanence and z offset,
+// minimising the relative field error so near and far points weigh equally.
+export function fitCalibration(points: FitPoint[], start: MagnetParams): FitResult | null {
+	if (points.length < 2) return null;
+	const radius = start.diameterMM / 2;
+	const minMotion = Math.min(...points.map((point) => point.motionMM));
+
+	const residuals = ([remanence, zOffset]: number[]) => {
+		if (remanence <= 0 || zOffset + minMotion <= 0) return null;
+		return points.map(
+			(point) =>
+				(fieldAt(point.motionMM + zOffset, remanence, radius, start.thicknessMM) - point.bzMT) /
+				point.bzMT
+		);
+	};
+	const cost = (r: number[]) => r.reduce((sum, value) => sum + value * value, 0);
+
+	let params = [start.remanenceMT, start.zOffsetMM];
+	let r = residuals(params);
+	if (!r) return null;
+	let currentCost = cost(r);
+	let lambda = 1e-3;
+
+	for (let iteration = 0; iteration < 200; iteration++) {
+		// Numerical Jacobian
+		const jacobian = params.map((value, j) => {
+			const step = 1e-6 * Math.max(Math.abs(value), 1);
+			const shifted = [...params];
+			shifted[j] += step;
+			const rShifted = residuals(shifted)!;
+			return rShifted.map((value2, i) => (value2 - r![i]) / step);
+		});
+
+		// Normal equations for the two parameters
+		const a = [0, 1].map((j) =>
+			[0, 1].map((k) => jacobian[j].reduce((sum, value, i) => sum + value * jacobian[k][i], 0))
+		);
+		const g = [0, 1].map((j) => jacobian[j].reduce((sum, value, i) => sum + value * r![i], 0));
+
+		let improved = false;
+		while (lambda < 1e12) {
+			const a00 = a[0][0] * (1 + lambda);
+			const a11 = a[1][1] * (1 + lambda);
+			const det = a00 * a11 - a[0][1] * a[1][0];
+			const step = [(-g[0] * a11 + g[1] * a[0][1]) / det, (-g[1] * a00 + g[0] * a[1][0]) / det];
+			const candidate = [params[0] + step[0], params[1] + step[1]];
+			const rCandidate = residuals(candidate);
+
+			if (rCandidate && cost(rCandidate) < currentCost) {
+				const gain = currentCost - cost(rCandidate);
+				params = candidate;
+				r = rCandidate;
+				currentCost = cost(rCandidate);
+				lambda /= 10;
+				improved = gain > 1e-15;
+				break;
+			}
+			lambda *= 10;
+		}
+		if (!improved) break;
+	}
+
+	return { remanenceMT: params[0], zOffsetMM: params[1] };
+}
