@@ -21,6 +21,8 @@
 		formatY?: (value: number) => string;
 		zeroLine?: boolean;
 		height?: number;
+		xDomain?: [number, number]; // fixed x range instead of fitting the data
+		logY?: boolean; // for values spanning decades, e.g. a magnet's field
 	}
 
 	let {
@@ -30,8 +32,13 @@
 		formatX = (value) => value.toFixed(2),
 		formatY = (value) => value.toFixed(3),
 		zeroLine = false,
-		height = 300
+		height = 300,
+		xDomain,
+		logY = false
 	}: Props = $props();
+
+	const uid = $props.id();
+	const clipId = `plot-${uid}`;
 
 	const margin = { top: 12, right: 16, bottom: 44, left: 56 };
 
@@ -58,16 +65,35 @@
 		return ticks;
 	}
 
+	// 1/2/5 per decade, or just the decades when the range is wide
+	function logTicks(min: number, max: number) {
+		if (!Number.isFinite(min) || !Number.isFinite(max) || min <= 0) return [1, 10];
+		const low = Math.floor(Math.log10(min));
+		const high = Math.max(Math.ceil(Math.log10(max)), low + 1);
+		const steps = high - low > 4 ? [1] : [1, 2, 5];
+		const ticks: number[] = [];
+		for (let decade = low; decade < high; decade++)
+			for (const step of steps) ticks.push(+(step * 10 ** decade).toPrecision(2));
+		ticks.push(10 ** high);
+		return ticks;
+	}
+
 	const allPoints = $derived(series.flatMap((s) => s.data));
-	const xTicks = $derived(
-		niceTicks(
-			Math.min(...allPoints.map((p) => p.x)),
-			Math.max(...allPoints.map((p) => p.x)),
+	const xTicks = $derived.by(() => {
+		const ticks = niceTicks(
+			xDomain?.[0] ?? Math.min(...allPoints.map((p) => p.x)),
+			xDomain?.[1] ?? Math.max(...allPoints.map((p) => p.x)),
 			Math.max(Math.floor(plotWidth / 90), 2)
-		)
-	);
+		);
+		// A fixed range is exact, so drop ticks the rounding pushed outside it
+		return xDomain ? ticks.filter((t) => t >= xDomain[0] - 1e-9 && t <= xDomain[1] + 1e-9) : ticks;
+	});
 	const yTicks = $derived.by(() => {
 		const ys = allPoints.map((p) => p.y);
+		if (logY) {
+			const positive = ys.filter((y) => y > 0);
+			return logTicks(Math.min(...positive), Math.max(...positive));
+		}
 		if (zeroLine) ys.push(0);
 		return niceTicks(Math.min(...ys), Math.max(...ys), 5);
 	});
@@ -78,27 +104,36 @@
 		return (value: number) => value.toFixed(decimals);
 	};
 	const formatXTick = $derived(tickFormat(xTicks));
-	const formatYTick = $derived(tickFormat(yTicks));
+	const formatYTick = $derived(
+		logY ? (value: number) => String(+value.toPrecision(2)) : tickFormat(yTicks)
+	);
 
-	const xMin = $derived(xTicks[0]);
-	const xMax = $derived(xTicks[xTicks.length - 1]);
+	const xMin = $derived(xDomain?.[0] ?? xTicks[0]);
+	const xMax = $derived(xDomain?.[1] ?? xTicks[xTicks.length - 1]);
 	const yMin = $derived(yTicks[0]);
 	const yMax = $derived(yTicks[yTicks.length - 1]);
 
 	const sx = (x: number) => ((x - xMin) / (xMax - xMin)) * plotWidth;
-	const sy = (y: number) => plotHeight - ((y - yMin) / (yMax - yMin)) * plotHeight;
+	const sy = (y: number) =>
+		logY
+			? plotHeight -
+				((Math.log10(y) - Math.log10(yMin)) / (Math.log10(yMax) - Math.log10(yMin))) * plotHeight
+			: plotHeight - ((y - yMin) / (yMax - yMin)) * plotHeight;
+	// Log scales can't place zero or negative values
+	const plottable = (data: Point[]) => (logY ? data.filter((p) => p.y > 0) : data);
 
 	const linePath = (data: Point[]) =>
-		data
+		plottable(data)
 			.map((p, i) => `${i === 0 ? 'M' : 'L'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`)
 			.join('');
 
-	// The crosshair snaps to the measured x positions (the point series)
-	const snapXs = $derived(
-		[
-			...new Set(series.filter((s) => s.kind === 'points').flatMap((s) => s.data.map((p) => p.x)))
-		].sort((a, b) => a - b)
-	);
+	// The crosshair snaps to the measured x positions (the point series), or
+	// along the first line when there are no points yet
+	const snapXs = $derived.by(() => {
+		const pointSeries = series.filter((s) => s.kind === 'points' && s.data.length);
+		const source = pointSeries.length ? pointSeries : series.slice(0, 1);
+		return [...new Set(source.flatMap((s) => s.data.map((p) => p.x)))].sort((a, b) => a - b);
+	});
 
 	function valueAt(s: Series, x: number): number | null {
 		if (s.kind === 'points') return s.data.find((p) => Math.abs(p.x - x) < 1e-9)?.y ?? null;
@@ -163,6 +198,12 @@
 			onkeydown={onKeyDown}
 			onblur={() => (hoverIndex = null)}
 		>
+			<defs>
+				<!-- Marks stay inside the plot when the x range is fixed; points get room for their radius -->
+				<clipPath id={clipId}>
+					<rect x="-8" y="-8" width={plotWidth + 16} height={plotHeight + 16} />
+				</clipPath>
+			</defs>
 			<g transform={`translate(${margin.left},${margin.top})`}>
 				{#each yTicks as tick (tick)}
 					<line class="grid" x1="0" x2={plotWidth} y1={sy(tick)} y2={sy(tick)} />
@@ -170,7 +211,7 @@
 						{formatYTick(tick)}
 					</text>
 				{/each}
-				{#if zeroLine}
+				{#if zeroLine && !logY}
 					<line class="baseline" x1="0" x2={plotWidth} y1={sy(0)} y2={sy(0)} />
 				{/if}
 				{#each xTicks as tick (tick)}
@@ -195,25 +236,29 @@
 					<line class="crosshair" x1={sx(hoverX)} x2={sx(hoverX)} y1="0" y2={plotHeight} />
 				{/if}
 
-				{#each series as s (s.name)}
-					{#if s.kind === 'line'}
-						<path d={linePath(s.data)} fill="none" stroke={s.color} stroke-width="2" />
-					{/if}
-				{/each}
-				{#each series as s (s.name)}
-					{#if s.kind === 'points'}
-						{#each s.data as p, i (i)}
-							<circle
-								cx={sx(p.x)}
-								cy={sy(p.y)}
-								r={hoverX !== null && Math.abs(p.x - hoverX) < 1e-9 ? 6 : 4}
-								fill={s.color}
-								stroke="var(--surface-1)"
-								stroke-width="2"
-							/>
-						{/each}
-					{/if}
-				{/each}
+				<g clip-path={`url(#${clipId})`}>
+					{#each series as s (s.name)}
+						{#if s.kind === 'line'}
+							<path d={linePath(s.data)} fill="none" stroke={s.color} stroke-width="2" />
+						{/if}
+					{/each}
+				</g>
+				<g clip-path={`url(#${clipId})`}>
+					{#each series as s (s.name)}
+						{#if s.kind === 'points'}
+							{#each plottable(s.data) as p, i (i)}
+								<circle
+									cx={sx(p.x)}
+									cy={sy(p.y)}
+									r={hoverX !== null && Math.abs(p.x - hoverX) < 1e-9 ? 6 : 4}
+									fill={s.color}
+									stroke="var(--surface-1)"
+									stroke-width="2"
+								/>
+							{/each}
+						{/if}
+					{/each}
+				</g>
 
 				<rect
 					class="hit"

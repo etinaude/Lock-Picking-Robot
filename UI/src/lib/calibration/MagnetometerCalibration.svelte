@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import Chart, { type Series } from '#lib/Chart.svelte';
 	import {
-		FIRMWARE_DEFAULTS,
-		fieldAtMotion,
+		NOMINAL_N52,
+		fieldAtFace,
 		fitCalibration,
 		parseCalibration,
 		predictMotion,
@@ -21,6 +21,7 @@
 	} from './shared.ts';
 
 	const STORAGE_KEY = 'magnet-calibration';
+	const MODEL_VERSION = 2;
 	const PLACEHOLDER = `Set Distance (mm)  Magno reading(mT)  Predicted distance (mm)
 3.00               12.7880            3.001
 3.50               10.6120            3.502
@@ -33,12 +34,13 @@ Temperature: 25.40 C`;
 		probes: string[];
 		probeZeroInput: number | null;
 		model: MagnetParams;
+		modelVersion: number;
 	}
 
 	let text = $state('');
 	let probes = $state<string[]>([]);
 	let probeZeroInput = $state<number | null>(null);
-	let model = $state<MagnetParams>({ ...FIRMWARE_DEFAULTS });
+	let model = $state<MagnetParams>({ ...NOMINAL_N52 });
 	let loaded = $state(false);
 	let copied = $state(false);
 
@@ -48,13 +50,15 @@ Temperature: 25.40 C`;
 			text = saved.text ?? '';
 			probes = saved.probes ?? [];
 			probeZeroInput = saved.probeZeroInput ?? null;
-			model = { ...FIRMWARE_DEFAULTS, ...saved.model };
+			// Models saved before the N52 baseline (version 2) were a previous
+			// magnet's calibration, so start those from nominal instead
+			if (saved.modelVersion === MODEL_VERSION) model = { ...NOMINAL_N52, ...saved.model };
 		}
 		loaded = true;
 	});
 
 	$effect(() => {
-		const snapshot = { text, probes, probeZeroInput, model };
+		const snapshot = { text, probes, probeZeroInput, model, modelVersion: MODEL_VERSION };
 		if (loaded) saveState(STORAGE_KEY, snapshot);
 	});
 
@@ -94,7 +98,7 @@ Temperature: 25.40 C`;
 		fit ? { ...model, ...fit, calibrationTempC: runTempC ?? model.calibrationTempC } : null
 	);
 
-	const currentError = $derived(
+	const nominalError = $derived(
 		rows.map((row, i) =>
 			trueMM[i] === null || !modelValid
 				? null
@@ -109,47 +113,64 @@ Temperature: 25.40 C`;
 		)
 	);
 
-	const currentStats = $derived(summarise(currentError.filter((v) => v !== null)));
+	type ErrorStats = NonNullable<ReturnType<typeof summarise>>;
+	const ERROR_STATS: { label: string; format: (stats: ErrorStats) => string }[] = [
+		{ label: 'Average', format: (stats) => stats.meanAbs.toFixed(4) },
+		{ label: 'SD', format: (stats) => stats.absStd.toFixed(4) },
+		{ label: 'Variance (mm²)', format: (stats) => stats.absVariance.toFixed(6) },
+		{ label: 'Max', format: (stats) => stats.maxAbs.toFixed(4) },
+		{ label: 'RMS', format: (stats) => stats.rms.toFixed(4) }
+	];
+
+	const nominalStats = $derived(summarise(nominalError.filter((v) => v !== null)));
 	const calibratedStats = $derived(summarise(calibratedError.filter((v) => v !== null)));
 
-	// Measured points sit at the probe position, or the set distance until entered
-	const measuredXs = $derived(rows.map((row, i) => trueMM[i] ?? row.setMM));
-	const measuredSeries = $derived<Series>({
-		name: 'Measured',
-		color: 'var(--series-2)',
-		kind: 'points',
-		data: rows.map((row, i) => ({ x: measuredXs[i], y: row.bzMT }))
-	});
+	const FACE_RANGE: [number, number] = [0, 15];
+	const formatField = (value: number) => value.toPrecision(3);
 
-	function curve(name: string, color: string, params: MagnetParams): Series {
-		const low = Math.max(Math.min(...measuredXs) - 0.5, 0.2 - params.zOffsetMM);
-		const high = Math.max(...measuredXs) + 0.5;
-		const data = Array.from({ length: 121 }, (_, i) => {
-			const x = low + ((high - low) * i) / 120;
-			return { x, y: fieldAtMotion(x, params, runTempC) };
+	// The field charts use distance from the magnet face, so the datasheet curve
+	// and the readings share an axis. A reading sits at its probe position (or
+	// set distance until entered) plus that model's z offset.
+	function measuredAtFace(zOffsetMM: number): Series {
+		return {
+			name: 'Measured',
+			color: 'var(--series-2)',
+			kind: 'points',
+			data: rows.map((row, i) => ({ x: (trueMM[i] ?? row.setMM) + zOffsetMM, y: row.bzMT }))
+		};
+	}
+
+	function faceCurve(
+		name: string,
+		color: string,
+		params: MagnetParams,
+		tempC: number | null
+	): Series {
+		const data = Array.from({ length: 151 }, (_, i) => {
+			const x = FACE_RANGE[0] + ((FACE_RANGE[1] - FACE_RANGE[0]) * i) / 150;
+			return { x, y: fieldAtFace(x, params, tempC) };
 		});
 		return { name, color, kind: 'line', data };
 	}
 
-	const currentChart = $derived(
-		rows.length && modelValid
-			? [curve('Current model', 'var(--series-1)', model), measuredSeries]
-			: []
-	);
-	const calibratedChart = $derived(
-		rows.length && calibrated
-			? [curve('Calibrated model', 'var(--series-3)', calibrated), measuredSeries]
-			: []
-	);
+	// One chart from the start: the nominal model is always there, and the readings
+	// and calibrated model join once available. Readings sit at their probe
+	// position plus the calibrated z offset once there's a fit, otherwise the nominal one.
+	const placementOffset = $derived(calibrated?.zOffsetMM ?? model.zOffsetMM);
+	const fieldChart = $derived<Series[]>([
+		...(modelValid ? [faceCurve('Nominal model', 'var(--series-1)', model, runTempC)] : []),
+		...(calibrated ? [faceCurve('Calibrated model', 'var(--series-3)', calibrated, runTempC)] : []),
+		...(rows.length && modelValid ? [measuredAtFace(placementOffset)] : [])
+	]);
 	const errorChart = $derived<Series[]>(
 		calibrated
 			? [
 					{
-						name: 'Current model',
+						name: 'Nominal model',
 						color: 'var(--series-1)',
 						kind: 'points',
 						data: rows.flatMap((_, i) =>
-							currentError[i] === null ? [] : [{ x: trueMM[i]!, y: currentError[i]! }]
+							nominalError[i] === null ? [] : [{ x: trueMM[i]!, y: nominalError[i]! }]
 						)
 					},
 					{
@@ -204,175 +225,226 @@ Temperature: 25.40 C`;
 		</p>
 	</header>
 
-	<div class="split">
-		<section class="card">
-			<h3>Firmware output</h3>
-			<textarea bind:value={text} placeholder={PLACEHOLDER} rows="9" spellcheck="false"></textarea>
-			<p class="note">
-				{rows.length} rows ·
-				{#if runTempC !== null}
-					run temperature {runTempC.toFixed(2)} °C
-				{:else if rows.length}
-					<span class="warn">no "Temperature:" line, so no temperature correction</span>
-				{:else}
-					waiting for a table
-				{/if}
-			</p>
-		</section>
+	<div class="columns">
+		<div class="main-col">
+			<section class="card">
+				<h3>Field vs distance</h3>
+				<Chart
+					series={fieldChart}
+					xLabel="Distance from magnet face (mm)"
+					yLabel="B_z (mT, log)"
+					xDomain={FACE_RANGE}
+					logY
+					formatY={formatField}
+					height={380}
+				/>
+			</section>
 
-		<section class="card">
-			<h3>Current model</h3>
-			<p class="note">Prefilled with the firmware defaults in <code>magnet.h</code>.</p>
-			<div class="fields">
-				<label>Diameter (mm)<input type="number" step="0.1" bind:value={model.diameterMM} /></label>
-				<label
-					>Thickness (mm)<input type="number" step="0.1" bind:value={model.thicknessMM} /></label
-				>
-				<label>Remanence (mT)<input type="number" step="1" bind:value={model.remanenceMT} /></label>
-				<label>Z offset (mm)<input type="number" step="0.01" bind:value={model.zOffsetMM} /></label>
-				<label>
-					Calibration temp (°C)
-					<input type="number" step="0.1" bind:value={model.calibrationTempC} />
-				</label>
-				<label>
-					Probe zeroed at (mm)
-					<input
-						type="number"
-						step="0.01"
-						placeholder={String(rows[0]?.setMM ?? 0)}
-						bind:value={probeZeroInput}
-					/>
-				</label>
-			</div>
-			<button class="secondary" onclick={() => (model = { ...FIRMWARE_DEFAULTS })}>
-				Reset to firmware defaults
-			</button>
-		</section>
-	</div>
-
-	<section class="card">
-		<div class="card-head">
-			<div>
-				<h3>Probe readings</h3>
+			<section class="card">
+				<h3>Firmware output</h3>
+				<textarea bind:value={text} placeholder={PLACEHOLDER} rows="9" spellcheck="false"
+				></textarea>
 				<p class="note">
-					{#if rows.length}
-						{probeCount} of {rows.length} entered. Enter or ↓ moves to the next row; pasting a column
-						fills the rows below.
+					{rows.length} rows ·
+					{#if runTempC !== null}
+						run temperature {runTempC.toFixed(2)} °C
+					{:else if rows.length}
+						<span class="warn">no "Temperature:" line, so no temperature correction</span>
 					{:else}
-						Paste the firmware output above to get a row for each set point.
+						waiting for a table
 					{/if}
 				</p>
-			</div>
-			{#if rows.length}
-				<button class="secondary" onclick={() => (probes = [])}>Clear readings</button>
+			</section>
+
+			<section class="card">
+				<div class="card-head">
+					<div>
+						<h3>Probe readings</h3>
+						<p class="note">
+							{#if rows.length}
+								{probeCount} of {rows.length} entered. Enter or ↓ moves to the next row; pasting a column
+								fills the rows below.
+							{:else}
+								Paste the firmware output above to get a row for each set point.
+							{/if}
+						</p>
+					</div>
+					{#if rows.length}
+						<button class="secondary" onclick={() => (probes = [])}>Clear readings</button>
+					{/if}
+				</div>
+
+				{#if rows.length}
+					<div class="table-wrap">
+						<table>
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Set (mm)</th>
+									<th class="probe-col">Probe (mm)</th>
+									<th>True (mm)</th>
+									<th>B<sub>z</sub> (mT)</th>
+									<th>Firmware predicted (mm)</th>
+									<th>Nominal error (mm)</th>
+									<th>Calibrated error (mm)</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each rows as row, i (i)}
+									<tr>
+										<td class="muted">{i + 1}</td>
+										<td>{row.setMM.toFixed(2)}</td>
+										<td class="probe-col">
+											<input
+												class="probe"
+												type="text"
+												inputmode="decimal"
+												placeholder="–"
+												aria-label={`Probe reading at ${row.setMM} mm`}
+												bind:value={probes[i]}
+												onpaste={(event) => onProbePaste(event, i)}
+												onkeydown={moveBetweenProbes}
+											/>
+										</td>
+										<td>{trueMM[i] === null ? '–' : mm(trueMM[i]!)}</td>
+										<td>{row.bzMT.toFixed(4)}</td>
+										<td>{mm(row.predictedMM)}</td>
+										<td>{nominalError[i] === null ? '–' : signedMM(nominalError[i]!)}</td>
+										<td>{calibratedError[i] === null ? '–' : signedMM(calibratedError[i]!)}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+				{/if}
+			</section>
+
+			{#if errorChart.length}
+				<section class="card">
+					<h3>Position error</h3>
+					<p class="note">Predicted minus true distance for each reading.</p>
+					<Chart
+						series={errorChart}
+						xLabel="True distance (mm)"
+						yLabel="Error (mm)"
+						zeroLine
+						formatY={signedMM}
+					/>
+				</section>
 			{/if}
 		</div>
 
-		{#if rows.length}
-			<div class="table-wrap">
-				<table>
-					<thead>
-						<tr>
-							<th>#</th>
-							<th>Set (mm)</th>
-							<th class="probe-col">Probe (mm)</th>
-							<th>True (mm)</th>
-							<th>B<sub>z</sub> (mT)</th>
-							<th>Firmware predicted (mm)</th>
-							<th>Current error (mm)</th>
-							<th>Calibrated error (mm)</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each rows as row, i (i)}
+		<aside class="side-col">
+			<section class="card">
+				<h3>Nominal model</h3>
+				<div class="fields">
+					<label
+						>Diameter (mm)<input type="number" step="0.1" bind:value={model.diameterMM} /></label
+					>
+					<label
+						>Thickness (mm)<input type="number" step="0.1" bind:value={model.thicknessMM} /></label
+					>
+					<label
+						>Remanence (mT)<input type="number" step="1" bind:value={model.remanenceMT} /></label
+					>
+					<label
+						>Z offset (mm)<input type="number" step="0.01" bind:value={model.zOffsetMM} /></label
+					>
+					<label>
+						Calibration temp (°C)
+						<input type="number" step="0.1" bind:value={model.calibrationTempC} />
+					</label>
+					<label>
+						Probe zeroed at (mm)
+						<input
+							type="number"
+							step="0.01"
+							placeholder={String(rows[0]?.setMM ?? 0)}
+							bind:value={probeZeroInput}
+						/>
+					</label>
+				</div>
+				<button class="secondary" onclick={() => (model = { ...NOMINAL_N52 })}>
+					Reset to N52 nominal
+				</button>
+			</section>
+
+			<section class="card">
+				<h3>Error</h3>
+				{#if nominalStats}
+					<table class="error-stats">
+						<thead>
 							<tr>
-								<td class="muted">{i + 1}</td>
-								<td>{row.setMM.toFixed(2)}</td>
-								<td class="probe-col">
-									<input
-										class="probe"
-										type="text"
-										inputmode="decimal"
-										placeholder="–"
-										aria-label={`Probe reading at ${row.setMM} mm`}
-										bind:value={probes[i]}
-										onpaste={(event) => onProbePaste(event, i)}
-										onkeydown={moveBetweenProbes}
-									/>
-								</td>
-								<td>{trueMM[i] === null ? '–' : mm(trueMM[i]!)}</td>
-								<td>{row.bzMT.toFixed(4)}</td>
-								<td>{mm(row.predictedMM)}</td>
-								<td>{currentError[i] === null ? '–' : signedMM(currentError[i]!)}</td>
-								<td>{calibratedError[i] === null ? '–' : signedMM(calibratedError[i]!)}</td>
+								<th></th>
+								<th>Nominal</th>
+								<th>Calibrated</th>
 							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-		{/if}
-	</section>
+						</thead>
+						<tbody>
+							{#each ERROR_STATS as stat (stat.label)}
+								<tr>
+									<th scope="row">{stat.label}</th>
+									<td>{stat.format(nominalStats)}</td>
+									<td>{calibratedStats ? stat.format(calibratedStats) : '–'}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				{:else}
+					<p class="note">Enter probe readings to see the error.</p>
+				{/if}
+			</section>
 
-	{#if rows.length}
-		<section class="card">
-			<h3>Calibrated constants</h3>
-			{#if calibrated && calibratedStats && currentStats}
-				<div class="stats">
-					<div>
-						<span class="stat-label">Current model error</span>
-						<span class="stat-value">±{currentStats.maxAbs.toFixed(3)} mm</span>
-						<span class="stat-sub">rms {currentStats.rms.toFixed(3)} mm</span>
-					</div>
-					<div>
-						<span class="stat-label">Calibrated model error</span>
-						<span class="stat-value">±{calibratedStats.maxAbs.toFixed(3)} mm</span>
-						<span class="stat-sub">rms {calibratedStats.rms.toFixed(3)} mm</span>
-					</div>
-				</div>
+			<section class="card">
 				<div class="card-head">
-					<span class="note">Paste into <code>firmware/arm/magnet.h</code></span>
-					<button onclick={copyCpp}>{copied ? 'Copied' : 'Copy'}</button>
-				</div>
-				<pre><code>{cpp}</code></pre>
-			{:else}
-				<p class="note">Enter at least two probe readings to fit the remanence and z offset.</p>
-			{/if}
-		</section>
-
-		{#if currentChart.length}
-			<section class="card">
-				<h3>Current model vs measured</h3>
-				<p class="note">
-					Field predicted from the magnet size and strength
-					{#if runTempC !== null}(at {runTempC.toFixed(1)} °C){/if}, with the readings over it.
-					{#if probeCount < rows.length}
-						{rows.length - probeCount} point{rows.length - probeCount === 1 ? '' : 's'} sit at the set
-						distance until a probe reading is entered.
+					<h3>Calibrated constants</h3>
+					{#if calibrated}
+						<button onclick={copyCpp}>{copied ? 'Copied' : 'Copy'}</button>
 					{/if}
-				</p>
-				<Chart series={currentChart} xLabel="Distance (mm)" yLabel="B_z (mT)" />
+				</div>
+				{#if calibrated}
+					<p class="note">Paste into <code>firmware/arm/magnet.h</code>.</p>
+					<pre><code>{cpp}</code></pre>
+				{:else}
+					<p class="note">Enter at least two probe readings to fit the remanence and z offset.</p>
+				{/if}
 			</section>
-		{/if}
-
-		{#if calibratedChart.length}
-			<section class="card">
-				<h3>Calibrated model vs measured</h3>
-				<Chart series={calibratedChart} xLabel="Distance (mm)" yLabel="B_z (mT)" />
-			</section>
-		{/if}
-
-		{#if errorChart.length}
-			<section class="card">
-				<h3>Position error</h3>
-				<p class="note">Predicted minus true distance for each reading.</p>
-				<Chart
-					series={errorChart}
-					xLabel="True distance (mm)"
-					yLabel="Error (mm)"
-					zeroLine
-					formatY={signedMM}
-				/>
-			</section>
-		{/if}
-	{/if}
+		</aside>
+	</div>
 </div>
+
+<style>
+	.columns {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 400px;
+		gap: 16px;
+		align-items: start;
+	}
+
+	.main-col,
+	.side-col {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		min-width: 0;
+	}
+
+	@media (max-width: 1200px) {
+		.columns {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	.error-stats tbody th {
+		text-align: left;
+		color: var(--text-secondary);
+		font-weight: 400;
+	}
+
+	/* Wrap rather than cut long lines in the narrow column; Copy takes the raw text */
+	pre {
+		font-size: 12px;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+</style>

@@ -11,12 +11,15 @@ export interface MagnetParams {
 	calibrationTempC: number;
 }
 
-// Current firmware defaults (DEFAULT_* and MAGNET_* constants in magnet.h)
-export const FIRMWARE_DEFAULTS: MagnetParams = {
-	remanenceMT: 1114.0,
+// Starting point for every magnet: datasheet N52 (Br 1.43-1.48 T) in the 4 x 2 mm
+// size. Suppliers differ, so each magnet is fitted from here rather than from the
+// last one's calibration. The z offset is the sensor-to-magnet gap at 0 mm from
+// the original design, not a property of the magnet.
+export const NOMINAL_N52: MagnetParams = {
+	remanenceMT: 1450.0,
 	diameterMM: 4.0,
 	thicknessMM: 2.0,
-	zOffsetMM: 2.85,
+	zOffsetMM: 3.5,
 	calibrationTempC: 25.0
 };
 
@@ -40,10 +43,15 @@ export function fieldAt(z: number, remanenceMT: number, radiusMM: number, thickn
 	return (remanenceMT / 2) * (z1 / Math.sqrt(z1 * z1 + r2) - z / Math.sqrt(z * z + r2));
 }
 
-// Field the sensor sees at a carriage position, including the temperature drift
-export function fieldAtMotion(motionMM: number, p: MagnetParams, tempC: number | null) {
+// Field at a distance from the magnet face, including the temperature drift
+export function fieldAtFace(faceMM: number, p: MagnetParams, tempC: number | null) {
 	const scale = tempC === null ? 1 : 1 + MAGNET_TEMPCO_PER_C * (tempC - p.calibrationTempC);
-	return fieldAt(motionMM + p.zOffsetMM, p.remanenceMT, p.diameterMM / 2, p.thicknessMM) * scale;
+	return fieldAt(faceMM, p.remanenceMT, p.diameterMM / 2, p.thicknessMM) * scale;
+}
+
+// Field the sensor sees at a carriage position
+export function fieldAtMotion(motionMM: number, p: MagnetParams, tempC: number | null) {
+	return fieldAtFace(motionMM + p.zOffsetMM, p, tempC);
 }
 
 // Inverse of fieldAt. The field falls monotonically with distance, so bisection

@@ -173,7 +173,7 @@
 	}
 
 	main {
-		max-width: 1100px;
+		max-width: 1500px;
 		box-sizing: border-box;
 		padding: 24px;
 	}

@@ -67,14 +67,28 @@ export function summarise(values: number[]) {
 	const variance = values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
 	const min = Math.min(...values);
 	const max = Math.max(...values);
+
+	// Spread of the error size, as sample statistics (n - 1) like Excel's
+	// AVERAGE / STDEV / VAR over an abs-error column
+	const abs = values.map(Math.abs);
+	const meanAbs = abs.reduce((sum, value) => sum + value, 0) / abs.length;
+	const absVariance =
+		abs.length > 1
+			? abs.reduce((sum, value) => sum + (value - meanAbs) ** 2, 0) / (abs.length - 1)
+			: 0;
+
 	return {
+		n: values.length,
 		mean,
 		std: Math.sqrt(variance),
 		min,
 		max,
 		range: max - min,
-		maxAbs: Math.max(...values.map(Math.abs)),
-		rms: Math.sqrt(values.reduce((sum, value) => sum + value * value, 0) / values.length)
+		maxAbs: Math.max(...abs),
+		rms: Math.sqrt(values.reduce((sum, value) => sum + value * value, 0) / values.length),
+		meanAbs,
+		absStd: Math.sqrt(absVariance),
+		absVariance
 	};
 }
 
