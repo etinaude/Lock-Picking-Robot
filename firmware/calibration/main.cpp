@@ -188,6 +188,10 @@ void finish(int rowCount, bool withTime) {
   }
 
   Serial.printf("\nTemperature: %.2f C\n", magnet.tempC);
+  Serial.printf("Motor current: %.2f mA\n", motor.filteredCurrent);
+  Serial.printf("Remanence: %.2f mT\n", magnet.remanenceMT);
+  Serial.printf("Z offset: %.3f mm\n", magnet.zOffsetMM);
+  Serial.printf("Calibration temperature: %.2f C\n", magnet.calibrationTempC);
   printMenu();
 }
 
