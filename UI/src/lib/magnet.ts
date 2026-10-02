@@ -1,4 +1,4 @@
-// Mirrors the magnet model in firmware/arm/magnet.h so the UI predicts exactly
+// Mirrors the magnet model in firmware/common/magnet.h so the UI predicts exactly
 // what the firmware will compute.
 
 export const MAGNET_TEMPCO_PER_C = -0.0012;

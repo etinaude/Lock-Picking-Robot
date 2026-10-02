@@ -8,6 +8,7 @@
 	import SerialMonitor from '#lib/serial/SerialMonitor.svelte';
 	import { serial } from '#lib/serial/serial.svelte.ts';
 	import { runner, type RunMode } from '#lib/calibration/runner.svelte.ts';
+	import { pidCommand, validGains } from '#lib/pid.ts';
 
 	// Same order and letters as the calibration firmware's serial commands. `run`
 	// is the tab a sidebar run fills, or 'unavailable' while the firmware lacks it.
@@ -23,7 +24,7 @@
 			command: 'P',
 			label: 'PID tuning',
 			component: PidCalibration,
-			run: 'unavailable'
+			run: 'pid'
 		},
 		{
 			id: 'current',
@@ -63,12 +64,20 @@
 	});
 
 	const runCommand = $derived(
-		mode.run === 'repeatability' && cycles !== DEFAULT_CYCLES ? `R${cycles}` : mode.command
+		mode.run === 'pid'
+			? pidCommand(runner.pidGains)
+			: mode.run === 'repeatability' && cycles !== DEFAULT_CYCLES
+				? `R${cycles}`
+				: mode.command
+	);
+	const runDisabled = $derived(
+		mode.run === 'pid'
+			? !validGains(runner.pidGains)
+			: mode.run === 'repeatability' && (!cycles || cycles < 1 || cycles > 50)
 	);
 
 	function startRun() {
-		if (mode.run === 'magnetometer' || mode.run === 'repeatability')
-			runner.run(mode.run, runCommand);
+		if (mode.run && mode.run !== 'unavailable') runner.run(mode.run, runCommand);
 	}
 
 	function select(id: string) {
@@ -133,7 +142,10 @@
 							<input type="number" min="1" max="50" bind:value={cycles} />
 						</label>
 					{/if}
-					<button onclick={startRun} disabled={!cycles || cycles < 1 || cycles > 50}>
+					{#if mode.run === 'pid'}
+						<p class="hint">Gains from the PID tab.</p>
+					{/if}
+					<button onclick={startRun} disabled={runDisabled}>
 						Run {runCommand}
 					</button>
 				{/if}

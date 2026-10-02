@@ -1,17 +1,23 @@
 // Runs a calibration on the board from the sidebar, then hands the table it
 // prints to that mode's tab (even if the user has switched tabs meanwhile).
 
+import { DEFAULT_GAINS, type PidGains } from '#lib/pid.ts';
 import { serial } from '#lib/serial/serial.svelte.ts';
 
-export type RunMode = 'magnetometer' | 'repeatability';
+export type RunMode = 'pid' | 'magnetometer' | 'repeatability';
 
 const MODE_LABELS: Record<RunMode, string> = {
+	pid: 'PID tuning',
 	magnetometer: 'Magnetometer',
 	repeatability: 'Repeatability'
 };
 
 // The firmware prints the table, then the temperature, once it's back at neutral
-const TABLE_HEADER = /^Set Distance \(mm\)/;
+const TABLE_HEADER: Record<RunMode, RegExp> = {
+	pid: /^PID step test/,
+	magnetometer: /^Set Distance \(mm\)/,
+	repeatability: /^Set Distance \(mm\)/
+};
 const TABLE_END = /^Temperature:/;
 
 interface Run {
@@ -25,7 +31,13 @@ class CalibrationRunner {
 	running = $state<Run | null>(null);
 	message = $state<{ text: string; error: boolean } | null>(null);
 	// Finished tables waiting for their tab, which clears them once shown
-	results = $state<Record<RunMode, string | null>>({ magnetometer: null, repeatability: null });
+	results = $state<Record<RunMode, string | null>>({
+		pid: null,
+		magnetometer: null,
+		repeatability: null
+	});
+	// Set on the PID tab, sent by the sidebar's run button
+	pidGains = $state<PidGains>({ ...DEFAULT_GAINS });
 
 	#unsubscribe: (() => void) | null = null;
 
@@ -47,7 +59,7 @@ class CalibrationRunner {
 
 			if (TABLE_END.test(line)) {
 				let start = lines.length - 1;
-				while (start >= 0 && !TABLE_HEADER.test(lines[start])) start--;
+				while (start >= 0 && !TABLE_HEADER[mode].test(lines[start])) start--;
 				if (start < 0) return this.#finish('The run ended without a table', true);
 
 				this.results[mode] = lines.slice(start).join('\n');

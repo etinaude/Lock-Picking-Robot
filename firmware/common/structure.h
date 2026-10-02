@@ -24,7 +24,7 @@ public:
         offset(offset), i2cAddress(i2cAddress) {}
 
   String toJson() {
-    StaticJsonDocument<200> doc;
+    JsonDocument doc;
     doc["Kp"] = Kp;
     doc["Ki"] = Ki;
     doc["Kd"] = Kd;
@@ -32,10 +32,14 @@ public:
     doc["scale"] = scale;
     doc["offset"] = offset;
     doc["i2cAddress"] = i2cAddress;
+
+    String json;
+    serializeJson(doc, json);
+    return json;
   }
 
   void fromJson(const String &jsonString) {
-    StaticJsonDocument<200> doc;
+    JsonDocument doc;
     DeserializationError error = deserializeJson(doc, jsonString);
     if (error) {
       Serial.print(F("deserializeJson() failed: "));

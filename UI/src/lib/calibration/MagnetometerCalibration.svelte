@@ -462,7 +462,7 @@ Temperature: 25.40 C`;
 					{/if}
 				</div>
 				{#if calibrated}
-					<p class="note">Paste into <code>firmware/arm/magnet.h</code>.</p>
+					<p class="note">Paste into <code>firmware/common/magnet.h</code>.</p>
 					<pre><code>{cpp}</code></pre>
 				{:else}
 					<p class="note">Enter at least two probe readings to fit the remanence and z offset.</p>

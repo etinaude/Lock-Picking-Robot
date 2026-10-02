@@ -48,4 +48,13 @@ int COMMS_SCL_PIN = 22;
 #define MOTOR_NEGATIVE_PWM_SCALE 1.00f
 #define MOTOR_MIN_PWM 100.0f // lowest PWM that reliably moves the motor
 
+// The mechanical stops are just past these, and running into one jams the
+// carriage. Targets are clamped to them and the motor never drives past them.
+#define TRAVEL_MIN_MM 3.0
+#define TRAVEL_MAX_MM 10.0
+// Within this of a limit, moving towards it, the PWM is capped so momentum and
+// the sensor lag can't carry the carriage past it
+#define LIMIT_SLOW_ZONE_MM 1.0
+#define LIMIT_APPROACH_PWM 140.0
+
 #endif

@@ -36,7 +36,7 @@ public:
 
   void setTarget(double targetMM) {
     pid.SetMode(MANUAL);
-    setpoint = targetMM;
+    setpoint = constrain(targetMM, TRAVEL_MIN_MM, TRAVEL_MAX_MM);
     output = 0.0;
     pid.SetMode(AUTOMATIC);
   }
@@ -53,10 +53,21 @@ public:
     }
 
     pid.Compute();
-    drive(output);
+
+    // Positive output drives towards larger distances
+    double roomMM = output > 0.0 ? TRAVEL_MAX_MM - distanceMM
+                                 : distanceMM - TRAVEL_MIN_MM;
+    if (roomMM <= 0.0) {
+      stop(); // at or past a limit, never push further into it
+      return;
+    }
+    drive(output, roomMM < LIMIT_SLOW_ZONE_MM ? LIMIT_APPROACH_PWM : 255.0);
   }
 
-  void stop() { ledcWrite(MOTOR_PWM_CHANNEL, 0); }
+  void stop() {
+    ledcWrite(MOTOR_PWM_CHANNEL, 0);
+    pwmValue = 0.0;
+  }
 
   float readCurrent() {
     uint32_t adcTotal = 0;
@@ -75,7 +86,7 @@ public:
     return filteredCurrent;
   }
 
-  void drive(double pidValue) {
+  void drive(double pidValue, double maxPWM = 255.0) {
     if (pidValue == 0.0) {
       stop();
       return;
@@ -85,8 +96,8 @@ public:
     pwmValue = fabs(pidValue) * (driveBackward ? MOTOR_POSITIVE_PWM_SCALE
                                                : MOTOR_NEGATIVE_PWM_SCALE);
     pwmValue += MOTOR_MIN_PWM; // overcome static friction for small errors
-    if (pwmValue > 255.0)
-      pwmValue = 255.0;
+    if (pwmValue > maxPWM)
+      pwmValue = maxPWM;
 
     digitalWrite(IN2_PH, driveBackward ? LOW : HIGH);
     ledcWrite(MOTOR_PWM_CHANNEL, static_cast<uint8_t>(pwmValue));
