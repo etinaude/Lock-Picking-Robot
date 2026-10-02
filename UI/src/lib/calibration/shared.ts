@@ -67,6 +67,10 @@ export function summarise(values: number[]) {
 	const variance = values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
 	const min = Math.min(...values);
 	const max = Math.max(...values);
+	const sampleVariance =
+		values.length > 1
+			? values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (values.length - 1)
+			: 0;
 
 	// Spread of the error size, as sample statistics (n - 1) like Excel's
 	// AVERAGE / STDEV / VAR over an abs-error column
@@ -81,6 +85,8 @@ export function summarise(values: number[]) {
 		n: values.length,
 		mean,
 		std: Math.sqrt(variance),
+		sampleStd: Math.sqrt(sampleVariance),
+		sampleVariance,
 		min,
 		max,
 		range: max - min,
@@ -91,6 +97,17 @@ export function summarise(values: number[]) {
 		absVariance
 	};
 }
+
+export type Stats = NonNullable<ReturnType<typeof summarise>>;
+
+// Rows of the error tables, shared so every mode reports error the same way
+export const ERROR_STATS: { label: string; format: (stats: Stats) => string }[] = [
+	{ label: 'Average', format: (stats) => stats.meanAbs.toFixed(4) },
+	{ label: 'SD', format: (stats) => stats.absStd.toFixed(4) },
+	{ label: 'Variance (mm²)', format: (stats) => stats.absVariance.toFixed(6) },
+	{ label: 'Max', format: (stats) => stats.maxAbs.toFixed(4) },
+	{ label: 'RMS', format: (stats) => stats.rms.toFixed(4) }
+];
 
 export const mm = (value: number) => value.toFixed(3);
 // Rounded first so a tiny negative prints as +0.000, not -0.000

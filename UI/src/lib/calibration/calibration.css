@@ -198,3 +198,31 @@
 	text-align: center;
 	color: var(--text-secondary);
 }
+
+/* Main content with a side column of settings and results */
+.calibration .columns {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 400px;
+	gap: 16px;
+	align-items: start;
+}
+
+.calibration .main-col,
+.calibration .side-col {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	min-width: 0;
+}
+
+@media (max-width: 1200px) {
+	.calibration .columns {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.calibration .error-stats tbody th {
+	text-align: left;
+	color: var(--text-secondary);
+	font-weight: 400;
+}

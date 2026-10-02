@@ -17,7 +17,8 @@
 		pasteColumn,
 		saveState,
 		signedMM,
-		summarise
+		summarise,
+		ERROR_STATS
 	} from './shared.ts';
 	import { runner } from './runner.svelte.ts';
 
@@ -122,15 +123,6 @@ Temperature: 25.40 C`;
 				: predictMotion(row.bzMT, calibrated, runTempC) - trueMM[i]!
 		)
 	);
-
-	type ErrorStats = NonNullable<ReturnType<typeof summarise>>;
-	const ERROR_STATS: { label: string; format: (stats: ErrorStats) => string }[] = [
-		{ label: 'Average', format: (stats) => stats.meanAbs.toFixed(4) },
-		{ label: 'SD', format: (stats) => stats.absStd.toFixed(4) },
-		{ label: 'Variance (mm²)', format: (stats) => stats.absVariance.toFixed(6) },
-		{ label: 'Max', format: (stats) => stats.maxAbs.toFixed(4) },
-		{ label: 'RMS', format: (stats) => stats.rms.toFixed(4) }
-	];
 
 	const nominalStats = $derived(summarise(nominalError.filter((v) => v !== null)));
 	const calibratedStats = $derived(summarise(calibratedError.filter((v) => v !== null)));
@@ -424,33 +416,6 @@ Temperature: 25.40 C`;
 </div>
 
 <style>
-	.columns {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) 400px;
-		gap: 16px;
-		align-items: start;
-	}
-
-	.main-col,
-	.side-col {
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
-		min-width: 0;
-	}
-
-	@media (max-width: 1200px) {
-		.columns {
-			grid-template-columns: minmax(0, 1fr);
-		}
-	}
-
-	.error-stats tbody th {
-		text-align: left;
-		color: var(--text-secondary);
-		font-weight: 400;
-	}
-
 	/* Wrap rather than cut long lines in the narrow column; Copy takes the raw text */
 	pre {
 		font-size: 12px;
