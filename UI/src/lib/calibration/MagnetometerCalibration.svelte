@@ -20,7 +20,9 @@
 		pasteColumn,
 		saveState,
 		signedMM,
+		statClass,
 		summarise,
+		errorClass,
 		ERROR_STATS
 	} from './shared.ts';
 	import { runner } from './runner.svelte.ts';
@@ -345,9 +347,15 @@ Temperature: 25.40 C`;
 										<td>{trueMM[i] === null ? '–' : mm(trueMM[i]!)}</td>
 										<td>{row.bzMT.toFixed(4)}</td>
 										<td>{mm(row.predictedMM)}</td>
-										<td>{nominalError[i] === null ? '–' : signedMM(nominalError[i]!)}</td>
-										<td>{calibratedError[i] === null ? '–' : signedMM(calibratedError[i]!)}</td>
-										<td>{regressionError[i] === null ? '–' : signedMM(regressionError[i]!)}</td>
+										<td class={errorClass(nominalError[i])}>
+											{nominalError[i] === null ? '–' : signedMM(nominalError[i]!)}
+										</td>
+										<td class={errorClass(calibratedError[i])}>
+											{calibratedError[i] === null ? '–' : signedMM(calibratedError[i]!)}
+										</td>
+										<td class={errorClass(regressionError[i])}>
+											{regressionError[i] === null ? '–' : signedMM(regressionError[i]!)}
+										</td>
 									</tr>
 								{/each}
 							</tbody>
@@ -422,9 +430,13 @@ Temperature: 25.40 C`;
 							{#each ERROR_STATS as stat (stat.label)}
 								<tr>
 									<th scope="row">{stat.label}</th>
-									<td>{stat.format(nominalStats)}</td>
-									<td>{calibratedStats ? stat.format(calibratedStats) : '–'}</td>
-									<td>{regressionStats ? stat.format(regressionStats) : '–'}</td>
+									<td class={statClass(stat, nominalStats)}>{stat.format(nominalStats)}</td>
+									<td class={statClass(stat, calibratedStats)}>
+										{calibratedStats ? stat.format(calibratedStats) : '–'}
+									</td>
+									<td class={statClass(stat, regressionStats)}>
+										{regressionStats ? stat.format(regressionStats) : '–'}
+									</td>
 								</tr>
 							{/each}
 						</tbody>

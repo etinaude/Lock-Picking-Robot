@@ -26,7 +26,8 @@
 		--series-2: #eb6834;
 		--series-3: #1baf7a;
 		--series-4: #8b5cd6;
-		--critical: #d03b3b;
+		--critical: #ff6c6c;
+		--caution: #ffa938;
 	}
 
 	:global(body) {

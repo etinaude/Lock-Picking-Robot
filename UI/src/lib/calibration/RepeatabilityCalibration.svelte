@@ -4,6 +4,7 @@
 	import { parseCalibration } from '#lib/magnet.ts';
 	import {
 		ERROR_STATS,
+		errorClass,
 		loadState,
 		mm,
 		moveBetweenProbes,
@@ -11,6 +12,7 @@
 		pasteColumn,
 		saveState,
 		signedMM,
+		statClass,
 		summarise,
 		type Stats
 	} from './shared.ts';
@@ -262,7 +264,9 @@ Temperature: 25.40 C`;
 										</td>
 										<td>{trueMM[i] === null ? '–' : mm(trueMM[i]!)}</td>
 										<td>{mm(row.predictedMM)}</td>
-										<td>{readingError[i] === null ? '–' : signedMM(readingError[i]!)}</td>
+										<td class={errorClass(readingError[i])}>
+											{readingError[i] === null ? '–' : signedMM(readingError[i]!)}
+										</td>
 										<td>{row.bzMT.toFixed(4)}</td>
 										<td class:warn={row.timeMs === null}>{row.timeMs ?? 'timeout'}</td>
 									</tr>
@@ -322,7 +326,7 @@ Temperature: 25.40 C`;
 								<tr>
 									<th scope="row">{row.label}</th>
 									{#each errorColumns as column (column.label)}
-										<td>{stat(column.stats, row.format)}</td>
+										<td class={statClass(row, column.stats)}>{stat(column.stats, row.format)}</td>
 									{/each}
 								</tr>
 							{/each}

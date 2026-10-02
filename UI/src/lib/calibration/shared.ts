@@ -101,12 +101,38 @@ export function summarise(values: number[]) {
 export type Stats = NonNullable<ReturnType<typeof summarise>>;
 
 // Rows of the error tables, shared so every mode reports error the same way
-export const ERROR_STATS: { label: string; format: (stats: Stats) => string }[] = [
-	{ label: 'Average', format: (stats) => stats.meanAbs.toFixed(4) },
+// Rows with an error size (`value`) are coloured like the per-reading errors
+export const ERROR_STATS: {
+	label: string;
+	format: (stats: Stats) => string;
+	value?: (stats: Stats) => number;
+}[] = [
+	{
+		label: 'Average',
+		format: (stats) => stats.meanAbs.toFixed(4),
+		value: (stats) => stats.meanAbs
+	},
 	{ label: 'SD', format: (stats) => stats.absStd.toFixed(4) },
-	{ label: 'Max', format: (stats) => stats.maxAbs.toFixed(4) },
-	{ label: 'RMS', format: (stats) => stats.rms.toFixed(4) }
+	{ label: 'Max', format: (stats) => stats.maxAbs.toFixed(4), value: (stats) => stats.maxAbs },
+	{ label: 'RMS', format: (stats) => stats.rms.toFixed(4), value: (stats) => stats.rms }
 ];
+
+// Colour class for an ERROR_STATS cell, or none for rows that aren't an error size
+export function statClass(stat: (typeof ERROR_STATS)[number], stats: Stats | null) {
+	return stats && stat.value ? errorClass(stat.value(stats)) : '';
+}
+
+// Position error sizes: good up to ERROR_GOOD_MM, bad from ERROR_BAD_MM
+export const ERROR_GOOD_MM = 0.05;
+export const ERROR_BAD_MM = 0.1;
+
+// Class colouring an error cell; good errors keep the normal text colour
+export function errorClass(value: number | null) {
+	if (value === null) return '';
+	const size = Math.abs(value);
+	if (size <= ERROR_GOOD_MM) return '';
+	return size < ERROR_BAD_MM ? 'error-fine' : 'error-bad';
+}
 
 export const mm = (value: number) => value.toFixed(3);
 // Rounded first so a tiny negative prints as +0.000, not -0.000

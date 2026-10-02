@@ -26,6 +26,17 @@
 	color: var(--critical);
 }
 
+/* Position errors, see errorClass in shared.ts */
+.calibration .error-fine {
+	color: var(--caution);
+	font-weight: 600;
+}
+
+.calibration .error-bad {
+	color: var(--critical);
+	font-weight: 600;
+}
+
 .calibration .card {
 	min-width: 0;
 	padding: 16px;
