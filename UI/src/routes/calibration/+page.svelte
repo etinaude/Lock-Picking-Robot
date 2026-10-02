@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, type Component } from 'svelte';
 	import '#lib/calibration/calibration.css';
 	import CurrentCalibration from '#lib/calibration/CurrentCalibration.svelte';
 	import MagnetometerCalibration from '#lib/calibration/MagnetometerCalibration.svelte';
@@ -7,25 +7,50 @@
 	import RepeatabilityCalibration from '#lib/calibration/RepeatabilityCalibration.svelte';
 	import SerialMonitor from '#lib/serial/SerialMonitor.svelte';
 	import { serial } from '#lib/serial/serial.svelte.ts';
+	import { runner, type RunMode } from '#lib/calibration/runner.svelte.ts';
 
-	// Same order and letters as the calibration firmware's serial commands
-	const MODES = [
-		{ id: 'pid', command: 'P', label: 'PID tuning', component: PidCalibration },
-		{ id: 'current', command: 'C', label: 'Motor current', component: CurrentCalibration },
+	// Same order and letters as the calibration firmware's serial commands. `run`
+	// is the tab a sidebar run fills, or 'unavailable' while the firmware lacks it.
+	const MODES: {
+		id: string;
+		command: string;
+		label: string;
+		component: Component;
+		run?: RunMode | 'unavailable';
+	}[] = [
+		{
+			id: 'pid',
+			command: 'P',
+			label: 'PID tuning',
+			component: PidCalibration,
+			run: 'unavailable'
+		},
+		{
+			id: 'current',
+			command: 'C',
+			label: 'Motor current',
+			component: CurrentCalibration,
+			run: 'unavailable'
+		},
 		{
 			id: 'magnetometer',
 			command: 'M',
 			label: 'Magnetometer',
-			component: MagnetometerCalibration
+			component: MagnetometerCalibration,
+			run: 'magnetometer'
 		},
 		{
 			id: 'repeatability',
 			command: 'R',
 			label: 'Repeatability',
-			component: RepeatabilityCalibration
+			component: RepeatabilityCalibration,
+			run: 'repeatability'
 		},
 		{ id: 'serial', command: '>_', label: 'Serial monitor', component: SerialMonitor }
 	];
+	const DEFAULT_CYCLES = 10; // the firmware's R with no count
+
+	let cycles = $state(DEFAULT_CYCLES);
 
 	let modeId = $state('magnetometer');
 	const mode = $derived(MODES.find((m) => m.id === modeId) ?? MODES[2]);
@@ -36,6 +61,15 @@
 		if (MODES.some((m) => m.id === hash)) modeId = hash;
 		serial.init(); // reconnects to a previously used port from any tab
 	});
+
+	const runCommand = $derived(
+		mode.run === 'repeatability' && cycles !== DEFAULT_CYCLES ? `R${cycles}` : mode.command
+	);
+
+	function startRun() {
+		if (mode.run === 'magnetometer' || mode.run === 'repeatability')
+			runner.run(mode.run, runCommand);
+	}
 
 	function select(id: string) {
 		modeId = id;
@@ -72,6 +106,42 @@
 				</li>
 			{/each}
 		</ul>
+
+		<!-- Runs the open tab's calibration on the board and fills in its table -->
+		{#if runner.running || runner.message || (serial.connected && mode.run)}
+			<section class="run" aria-live="polite">
+				{#if runner.running}
+					<p>
+						<strong>Running {runner.running.command}</strong><br />
+						{runner.running.points
+							? `Point ${runner.running.points}, ${runner.running.last}`
+							: 'Starting...'}
+					</p>
+					<button class="secondary" onclick={() => runner.cancel()}>Stop listening</button>
+				{:else if serial.connected && mode.run === 'unavailable'}
+					<p class="hint">{mode.label} isn't in the calibration firmware yet.</p>
+				{:else if serial.connected && mode.run && !serial.calibrationFirmware}
+					<p class="hint">
+						Waiting to see the calibration firmware's menu. The arm firmware would read a command as
+						a 0 mm target, so reset the board to check.
+					</p>
+					<button class="secondary" onclick={() => serial.reset()}>Reset board</button>
+				{:else if serial.connected && mode.run}
+					{#if mode.run === 'repeatability'}
+						<label class="cycles">
+							Cycles
+							<input type="number" min="1" max="50" bind:value={cycles} />
+						</label>
+					{/if}
+					<button onclick={startRun} disabled={!cycles || cycles < 1 || cycles > 50}>
+						Run {runCommand}
+					</button>
+				{/if}
+				{#if runner.message && !runner.running}
+					<p class="message" class:error={runner.message.error}>{runner.message.text}</p>
+				{/if}
+			</section>
+		{/if}
 	</nav>
 
 	<main>
@@ -148,6 +218,43 @@
 
 	.dot.online {
 		background: #0ca30c;
+	}
+
+	.run {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin-top: 16px;
+		padding: 12px 8px 0;
+		border-top: 1px solid var(--border);
+		font-size: 13px;
+	}
+
+	.run p {
+		margin: 0;
+	}
+
+	.run .hint {
+		color: var(--text-secondary);
+	}
+
+	.run .message {
+		color: var(--text-secondary);
+	}
+
+	.run .message.error {
+		color: var(--critical);
+	}
+
+	.cycles {
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.cycles input {
+		width: 70px;
+		padding: 4px 6px;
 	}
 
 	.nav-item:hover {

@@ -19,6 +19,7 @@
 		signedMM,
 		summarise
 	} from './shared.ts';
+	import { runner } from './runner.svelte.ts';
 
 	const STORAGE_KEY = 'magnet-calibration';
 	const MODEL_VERSION = 2;
@@ -60,6 +61,15 @@ Temperature: 25.40 C`;
 	$effect(() => {
 		const snapshot = { text, probes, probeZeroInput, model, modelVersion: MODEL_VERSION };
 		if (loaded) saveState(STORAGE_KEY, snapshot);
+	});
+
+	// A run started from the sidebar replaces the table, and the old probe readings with it
+	$effect(() => {
+		const result = runner.results.magnetometer;
+		if (!loaded || result === null) return;
+		text = result;
+		probes = [];
+		runner.results.magnetometer = null;
 	});
 
 	const parsed = $derived(parseCalibration(text));

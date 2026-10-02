@@ -12,6 +12,7 @@
 		signedMM,
 		summarise
 	} from './shared.ts';
+	import { runner } from './runner.svelte.ts';
 
 	const STORAGE_KEY = 'repeatability-calibration';
 	const PLACEHOLDER = `Set Distance (mm)  Magno reading(mT)  Predicted distance (mm)  time to target (ms)
@@ -46,6 +47,15 @@ Temperature: 25.40 C`;
 	$effect(() => {
 		const snapshot = { text, probes, probeZeroInput };
 		if (loaded) saveState(STORAGE_KEY, snapshot);
+	});
+
+	// A run started from the sidebar replaces the table, and the old probe readings with it
+	$effect(() => {
+		const result = runner.results.repeatability;
+		if (!loaded || result === null) return;
+		text = result;
+		probes = [];
+		runner.results.repeatability = null;
 	});
 
 	const parsed = $derived(parseCalibration(text));

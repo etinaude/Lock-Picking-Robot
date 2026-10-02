@@ -14,7 +14,15 @@ const MAX_LOG_LINES = 2000;
 // Teleplot lines from the firmware, e.g. ">currentDistance:6.012"
 const TELEMETRY_LINE = /^>([^:]+):\s*(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)\s*$/;
 
+// Printed by the calibration firmware at boot and after every run. The arm
+// firmware treats any line as a target distance, so commands like M are only
+// safe once this has been seen.
+const CALIBRATION_MENU = 'Calibration commands:';
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Gets each received line that isn't telemetry, then null when the port closes
+export type LineListener = (line: string | null) => void;
 
 class SerialConnection {
 	supported = $state(false);
@@ -25,12 +33,14 @@ class SerialConnection {
 	logs = $state<LogEntry[]>([]);
 	telemetry = $state<Record<string, number>>({});
 	lastCommand = $state('');
+	calibrationFirmware = $state(false);
 
 	#port: SerialPort | null = null;
 	#reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 	#readLoop: Promise<void> | null = null;
 	#nextId = 0;
 	#started = false;
+	#listeners = new Set<LineListener>();
 
 	// Called once from the browser; reconnects to a port the user already granted
 	async init() {
@@ -68,6 +78,7 @@ class SerialConnection {
 			await port.open({ baudRate: this.baudRate });
 			this.#port = port;
 			this.connected = true;
+			this.calibrationFirmware = false;
 
 			const { usbVendorId, usbProductId } = port.getInfo();
 			const id =
@@ -93,8 +104,14 @@ class SerialConnection {
 		await this.#reader?.cancel().catch(() => {});
 		await this.#readLoop;
 		await port.close().catch(() => {});
-		this.connected = false;
+		this.#closed();
 		this.log('Disconnected', 'system');
+	}
+
+	// Returns an unsubscribe function
+	onLine(listener: LineListener) {
+		this.#listeners.add(listener);
+		return () => this.#listeners.delete(listener);
 	}
 
 	async send(text: string) {
@@ -120,6 +137,7 @@ class SerialConnection {
 			await this.#port.setSignals({ dataTerminalReady: false, requestToSend: true });
 			await sleep(100);
 			await this.#port.setSignals({ requestToSend: false });
+			this.calibrationFirmware = false; // confirmed again by the boot menu
 			this.log('Reset the board', 'system');
 		} catch (error) {
 			this.log(`Reset failed: ${(error as Error).message}`, 'system');
@@ -171,19 +189,29 @@ class SerialConnection {
 		// Still the active port, so the device went away rather than being closed
 		if (this.#port === port) {
 			this.#port = null;
-			this.connected = false;
 			await port.close().catch(() => {});
+			this.#closed();
 			this.log('Connection lost', 'system');
 		}
+	}
+
+	#closed() {
+		this.connected = false;
+		this.calibrationFirmware = false;
+		for (const listener of this.#listeners) listener(null);
 	}
 
 	#handleLine(line: string) {
 		const telemetry = line.match(TELEMETRY_LINE);
 		if (telemetry) {
 			this.telemetry[telemetry[1]] = Number(telemetry[2]);
-			if (!this.showTelemetry) return;
+			if (this.showTelemetry) this.log(line, 'received');
+			return;
 		}
+
+		if (line.startsWith(CALIBRATION_MENU)) this.calibrationFirmware = true;
 		this.log(line, 'received');
+		for (const listener of this.#listeners) listener(line);
 	}
 }
 
