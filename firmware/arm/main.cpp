@@ -5,14 +5,19 @@
 TaskHandle_t SensingTask;
 TaskHandle_t MovementTask;
 
+// One PID step per magnet reading, so the derivative never sees a repeated
+// distance; if the readings stop, so does the motor
 static void motorTaskCode(void *parameter) {
   motor.begin();
 
   vTaskDelay(pdMS_TO_TICKS(1000));
+  magnet.readingTask = xTaskGetCurrentTaskHandle();
 
   while (true) {
-    motor.update(magnet.distanceMM);
-    vTaskDelay(pdMS_TO_TICKS(20));
+    if (ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MAGNET_TIMEOUT_MS)))
+      motor.update(magnet.distanceMM);
+    else
+      motor.stop();
   }
 }
 

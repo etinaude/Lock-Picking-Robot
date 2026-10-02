@@ -46,15 +46,13 @@ int COMMS_SCL_PIN = 22;
 #define DISTANCE_DEADBAND 0.05
 #define MOTOR_POSITIVE_PWM_SCALE 1.00f
 #define MOTOR_NEGATIVE_PWM_SCALE 1.00f
-#define MOTOR_MIN_PWM 100.0f // lowest PWM that reliably moves the motor
+#define MOTOR_MIN_PWM 80.0f // lowest PWM that reliably moves the motor
+// The PID runs on each new magnet reading; none for this long stops the motor
+#define MAGNET_TIMEOUT_MS 100
 
-// The mechanical stops are just past these, and running into one jams the
-// carriage. Targets are clamped to them and the motor never drives past them.
+// Targets are clamped to this. The mechanical stops are about 0.5 mm past it,
+// and nothing but the PID keeps the carriage off them.
 #define TRAVEL_MIN_MM 3.0
 #define TRAVEL_MAX_MM 10.0
-// Within this of a limit, moving towards it, the PWM is capped so momentum and
-// the sensor lag can't carry the carriage past it
-#define LIMIT_SLOW_ZONE_MM 1.0
-#define LIMIT_APPROACH_PWM 140.0
 
 #endif

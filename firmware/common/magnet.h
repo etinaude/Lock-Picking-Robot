@@ -69,6 +69,8 @@ public:
     float fieldScale = 1.0f + MAGNET_TEMPCO_PER_C * (tempC - calibrationTempC);
     rawDistanceMM = solveDistance(zmT / fieldScale) - zOffsetMM;
     distanceMM = average(rawDistanceMM);
+    if (readingTask)
+      xTaskNotifyGive(readingTask);
     return true;
   }
 
@@ -168,6 +170,7 @@ public:
   uint32_t lastTempRead = 0;
   float rawDistanceMM = 0.0f; // latest reading
   float distanceMM = 0.0f;    // rolling average
+  TaskHandle_t readingTask = nullptr; // notified after each new reading
 
   float samples[DISTANCE_AVERAGE_COUNT];
   uint8_t sampleIndex = 0;

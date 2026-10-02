@@ -26,6 +26,8 @@ public:
     ledcAttachPin(IN1_EN, MOTOR_PWM_CHANNEL);
 
     pid.SetOutputLimits(-255, 255);
+    // Compute runs once per magnet reading (~25 ms). The sample time must stay
+    // below that or readings get skipped; Ki and Kd are scaled by it.
     pid.SetSampleTime(20);
     pid.SetMode(AUTOMATIC);
   }
@@ -54,14 +56,13 @@ public:
 
     pid.Compute();
 
-    // Positive output drives towards larger distances
-    double roomMM = output > 0.0 ? TRAVEL_MAX_MM - distanceMM
-                                 : distanceMM - TRAVEL_MIN_MM;
-    if (roomMM <= 0.0) {
-      stop(); // at or past a limit, never push further into it
+    // Near the target the derivative term pushes back against the approach.
+    // Brake (EN low) for that rather than kicking into reverse at MIN_PWM.
+    if ((output > 0.0) != (setpoint > input)) {
+      stop();
       return;
     }
-    drive(output, roomMM < LIMIT_SLOW_ZONE_MM ? LIMIT_APPROACH_PWM : 255.0);
+    drive(output);
   }
 
   void stop() {
@@ -86,7 +87,7 @@ public:
     return filteredCurrent;
   }
 
-  void drive(double pidValue, double maxPWM = 255.0) {
+  void drive(double pidValue) {
     if (pidValue == 0.0) {
       stop();
       return;
@@ -96,8 +97,8 @@ public:
     pwmValue = fabs(pidValue) * (driveBackward ? MOTOR_POSITIVE_PWM_SCALE
                                                : MOTOR_NEGATIVE_PWM_SCALE);
     pwmValue += MOTOR_MIN_PWM; // overcome static friction for small errors
-    if (pwmValue > maxPWM)
-      pwmValue = maxPWM;
+    if (pwmValue > 255.0)
+      pwmValue = 255.0;
 
     digitalWrite(IN2_PH, driveBackward ? LOW : HIGH);
     ledcWrite(MOTOR_PWM_CHANNEL, static_cast<uint8_t>(pwmValue));

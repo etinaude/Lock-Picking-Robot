@@ -6,11 +6,21 @@
 		SAMPLE_MS,
 		formatGain,
 		parsePidRun,
+		pastLimitClass,
 		stepMetrics,
 		summariseRun,
 		validGains,
-		type PidGains
+		type PidGains,
+		type PidRun,
+		type RunSummary
 	} from '#lib/pid.ts';
+	import {
+		fitPlant,
+		planFrom,
+		suggestGains,
+		type PlantFit,
+		type Suggestion
+	} from '#lib/pidModel.ts';
 	import { errorClass, loadState, mm, saveState, signedMM } from './shared.ts';
 	import { runner } from './runner.svelte.ts';
 
@@ -45,6 +55,17 @@ Temperature: 25.40 C`;
 	let stepIndex = $state(0);
 	let loaded = $state(false);
 	let copied = $state(false);
+	// Worked out on request, as the fit and search take a moment
+	let suggestion = $state<{
+		fit: PlantFit;
+		result: Suggestion;
+		start: PidGains;
+		fromRun: number;
+		measured: RunSummary;
+		runsKey: string;
+	} | null>(null);
+	let suggesting = $state(false);
+	let suggestError = $state('');
 
 	onMount(() => {
 		const saved = loadState<Saved>(STORAGE_KEY);
@@ -112,6 +133,29 @@ Temperature: 25.40 C`;
 		compareIds.flatMap((id) => runs.filter((run) => run.id === id)).slice(0, RUN_COLORS.length)
 	);
 	const pastedRun = $derived(parsePidRun(pasted));
+	// Which runs a suggestion was fitted to, so it can say when it's out of date
+	const runsKey = $derived(runs.map((run) => run.id).join(','));
+
+	// Fits the carriage model to every run, then searches for gains on it,
+	// starting from the viewed run's gains and test
+	function suggest() {
+		if (!selected) return;
+		const from = selected;
+		suggesting = true;
+		suggestError = '';
+		// Let the button show it's working before the main thread is busy
+		setTimeout(() => {
+			const fit = fitPlant(runs.map((run) => run.parsed));
+			if (fit) {
+				const start = from.parsed.gains ?? runner.pidGains;
+				const result = suggestGains(fit.plant, planFrom(from.parsed), start);
+				suggestion = { fit, result, start, fromRun: from.id, measured: from.summary, runsKey };
+			} else {
+				suggestError = 'No steps that start from rest with the motor driven, so nothing to fit.';
+			}
+			suggesting = false;
+		}, 30);
+	}
 
 	const gainsLabel = (gains: PidGains | null) =>
 		gains
@@ -152,23 +196,36 @@ Temperature: 25.40 C`;
 	const stepCount = $derived(selected?.parsed.steps.length ?? 0);
 	const stepNumber = $derived(Math.min(stepIndex, Math.max(stepCount - 1, 0)));
 
-	const compareChart = $derived<Series[]>(
-		compared.flatMap((run, i) => {
-			const step = run.parsed.steps[stepNumber];
-			if (!step) return [];
-			return [
-				{
-					name: runLabel(run),
-					color: RUN_COLORS[i],
-					kind: 'line',
-					data: step.samples.map((sample) => ({
-						x: sample.timeMs,
-						y: sample.distanceMM - step.targetMM
-					}))
-				}
-			];
-		})
-	);
+	const stepSeries = (
+		name: string,
+		color: string,
+		step: PidRun['steps'][number] | undefined
+	): Series[] =>
+		step
+			? [
+					{
+						name,
+						color,
+						kind: 'line',
+						data: step.samples.map((sample) => ({
+							x: sample.timeMs,
+							y: sample.distanceMM - step.targetMM
+						}))
+					}
+				]
+			: [];
+	const compareChart = $derived<Series[]>([
+		...compared.flatMap((run, i) =>
+			stepSeries(runLabel(run), RUN_COLORS[i], run.parsed.steps[stepNumber])
+		),
+		...(suggestion
+			? stepSeries(
+					'Suggested (predicted)',
+					'var(--text-muted)',
+					suggestion.result.simulated.steps[stepNumber]
+				)
+			: [])
+	]);
 
 	const ms = (value: number | null) => (value === null ? '–' : value.toFixed(0));
 	const seconds = (value: number) => `${value.toFixed(1)} s`;
@@ -203,8 +260,9 @@ Temperature: 25.40 C`;
 		<h2>PID tuning</h2>
 		<p class="note">
 			Set the gains, then run <code>P</code> from the sidebar. It steps 6 → 3 → 10 → 6 → 6.5 → 6 mm
-			and logs what the PID sees every {SAMPLE_MS} ms. Compare runs to pick the gains. 3 and 10 mm are
-			the travel limits: the motor creeps over the last 1 mm towards one and never drives past it.
+			and logs what the PID sees every {SAMPLE_MS} ms. Compare runs, or let it suggest gains from them.
+			Targets stay within 3–10 mm, with the mechanical stops about 0.5 mm past them. Only the PID keeps
+			the carriage off the stops, so watch the first runs with new gains.
 		</p>
 	</header>
 
@@ -249,12 +307,17 @@ Temperature: 25.40 C`;
 						Settle is when it entered the ±{selected.parsed.deadbandMM.toFixed(2)} mm deadband for good;
 						crossings are swings right through the deadband.
 					</p>
-					{#if selected.summary.maxPastLimitMM > 0}
+					{#if selected.summary.maxPastLimitMM >= selected.parsed.graceMM}
 						<p class="note warn">
 							Went {mm(selected.summary.maxPastLimitMM)} mm past the
-							{selected.parsed.travelMM[0]}–{selected.parsed.travelMM[1]} mm travel. Check the carriage
-							isn't jammed, and widen <code>LIMIT_SLOW_ZONE_MM</code> or lower
-							<code>LIMIT_APPROACH_PWM</code> in <code>config.h</code>.
+							{selected.parsed.travelMM[0]}–{selected.parsed.travelMM[1]} mm travel, more than the
+							{selected.parsed.graceMM} mm before the stops, so it may have hit one. Check the carriage
+							isn't jammed, and use gains with less overshoot.
+						</p>
+					{:else if selected.summary.maxPastLimitMM > 0}
+						<p class="note">
+							Went {mm(selected.summary.maxPastLimitMM)} mm past the travel, inside the
+							{selected.parsed.graceMM} mm grace.
 						</p>
 					{/if}
 					<div class="table-wrap">
@@ -391,7 +454,7 @@ Temperature: 25.40 C`;
 											{mm(run.summary.maxFinalErrorMM)}
 										</td>
 										<td class:warn={run.summary.timeouts > 0}>{run.summary.timeouts}</td>
-										<td class:warn={run.summary.maxPastLimitMM > 0}>
+										<td class={pastLimitClass(run.summary.maxPastLimitMM, run.parsed.graceMM)}>
 											{mm(run.summary.maxPastLimitMM)}
 										</td>
 										<td>
@@ -456,6 +519,91 @@ Temperature: 25.40 C`;
 			</section>
 
 			<section class="card">
+				<div class="card-head">
+					<h3>Suggested gains</h3>
+					{#if runs.length}
+						<button onclick={suggest} disabled={suggesting}>
+							{suggesting ? 'Working...' : suggestion ? 'Recalculate' : 'Suggest'}
+						</button>
+					{/if}
+				</div>
+				{#if !runs.length}
+					<p class="note">Needs at least one run to learn how the carriage moves.</p>
+				{:else if suggestError}
+					<p class="note warn">{suggestError}</p>
+				{:else if suggestion}
+					{@const { fit, result, start, measured } = suggestion}
+					{@const plant = fit.plant}
+					{#if suggestion.runsKey !== runsKey}
+						<p class="note warn">The runs have changed since this was worked out; recalculate.</p>
+					{/if}
+					<table class="error-stats">
+						<thead>
+							<tr>
+								<th></th>
+								<th>Run {suggestion.fromRun}</th>
+								<th>Suggested</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th scope="row">Kp</th>
+								<td>{formatGain(start.kp)}</td>
+								<td>{formatGain(result.gains.kp)}</td>
+							</tr>
+							<tr>
+								<th scope="row">Ki</th>
+								<td>{formatGain(start.ki)}</td>
+								<td>{formatGain(result.gains.ki)}</td>
+							</tr>
+							<tr>
+								<th scope="row">Kd</th>
+								<td>{formatGain(start.kd)}</td>
+								<td>{formatGain(result.gains.kd)}</td>
+							</tr>
+							<tr>
+								<th scope="row">Predicted settle (ms)</th>
+								<td>{ms(result.baseline.totalSettleMs)}</td>
+								<td>{ms(result.predicted.totalSettleMs)}</td>
+							</tr>
+							<tr>
+								<th scope="row">Predicted overshoot (mm)</th>
+								<td class={errorClass(result.baseline.maxOvershootMM)}>
+									{mm(result.baseline.maxOvershootMM)}
+								</td>
+								<td class={errorClass(result.predicted.maxOvershootMM)}>
+									{mm(result.predicted.maxOvershootMM)}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<p class="note">
+						Run {suggestion.fromRun} measured {ms(measured.totalSettleMs)} ms total settle and
+						{mm(measured.maxOvershootMM)} mm overshoot; the closer that is to its prediction, the more
+						the model can be trusted. If the carriage is 25% faster, or 50% laggier, than fitted, the
+						suggestion still overshoots by at most {mm(result.worstOvershootMM)} mm.
+					</p>
+					<button onclick={() => (runner.pidGains = { ...result.gains })}>
+						Use suggested gains
+					</button>
+					<p class="note model">
+						Model from {fit.steps} steps, replaying them within {mm(fit.rmsErrorMM)} mm RMS: full speed
+						{(plant.speedPerPWM[0] * (255 - plant.deadzonePWM)).toFixed(1)} mm/s down and
+						{(plant.speedPerPWM[1] * (255 - plant.deadzonePWM)).toFixed(1)} mm/s up, moving from PWM
+						{plant.deadzonePWM.toFixed(0)}, speed lag {plant.timeConstantMs.toFixed(0)} ms, magnet read
+						every {plant.sensorPeriodMs.toFixed(0)} ms. It's a model, so check the gains with a run; every
+						run sharpens it.
+					</p>
+				{:else}
+					<p class="note">
+						Fits a model of the carriage to all {runs.length} run{runs.length === 1 ? '' : 's'},
+						then runs the firmware's PID on it to find gains that settle fastest without
+						overshooting. Runs with different gains teach it more.
+					</p>
+				{/if}
+			</section>
+
+			<section class="card">
 				<h3>Summary</h3>
 				{#if selected}
 					<table class="error-stats">
@@ -486,7 +634,9 @@ Temperature: 25.40 C`;
 							</tr>
 							<tr>
 								<th scope="row">Past travel limit</th>
-								<td class:warn={selected.summary.maxPastLimitMM > 0}>
+								<td
+									class={pastLimitClass(selected.summary.maxPastLimitMM, selected.parsed.graceMM)}
+								>
 									{mm(selected.summary.maxPastLimitMM)} mm
 								</td>
 							</tr>
@@ -524,6 +674,11 @@ Temperature: 25.40 C`;
 </div>
 
 <style>
+	.model {
+		margin: 12px 0 0;
+		font-size: 13px;
+	}
+
 	.chart-title {
 		margin-top: 20px;
 	}

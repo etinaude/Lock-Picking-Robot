@@ -13,6 +13,9 @@ export const DEFAULT_GAINS: PidGains = { kp: 3.0, ki: 0.1, kd: 1.0 };
 // for output without them in its header
 const DEFAULT_DEADBAND_MM = 0.05;
 const DEFAULT_TRAVEL_MM: [number, number] = [3.0, 10.0];
+// The mechanical stops are about this far past the travel. Older firmware
+// printed it as "Grace" in the header.
+const DEFAULT_GRACE_MM = 0.5;
 // The firmware logs every PID_SAMPLE_MS
 export const SAMPLE_MS = 20;
 // A step counts as settled once it stays in the deadband this long to the end
@@ -37,7 +40,8 @@ export interface PidStep {
 export interface PidRun {
 	gains: PidGains | null;
 	deadbandMM: number;
-	travelMM: [number, number]; // the mechanical stops are just past these
+	travelMM: [number, number]; // targets are clamped to this
+	graceMM: number; // room past the travel before the mechanical stops
 	steps: PidStep[];
 	temperatureC: number | null;
 }
@@ -51,7 +55,7 @@ export interface StepMetrics {
 	overshootMM: number; // furthest past the target, 0 if it never passed it
 	finalErrorMM: number; // distance minus target at the end of the step
 	crossings: number; // swings from one side of the deadband to the other
-	pastLimitMM: number; // furthest beyond a travel limit, 0 if it stayed inside
+	pastLimitMM: number; // furthest beyond the travel, 0 if it stayed inside
 	peakCurrentMA: number;
 }
 
@@ -64,23 +68,25 @@ export interface RunSummary {
 }
 
 const HEADER =
-	/PID step test\s+Kp\s+(\S+)\s+Ki\s+(\S+)\s+Kd\s+(\S+)(?:\s+Deadband\s+(\S+)\s+mm)?(?:\s+Travel\s+([\d.]+)-([\d.]+))?/i;
+	/PID step test\s+Kp\s+(\S+)\s+Ki\s+(\S+)\s+Kd\s+(\S+)(?:\s+Deadband\s+(\S+)\s+mm)?(?:\s+Travel\s+([\d.]+)-([\d.]+)\s+mm)?(?:\s+Grace\s+(\S+))?/i;
 
 // Rows are "step target time distance pwm current"
 export function parsePidRun(text: string): PidRun {
 	let gains: PidGains | null = null;
 	let deadbandMM = DEFAULT_DEADBAND_MM;
 	let travelMM = DEFAULT_TRAVEL_MM;
+	let graceMM = DEFAULT_GRACE_MM;
 	let temperatureC: number | null = null;
 	const steps: PidStep[] = [];
 
 	for (const line of text.split(/\r?\n/)) {
 		const header = line.match(HEADER);
 		if (header) {
-			const [kp, ki, kd, deadband, travelMin, travelMax] = header.slice(1).map(Number);
+			const [kp, ki, kd, deadband, travelMin, travelMax, grace] = header.slice(1).map(Number);
 			if ([kp, ki, kd].every(Number.isFinite)) gains = { kp, ki, kd };
 			if (Number.isFinite(deadband) && deadband > 0) deadbandMM = deadband;
 			if (travelMin < travelMax) travelMM = [travelMin, travelMax];
+			if (grace >= 0) graceMM = grace;
 			continue;
 		}
 
@@ -102,10 +108,13 @@ export function parsePidRun(text: string): PidRun {
 		}
 		step.samples.push({ timeMs, distanceMM, pwm, currentMA });
 	}
-	return { gains, deadbandMM, travelMM, steps, temperatureC };
+	return { gains, deadbandMM, travelMM, graceMM, steps, temperatureC };
 }
 
-export function stepMetrics(step: PidStep, run: PidRun): StepMetrics {
+export function stepMetrics(
+	step: PidStep,
+	run: Pick<PidRun, 'deadbandMM' | 'travelMM'>
+): StepMetrics {
 	const { deadbandMM, travelMM } = run;
 	const { samples, targetMM } = step;
 	const fromMM = samples[0].distanceMM;
@@ -187,3 +196,8 @@ export const validGains = (gains: PidGains) =>
 
 export const pidCommand = (gains: PidGains) =>
 	`P ${formatGain(gains.kp)} ${formatGain(gains.ki)} ${formatGain(gains.kd)}`;
+
+// Colour for going past the travel: into the grace is a warning, through it
+// would have hit the stop
+export const pastLimitClass = (pastMM: number, graceMM: number) =>
+	pastMM <= 0 ? '' : pastMM < graceMM ? 'error-fine' : 'error-bad';

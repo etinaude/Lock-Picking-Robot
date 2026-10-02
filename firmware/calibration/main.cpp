@@ -25,7 +25,7 @@ const int MAX_ROWS = 2 * MAX_REPEATS + 1;
 // back at neutral
 const float PID_STEPS_MM[] = {3.0f, 10.0f, 6.0f, 6.5f, 6.0f};
 const int PID_STEP_COUNT = sizeof(PID_STEPS_MM) / sizeof(PID_STEPS_MM[0]);
-const uint32_t PID_SAMPLE_MS = 20;         // the PID's own period
+const uint32_t PID_SAMPLE_MS = 20;         // log period
 const uint32_t PID_SETTLED_MS = 1000;      // in the deadband this long = done
 const uint32_t PID_STEP_TIMEOUT_MS = 6000; // gives up on a step after this
 const uint32_t PID_REST_MS = 500;          // still at neutral before step 1
@@ -85,20 +85,26 @@ static void sensingTask(void *parameter) {
 }
 
 // The PID only runs on this task, so targets are handed over via targetRequest
-// and gains via gainsQueue
+// and gains via gainsQueue. It steps once per magnet reading, so the
+// derivative never sees a repeated distance; if the readings stop, so does the
+// motor.
 static void motorTask(void *parameter) {
   motor.begin();
   while (!magnetReady)
     vTaskDelay(pdMS_TO_TICKS(10));
+  magnet.readingTask = xTaskGetCurrentTaskHandle();
 
   Gains gains;
   while (true) {
+    bool reading = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MAGNET_TIMEOUT_MS));
     if (xQueueReceive(gainsQueue, &gains, 0) == pdTRUE)
       motor.setPIDCalibration(gains.kp, gains.ki, gains.kd);
     if (targetRequest != (float)motor.setpoint)
       motor.setTarget(targetRequest);
-    motor.update(magnet.distanceMM);
-    vTaskDelay(pdMS_TO_TICKS(20));
+    if (reading)
+      motor.update(magnet.distanceMM);
+    else
+      motor.stop();
   }
 }
 
