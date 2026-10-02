@@ -104,7 +104,6 @@ export type Stats = NonNullable<ReturnType<typeof summarise>>;
 export const ERROR_STATS: { label: string; format: (stats: Stats) => string }[] = [
 	{ label: 'Average', format: (stats) => stats.meanAbs.toFixed(4) },
 	{ label: 'SD', format: (stats) => stats.absStd.toFixed(4) },
-	{ label: 'Variance (mm²)', format: (stats) => stats.absVariance.toFixed(6) },
 	{ label: 'Max', format: (stats) => stats.maxAbs.toFixed(4) },
 	{ label: 'RMS', format: (stats) => stats.rms.toFixed(4) }
 ];

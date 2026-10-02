@@ -25,6 +25,7 @@
 		--series-1: #2a78d6;
 		--series-2: #eb6834;
 		--series-3: #1baf7a;
+		--series-4: #8b5cd6;
 		--critical: #d03b3b;
 	}
 

@@ -125,10 +125,6 @@ Temperature: 25.40 C`;
 		{ label: 'Visits', format: (group) => String(group.indices.length) },
 		{ label: 'Spread (mm)', format: (group) => stat(group.position, (s) => s.range.toFixed(4)) },
 		{ label: 'SD (mm)', format: (group) => stat(group.position, (s) => s.sampleStd.toFixed(4)) },
-		{
-			label: 'Variance (mm²)',
-			format: (group) => stat(group.position, (s) => s.sampleVariance.toFixed(6))
-		},
 		{ label: 'Time mean (ms)', format: (group) => stat(group.time, (s) => s.mean.toFixed(0)) },
 		{ label: 'Time max (ms)', format: (group) => stat(group.time, (s) => s.max.toFixed(0)) },
 		{ label: 'Timeouts', format: (group) => String(group.timeouts) }

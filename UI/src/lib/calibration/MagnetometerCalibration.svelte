@@ -5,8 +5,11 @@
 		NOMINAL_N52,
 		fieldAtFace,
 		fitCalibration,
+		fitRegression,
 		parseCalibration,
 		predictMotion,
+		predictRegression,
+		type FitPoint,
 		type MagnetParams
 	} from '#lib/magnet.ts';
 	import {
@@ -93,16 +96,13 @@ Temperature: 25.40 C`;
 	);
 	const probeCount = $derived(trueMM.filter((v) => v !== null).length);
 
-	const fit = $derived(
-		modelValid
-			? fitCalibration(
-					rows.flatMap((row, i) =>
-						trueMM[i] === null ? [] : [{ motionMM: trueMM[i]!, bzMT: row.bzMT }]
-					),
-					model
-				)
-			: null
+	const fitPoints = $derived<FitPoint[]>(
+		rows.flatMap((row, i) =>
+			trueMM[i] === null || row.bzMT <= 0 ? [] : [{ motionMM: trueMM[i]!, bzMT: row.bzMT }]
+		)
 	);
+	const fit = $derived(modelValid ? fitCalibration(fitPoints, model) : null);
+	const regression = $derived(fitRegression(fitPoints));
 
 	// The fit is of raw readings, so it holds at the temperature of the run
 	const calibrated = $derived<MagnetParams | null>(
@@ -124,8 +124,17 @@ Temperature: 25.40 C`;
 		)
 	);
 
+	const regressionError = $derived(
+		rows.map((row, i) =>
+			trueMM[i] === null || !regression || row.bzMT <= 0
+				? null
+				: predictRegression(row.bzMT, regression) - trueMM[i]!
+		)
+	);
+
 	const nominalStats = $derived(summarise(nominalError.filter((v) => v !== null)));
 	const calibratedStats = $derived(summarise(calibratedError.filter((v) => v !== null)));
+	const regressionStats = $derived(summarise(regressionError.filter((v) => v !== null)));
 
 	const FACE_RANGE: [number, number] = [0, 15];
 	const formatField = (value: number) => value.toPrecision(3);
@@ -155,6 +164,17 @@ Temperature: 25.40 C`;
 		return { name, color, kind: 'line', data };
 	}
 
+	// The regression maps field to position, so its curve is traced by sweeping
+	// the field across the fitted range only; the polynomial is wild outside it
+	function regressionCurve(zOffsetMM: number): Series {
+		const { minBzMT, maxBzMT } = regression!;
+		const data = Array.from({ length: 101 }, (_, i) => {
+			const y = minBzMT * (maxBzMT / minBzMT) ** (i / 100);
+			return { x: predictRegression(y, regression!) + zOffsetMM, y };
+		}).sort((a, b) => a.x - b.x);
+		return { name: 'Regression', color: 'var(--series-4)', kind: 'line', data };
+	}
+
 	// One chart from the start: the nominal model is always there, and the readings
 	// and calibrated model join once available. Readings sit at their probe
 	// position plus the calibrated z offset once there's a fit, otherwise the nominal one.
@@ -162,6 +182,7 @@ Temperature: 25.40 C`;
 	const fieldChart = $derived<Series[]>([
 		...(modelValid ? [faceCurve('Nominal model', 'var(--series-1)', model, runTempC)] : []),
 		...(calibrated ? [faceCurve('Calibrated model', 'var(--series-3)', calibrated, runTempC)] : []),
+		...(regression && modelValid ? [regressionCurve(placementOffset)] : []),
 		...(rows.length && modelValid ? [measuredAtFace(placementOffset)] : [])
 	]);
 	const errorChart = $derived<Series[]>(
@@ -182,7 +203,19 @@ Temperature: 25.40 C`;
 						data: rows.flatMap((_, i) =>
 							calibratedError[i] === null ? [] : [{ x: trueMM[i]!, y: calibratedError[i]! }]
 						)
-					}
+					},
+					...(regression
+						? [
+								{
+									name: 'Regression',
+									color: 'var(--series-4)',
+									kind: 'points' as const,
+									data: rows.flatMap((_, i) =>
+										regressionError[i] === null ? [] : [{ x: trueMM[i]!, y: regressionError[i]! }]
+									)
+								}
+							]
+						: [])
 				]
 			: []
 	);
@@ -289,6 +322,7 @@ Temperature: 25.40 C`;
 									<th>Firmware predicted (mm)</th>
 									<th>Nominal error (mm)</th>
 									<th>Calibrated error (mm)</th>
+									<th>Regression error (mm)</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -313,6 +347,7 @@ Temperature: 25.40 C`;
 										<td>{mm(row.predictedMM)}</td>
 										<td>{nominalError[i] === null ? '–' : signedMM(nominalError[i]!)}</td>
 										<td>{calibratedError[i] === null ? '–' : signedMM(calibratedError[i]!)}</td>
+										<td>{regressionError[i] === null ? '–' : signedMM(regressionError[i]!)}</td>
 									</tr>
 								{/each}
 							</tbody>
@@ -380,6 +415,7 @@ Temperature: 25.40 C`;
 								<th></th>
 								<th>Nominal</th>
 								<th>Calibrated</th>
+								<th>Regression</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -388,10 +424,19 @@ Temperature: 25.40 C`;
 									<th scope="row">{stat.label}</th>
 									<td>{stat.format(nominalStats)}</td>
 									<td>{calibratedStats ? stat.format(calibratedStats) : '–'}</td>
+									<td>{regressionStats ? stat.format(regressionStats) : '–'}</td>
 								</tr>
 							{/each}
 						</tbody>
 					</table>
+					{#if regression}
+						<p class="note">
+							Regression: position as a degree {regression.coefficients.length - 1} polynomial in ln(B<sub
+								>z</sub
+							>), least squares on position. Only valid at the run temperature and inside the
+							measured range.
+						</p>
+					{/if}
 				{:else}
 					<p class="note">Enter probe readings to see the error.</p>
 				{/if}

@@ -173,3 +173,54 @@ export function fitCalibration(points: FitPoint[], start: MagnetParams): FitResu
 
 	return { remanenceMT: params[0], zOffsetMM: params[1] };
 }
+
+export interface Regression {
+	coefficients: number[]; // c0 + c1·ln(B) + c2·ln(B)² + ...
+	minBzMT: number; // fitted field range; the polynomial is unreliable outside it
+	maxBzMT: number;
+}
+
+// Empirical alternative to the physical model: carriage position as a polynomial
+// in ln(B_z), fitted by ordinary least squares on position, so it minimises the
+// RMS position error directly. Uses raw readings, so it holds at the run temperature.
+export function fitRegression(points: FitPoint[], maxDegree = 3): Regression | null {
+	const degree = Math.min(maxDegree, points.length - 1);
+	if (degree < 1) return null;
+	const terms = degree + 1;
+
+	// Normal equations (XᵀX)c = Xᵀy, solved by Gaussian elimination
+	const a = Array.from({ length: terms }, () => new Array<number>(terms + 1).fill(0));
+	for (const point of points) {
+		const u = Math.log(point.bzMT);
+		const powers = Array.from({ length: terms }, (_, j) => u ** j);
+		for (let j = 0; j < terms; j++) {
+			for (let k = 0; k < terms; k++) a[j][k] += powers[j] * powers[k];
+			a[j][terms] += powers[j] * point.motionMM;
+		}
+	}
+
+	for (let col = 0; col < terms; col++) {
+		let pivot = col;
+		for (let row = col + 1; row < terms; row++)
+			if (Math.abs(a[row][col]) > Math.abs(a[pivot][col])) pivot = row;
+		[a[col], a[pivot]] = [a[pivot], a[col]];
+		if (Math.abs(a[col][col]) < 1e-12) return null; // repeated readings, nothing to fit
+		for (let row = 0; row < terms; row++) {
+			if (row === col) continue;
+			const factor = a[row][col] / a[col][col];
+			for (let k = col; k <= terms; k++) a[row][k] -= factor * a[col][k];
+		}
+	}
+
+	const fields = points.map((point) => point.bzMT);
+	return {
+		coefficients: a.map((row, j) => row[terms] / row[j]),
+		minBzMT: Math.min(...fields),
+		maxBzMT: Math.max(...fields)
+	};
+}
+
+export function predictRegression(bzMT: number, regression: Regression) {
+	const u = Math.log(bzMT);
+	return regression.coefficients.reduce((sum, c, j) => sum + c * u ** j, 0);
+}
