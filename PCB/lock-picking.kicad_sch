@@ -13,6 +13,129 @@
 		(comment 2 "Top: hand-soldered THT. Bottom: JLC PCBA.")
 	)
 	(lib_symbols
+		(symbol "Connector:TestPoint"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.762)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:C"
 			(pin_numbers
 				(hide yes)
@@ -653,441 +776,6 @@
 						)
 					)
 					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "EasyEDA:DRV8876PWPR"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "U"
-				(at 0 19.05 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "DRV8876PWPR"
-				(at 0 -16.51 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "EasyEDA:HTSSOP-16_L5.0-W4.4-P0.65-LS6.4-BL-EP"
-				(at 0 -19.05 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Motor-Drivers_Texas-Instruments-Texas-Instruments-DRV8876PWPR_C575551.html"
-				(at 0 -21.59 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Manufacturer" "TI(德州仪器)"
-				(at 0 -24.13 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "MPN" "DRV8876PWPR"
-				(at 0 -26.67 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "LCSC Part" "C575551"
-				(at 0 -29.21 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "Motor Driver ICs"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "DRV8876PWPR_0_1"
-				(rectangle
-					(start -11.43 8.89)
-					(end 11.43 -13.97)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(circle
-					(center -10.16 7.62)
-					(radius 0.38)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin unspecified line
-					(at -13.97 6.35 0)
-					(length 2.54)
-					(name "EN/IN1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -13.97 3.81 0)
-					(length 2.54)
-					(name "PH/IN2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -13.97 1.27 0)
-					(length 2.54)
-					(name "nSLEEP"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -13.97 -1.27 0)
-					(length 2.54)
-					(name "nFAULT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -13.97 -3.81 0)
-					(length 2.54)
-					(name "VREF"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -13.97 -6.35 0)
-					(length 2.54)
-					(name "IPROPI"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -13.97 -8.89 0)
-					(length 2.54)
-					(name "IMODE"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -13.97 -11.43 0)
-					(length 2.54)
-					(name "OUT1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 13.97 -11.43 180)
-					(length 2.54)
-					(name "PGND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 13.97 -8.89 180)
-					(length 2.54)
-					(name "OUT2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 13.97 -6.35 180)
-					(length 2.54)
-					(name "VM"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 13.97 -3.81 180)
-					(length 2.54)
-					(name "VCP"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 13.97 -1.27 180)
-					(length 2.54)
-					(name "CPH"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "13"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 13.97 1.27 180)
-					(length 2.54)
-					(name "CPL"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "14"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 13.97 3.81 180)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "15"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 13.97 6.35 180)
-					(length 2.54)
-					(name "PMODE"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "16"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at 0 13.97 270)
-					(length 5.08)
-					(name "EP"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "17"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3894,21 +3582,14 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Connector:TestPoint"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0.762)
-				(hide yes)
-			)
+		(symbol "lock-picking:DRV8876RGTR"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "TP"
-				(at 0 6.858 0)
+			(property "Reference" "U"
+				(at 0 19.05 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -3917,8 +3598,8 @@
 					)
 				)
 			)
-			(property "Value" "TestPoint"
-				(at 0 5.08 0)
+			(property "Value" "DRV8876RGTR"
+				(at 0 -16.51 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -3927,19 +3608,8 @@
 					)
 				)
 			)
-			(property "Footprint" ""
-				(at 5.08 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 5.08 0 0)
+			(property "Footprint" "Package_DFN_QFN:VQFN-16-1EP_3x3mm_P0.5mm_EP1.68x1.68mm"
+				(at 0 -19.05 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(hide yes)
@@ -3949,7 +3619,18 @@
 					)
 				)
 			)
-			(property "Description" "test point"
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/drv8876.pdf"
+				(at 0 -21.59 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "3.5A brushed DC motor driver, current sense + regulation, VQFN-16 3x3 (RGT)"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -3960,7 +3641,40 @@
 					)
 				)
 			)
-			(property "ki_keywords" "test point tp"
+			(property "Manufacturer" "Texas Instruments"
+				(at 0 -24.13 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "MPN" "DRV8876RGTR"
+				(at 0 -26.67 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "LCSC Part" "C1852100"
+				(at 0 -29.21 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "Motor Driver ICs"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -3971,21 +3685,21 @@
 					)
 				)
 			)
-			(property "ki_fp_filters" "Pin* Test*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
+			(symbol "DRV8876RGTR_0_1"
+				(rectangle
+					(start -11.43 8.89)
+					(end 11.43 -13.97)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
 					)
 				)
-			)
-			(symbol "TestPoint_0_1"
 				(circle
-					(center 0 3.302)
-					(radius 0.762)
+					(center -10.16 7.62)
+					(radius 0.38)
 					(stroke
 						(width 0)
 						(type default)
@@ -3994,12 +3708,46 @@
 						(type none)
 					)
 				)
-			)
-			(symbol "TestPoint_1_1"
-				(pin passive line
-					(at 0 0 90)
+				(pin unspecified line
+					(at -13.97 6.35 0)
 					(length 2.54)
-					(name "1"
+					(name "EN/IN1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "15"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -13.97 3.81 0)
+					(length 2.54)
+					(name "PH/IN2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "16"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -13.97 1.27 0)
+					(length 2.54)
+					(name "nSLEEP"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4007,6 +3755,258 @@
 						)
 					)
 					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -13.97 -1.27 0)
+					(length 2.54)
+					(name "nFAULT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -13.97 -3.81 0)
+					(length 2.54)
+					(name "VREF"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -13.97 -6.35 0)
+					(length 2.54)
+					(name "IPROPI"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -13.97 -8.89 0)
+					(length 2.54)
+					(name "IMODE"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -13.97 -11.43 0)
+					(length 2.54)
+					(name "OUT1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 13.97 -11.43 180)
+					(length 2.54)
+					(name "PGND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 13.97 -8.89 180)
+					(length 2.54)
+					(name "OUT2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 13.97 -6.35 180)
+					(length 2.54)
+					(name "VM"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 13.97 -3.81 180)
+					(length 2.54)
+					(name "VCP"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 13.97 -1.27 180)
+					(length 2.54)
+					(name "CPH"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 13.97 1.27 180)
+					(length 2.54)
+					(name "CPL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 13.97 3.81 180)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 13.97 6.35 180)
+					(length 2.54)
+					(name "PMODE"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 0 13.97 270)
+					(length 5.08)
+					(name "EP"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "17"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4158,7 +4158,18 @@
 		)
 		(uuid "379e9bf5-1183-4c16-8e8a-1bff87624709")
 	)
-	(text "SuperMini on 2.54 mm headers, top side, its USB-C at the board edge.\nGPIO2 = ADC1_CH1 (still usable with Wi-Fi on) reads IPROPI.\nGPIO3 is a strapping pin; U2's 100k nSLEEP pull-down holds it low (OK).\nGPIO7 = MAG_INT. TX/RX (43/44) unused, broken out to TP3/TP4 only.\nI2C_* = bus to the motherboard (arm is a slave). MAG_* = sensor bus."
+	(text "1.5 mm SMD pads, top side, nothing fitted. Glue wires so pads do not lift.\nGPIOs are 3.3 V only, NOT 5 V tolerant. VBUS is ~4.6 V.\nTX prints the ROM boot log at reset; RX is an input."
+		(exclude_from_sim no)
+		(at 13.97 189.23 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "4bf09fff-f2e8-4c11-a0ab-d1bab8ee6973")
+	)
+	(text "SuperMini on 2.54 mm headers, top side, its USB-C at the board edge.\nPins are picked so each block routes on one layer without crossings:\nGPIO7 EN, 6 PH, 5 nSLEEP, 2 nFAULT, 1 IPROPI (ADC1_CH0, works with Wi-Fi on).\nGPIO4/3 = I2C_SCL/SDA, next to J1. GPIO3 strapping only matters if eFuse set.\nGPIO9 MAG_SDA, 10 MAG_SCL, 11 MAG_INT. GPIO12/13 spare pads, GPIO8 free.\nTX/RX (43/44) unused, broken out to pads only. I2C_* = bus to the motherboard."
 		(exclude_from_sim no)
 		(at 13.97 146.05 0)
 		(effects
@@ -4168,6 +4179,18 @@
 			(justify left top)
 		)
 		(uuid "4dbb3c60-1087-4f48-9a03-6271db1c125d")
+	)
+	(text "SPARE PINS - solder pads"
+		(exclude_from_sim no)
+		(at 13.97 168.91 0)
+		(effects
+			(font
+				(size 2 2)
+				(bold yes)
+			)
+			(justify left top)
+		)
+		(uuid "6abdb582-d712-4892-9d2e-455d941147a1")
 	)
 	(text "LAYOUT NOTES"
 		(exclude_from_sim no)
@@ -4193,7 +4216,7 @@
 		)
 		(uuid "84671343-f321-4737-943d-ac90b412f702")
 	)
-	(text "C5, C6 right at U2 VM/PGND.\nC7, C8 at the charge-pump pins."
+	(text "C5, C6 right at U2 VM/PGND.\nC7, C8 at the charge-pump pins.\nC12 at IPROPI (TI: stops motor transients\ntripping the current limit early; smooths the ADC)."
 		(exclude_from_sim no)
 		(at 139.7 153.67 0)
 		(effects
@@ -4216,7 +4239,7 @@
 		)
 		(uuid "c695fa86-f905-4e86-b048-2654915858d5")
 	)
-	(text "U2: PMODE low = PH/EN mode (EN = PWM, PH = direction).\nIMODE = GND: fixed off-time chopping, auto-retry on overcurrent.\nI_TRIP = 3.3 V / (1000 uA/A x 1.5k) = 2.2 A. IPROPI = 1.5 V/A.\nRoute OUT1/OUT2 as a tight pair, stacked on both layers.\nU3: I2C mode (CS high), A0 = A1 = GND. N/C + EP to GND.\nHall plates are at the package centre: centre U3 on the magnet.\nKeep motor current, L1, U4 and U2 (heat) >= 15 mm from U3."
+	(text "U2: PMODE tied to GND = PH/EN mode (EN = PWM, PH = direction).\nIMODE = GND: fixed off-time chopping, auto-retry on overcurrent.\nI_TRIP = 3.3 V / (1000 uA/A x 1.5k) = 2.2 A. IPROPI = 1.5 V/A.\nJ2 pin 1 = OUT1, pin 2 = OUT2: short side-by-side pair, tiny loop.\nU3: I2C mode (CS high), A0 = A1 = GND. N/C + EP to GND.\nHall plates are at the package centre: centre U3 on the magnet.\nKeep motor current, L1, U4 and U2 (heat) as far from U3 as the board allows."
 		(exclude_from_sim no)
 		(at 97.79 172.72 0)
 		(effects
@@ -4227,7 +4250,7 @@
 		)
 		(uuid "d1f81c3a-f881-44df-b48d-fb66e409f855")
 	)
-	(text "POWER\n+12V : J1 -> U2 VM (motor <= 1 A) and U4 buck (~40 mA in).\n+5V  : U4 out -> D1 -> VBUS -> SuperMini 5V pin and TP6.\n+3V3 : from the SuperMini's LDO -> U3, pull-ups, DRV VREF.\nNo linear 12 V regulator: ~0.05 W lost instead of ~0.5 W\nnext to the magnetometer.\n\nASSEMBLY\nTop, hand-soldered: U1 SuperMini on headers, J2, H1, H2, TP wires.\nBottom, JLC PCBA: everything else (incl. J1 and U3).\nKeep bottom parts off the THT holes of U1 and J2.\n\nPARTS\nAll passives are JLC Basic parts (no feeder-loading fee).\nH1/H2 nuts are copper (non-magnetic), fine near U3."
+	(text "POWER\n+12V : J1 -> U2 VM (motor <= 1.5 A) and U4 buck (~40 mA in).\n+5V  : U4 out -> D1 -> VBUS -> SuperMini 5V pin and TP6.\n+3V3 : from the SuperMini's LDO -> U3, pull-ups, DRV VREF.\nNo linear 12 V regulator: ~0.05 W lost instead of ~0.5 W\nnext to the magnetometer.\n\nASSEMBLY\nTop, hand-soldered: U1 SuperMini on headers, J2, H1, H2, TP wires\n(U1, J2, H1, H2 are excluded from the JLC BOM and placement file).\nBottom, JLC PCBA: everything else (incl. J1 and U3).\nKeep bottom parts off the THT holes of U1 and J2.\n\nPARTS\nAll passives are JLC Basic parts (no feeder-loading fee).\nH1/H2 nuts are copper (non-magnetic), fine near U3."
 		(exclude_from_sim no)
 		(at 208.28 43.18 0)
 		(effects
@@ -4274,7 +4297,7 @@
 		)
 		(uuid "eb470614-3e8c-49d1-8707-f58c07d51c93")
 	)
-	(text "AP63205 is fixed 5.0 V: FB senses VOUT at C3/C4; EN tied to VIN (auto-start).\nHot loop: C1 within 2 mm of U4 IN/GND; keep the SW node (U4-C2-L1) tiny.\nD1 lets the SuperMini's own USB and the buck both feed VBUS without\nback-feeding each other. VBUS ~ 4.6 V after D1 (SuperMini LDO is fine).\nKeep U4/L1 >= 15 mm from U3 (inductor field + heat)."
+	(text "AP63205 is fixed 5.0 V: FB senses VOUT at C3/C4; EN tied to VIN (auto-start).\nHot loop: C1 within 2 mm of U4 IN/GND; keep the SW node (U4-C2-L1) tiny.\nD1 lets the SuperMini's own USB and the buck both feed VBUS without\nback-feeding each other. VBUS ~ 4.6 V after D1 (SuperMini LDO is fine).\nKeep U4/L1 as far from U3 as the board allows (inductor field + heat)."
 		(exclude_from_sim no)
 		(at 97.79 77.47 0)
 		(effects
@@ -4480,6 +4503,17 @@
 	)
 	(wire
 		(pts
+			(xy 57.15 173.99)
+			(xy 59.69 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "03168ac9-d52a-4758-8c25-913b56d997b2")
+	)
+	(wire
+		(pts
 			(xy 63.5 114.3)
 			(xy 66.04 114.3)
 		)
@@ -4675,6 +4709,28 @@
 			(type default)
 		)
 		(uuid "357873e3-2809-4bc7-8d84-dcddf22c2103")
+	)
+	(wire
+		(pts
+			(xy 25.4 181.61)
+			(xy 27.94 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35877a55-1f33-4989-a98a-17aaf94358ae")
+	)
+	(wire
+		(pts
+			(xy 57.15 181.61)
+			(xy 59.69 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "374474c7-732e-4b04-8a7e-16c0f9cff75e")
 	)
 	(wire
 		(pts
@@ -5107,6 +5163,17 @@
 	)
 	(wire
 		(pts
+			(xy 40.64 114.3)
+			(xy 38.1 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "87346608-7542-4888-b0fb-de44c30ca7c1")
+	)
+	(wire
+		(pts
 			(xy 181.61 135.89)
 			(xy 179.07 135.89)
 		)
@@ -5192,6 +5259,17 @@
 			(type default)
 		)
 		(uuid "9ba8264a-53a7-4e9c-869f-982757619204")
+	)
+	(wire
+		(pts
+			(xy 57.15 177.8)
+			(xy 59.69 177.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9d5552ed-aeca-4453-b902-0ba04bfb3155")
 	)
 	(wire
 		(pts
@@ -5283,14 +5361,14 @@
 	)
 	(wire
 		(pts
-			(xy 63.5 134.62)
-			(xy 71.12 134.62)
+			(xy 25.4 185.42)
+			(xy 27.94 185.42)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b88980e5-8e71-43c7-837d-ca10275f9b0e")
+		(uuid "bb5a446c-700e-43e4-a8be-e14e3e175e8a")
 	)
 	(wire
 		(pts
@@ -5316,6 +5394,17 @@
 	)
 	(wire
 		(pts
+			(xy 25.4 177.8)
+			(xy 27.94 177.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be605a93-ea39-46c7-94b2-60c0e66cc80d")
+	)
+	(wire
+		(pts
 			(xy 245.11 147.32)
 			(xy 242.57 147.32)
 		)
@@ -5335,6 +5424,17 @@
 			(type default)
 		)
 		(uuid "c03a4b8c-c190-48fd-bf08-f10664417671")
+	)
+	(wire
+		(pts
+			(xy 40.64 116.84)
+			(xy 38.1 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c162c4f1-6851-4737-9579-ad5d17a41c5c")
 	)
 	(wire
 		(pts
@@ -5547,6 +5647,17 @@
 	)
 	(wire
 		(pts
+			(xy 25.4 173.99)
+			(xy 27.94 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2af037d-33b1-4c64-8630-1309af8662f8")
+	)
+	(wire
+		(pts
 			(xy 184.15 41.91)
 			(xy 189.23 41.91)
 		)
@@ -5633,7 +5744,7 @@
 		)
 		(uuid "ffa03d2b-4c62-4d3a-ac46-640fe155dbaa")
 	)
-	(label "DRV_PMODE"
+	(label "DRV_IN2_PH"
 		(at 38.1 132.08 180)
 		(effects
 			(font
@@ -5643,7 +5754,17 @@
 		)
 		(uuid "06637d70-e9d1-40ab-ae0a-a124128c4951")
 	)
-	(label "DRV_IN2_PH"
+	(label "EXP_RX"
+		(at 27.94 185.42 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0c75afb5-baf1-4427-b2ca-1c4143e334aa")
+	)
+	(label "I2C_SCL"
 		(at 38.1 127 180)
 		(effects
 			(font
@@ -5663,7 +5784,7 @@
 		)
 		(uuid "126e2d85-f66b-4e10-b764-d2808c9f1d70")
 	)
-	(label "I2C_SDA"
+	(label "EXP_IO13"
 		(at 71.12 121.92 0)
 		(effects
 			(font
@@ -5683,6 +5804,16 @@
 		)
 		(uuid "2813efde-7b63-4467-bbe7-db87d9710abc")
 	)
+	(label "EXP_RX"
+		(at 38.1 116.84 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "29dbde2f-af8f-485d-b8af-d3e33025dd84")
+	)
 	(label "DRV_nFAULT"
 		(at 111.76 127 180)
 		(effects
@@ -5692,16 +5823,6 @@
 			(justify right bottom)
 		)
 		(uuid "35ea5eb3-9fa8-42f6-8e48-e3ef0af08140")
-	)
-	(label "DRV_PMODE"
-		(at 154.94 119.38 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3685f920-8183-41e2-8a5c-c57b137c5f51")
 	)
 	(label "DRV_IN1_EN"
 		(at 111.76 119.38 180)
@@ -5713,7 +5834,7 @@
 		)
 		(uuid "383a8389-ff31-4d24-996d-8a433ff74fb8")
 	)
-	(label "EXP_IO9"
+	(label "MAG_SDA"
 		(at 71.12 132.08 0)
 		(effects
 			(font
@@ -5733,7 +5854,7 @@
 		)
 		(uuid "4d17b48a-3b02-44f0-b320-ce6a19a2111e")
 	)
-	(label "DRV_IPROPI"
+	(label "DRV_nFAULT"
 		(at 38.1 121.92 180)
 		(effects
 			(font
@@ -5763,7 +5884,7 @@
 		)
 		(uuid "5c91a145-b14a-4fae-a98d-603684749b69")
 	)
-	(label "MOT_OUT2"
+	(label "MOT_OUT1"
 		(at 116.84 153.67 180)
 		(effects
 			(font
@@ -5773,7 +5894,7 @@
 		)
 		(uuid "60b8e3b9-6a20-42f4-8ecc-5ed70865059e")
 	)
-	(label "I2C_SCL"
+	(label "EXP_IO12"
 		(at 71.12 124.46 0)
 		(effects
 			(font
@@ -5813,7 +5934,17 @@
 		)
 		(uuid "82b11e63-ebba-4c0f-b733-49835588afb1")
 	)
-	(label "DRV_IN1_EN"
+	(label "EXP_IO13"
+		(at 27.94 177.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8959e57a-f8aa-4a55-8061-6166d996ddf7")
+	)
+	(label "DRV_nSLEEP"
 		(at 38.1 129.54 180)
 		(effects
 			(font
@@ -5823,7 +5954,7 @@
 		)
 		(uuid "8c03e59b-2a94-4630-8a7a-06b62ecb0953")
 	)
-	(label "MAG_SDA"
+	(label "MAG_INT"
 		(at 71.12 127 0)
 		(effects
 			(font
@@ -5832,16 +5963,6 @@
 			(justify left bottom)
 		)
 		(uuid "95636afc-b3f6-4f77-be5a-7f5b75402251")
-	)
-	(label "EXP_IO8"
-		(at 71.12 134.62 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9712f222-5f53-4da1-bda7-d1dc961fea04")
 	)
 	(label "MAG_INT"
 		(at 220.98 118.11 180)
@@ -5883,7 +6004,17 @@
 		)
 		(uuid "aa5175b4-902d-4af1-b556-4feb08f413c1")
 	)
-	(label "MAG_INT"
+	(label "EXP_TX"
+		(at 38.1 114.3 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b054481d-8187-424c-9570-b3df20dcbce7")
+	)
+	(label "DRV_IN1_EN"
 		(at 38.1 134.62 180)
 		(effects
 			(font
@@ -5903,7 +6034,7 @@
 		)
 		(uuid "b45062cb-1328-4a12-8f3f-bfeec388bab4")
 	)
-	(label "DRV_nSLEEP"
+	(label "I2C_SDA"
 		(at 38.1 124.46 180)
 		(effects
 			(font
@@ -5922,6 +6053,16 @@
 			(justify left bottom)
 		)
 		(uuid "c9251611-28f2-48ad-b426-20578bb56bfa")
+	)
+	(label "EXP_IO12"
+		(at 27.94 173.99 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c958ab5f-cad5-4464-a884-514e3bca4939")
 	)
 	(label "I2C_SCL"
 		(at 38.1 45.72 180)
@@ -6003,7 +6144,7 @@
 		)
 		(uuid "e75565a0-b49e-4b2b-a4f8-c07b7be4f02e")
 	)
-	(label "MOT_OUT1"
+	(label "MOT_OUT2"
 		(at 116.84 156.21 180)
 		(effects
 			(font
@@ -6012,6 +6153,16 @@
 			(justify right bottom)
 		)
 		(uuid "e9905e93-1815-4f01-bc42-16e7a3b882e6")
+	)
+	(label "EXP_TX"
+		(at 27.94 181.61 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f863041a-e96e-495f-86be-8b158669e5f6")
 	)
 	(label "DRV_CPL"
 		(at 191.77 118.11 0)
@@ -6023,7 +6174,7 @@
 		)
 		(uuid "fe1825eb-5625-4c83-be80-f5762e5e36fe")
 	)
-	(label "DRV_nFAULT"
+	(label "DRV_IPROPI"
 		(at 38.1 119.38 180)
 		(effects
 			(font
@@ -6574,6 +6725,83 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 25.4 173.99 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "21f55046-c6f0-4a0f-9492-93825678ad72")
+		(property "Reference" "TP1"
+			(at 18.8 173.99 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Pad"
+			(at 25.4 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 25.4 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 25.4 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
+			(at 25.4 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "66786c44-6fed-493a-99f3-380bc7a90c5d")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "TP1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:PWR_FLAG")
 		(at 190.5 66.04 180)
 		(unit 1)
@@ -6812,9 +7040,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "2f982a3a-760f-4fc0-b5ce-66581d9ccfb7")
 		(property "Reference" "H2"
@@ -6839,7 +7067,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "EasyEDA:SMD_BD5.6-D3.6"
+		(property "Footprint" "Library:M2_SMD_nut_SMTSOM225_ring4.2"
 			(at 261.62 26.67 0)
 			(hide yes)
 			(show_name no)
@@ -7184,6 +7412,83 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 25.4 177.8 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "47a80191-90b8-4ea9-a544-9e0e8086f87f")
+		(property "Reference" "TP2"
+			(at 18.8 177.8 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Pad"
+			(at 25.4 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 25.4 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 25.4 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
+			(at 25.4 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c89b3198-e0f3-4f82-95da-46d072571e10")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "TP2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+12V")
 		(at 109.22 44.45 0)
 		(unit 1)
@@ -7338,6 +7643,83 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 25.4 185.42 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "4a8f08e2-deca-42b7-9763-98ee304ff243")
+		(property "Reference" "TP4"
+			(at 18.8 185.42 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Pad"
+			(at 25.4 185.42 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 25.4 185.42 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 25.4 185.42 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
+			(at 25.4 185.42 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "af03d397-8470-4ad8-8d2b-b4a500751bb6")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "TP4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+12V")
 		(at 191.77 109.22 270)
 		(unit 1)
@@ -7409,6 +7791,80 @@
 			(project "lock-picking"
 				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
 					(reference "#PWR33")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 59.69 181.61 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "4be89736-295a-42b2-a511-e08efe04f3ce")
+		(property "Reference" "#PWR48"
+			(at 59.69 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 64.54 181.61 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 59.69 181.61 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 59.69 181.61 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 59.69 181.61 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "2a897fb5-6279-49a4-8196-a361cbb84265")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "#PWR48")
 					(unit 1)
 				)
 			)
@@ -7636,7 +8092,7 @@
 				)
 			)
 		)
-		(property "Footprint" "EasyEDA:TYPE-C-SMD_HX-TYPE-C-16PIN"
+		(property "Footprint" "Library:USB-C_HX-TYPE-C-16PIN_NPTH-pegs"
 			(at 50.8 49.53 0)
 			(hide yes)
 			(show_name no)
@@ -7954,9 +8410,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "54e183c8-ffd1-43a4-8a6d-b58f33c8fa35")
 		(property "Reference" "H1"
@@ -7981,7 +8437,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "EasyEDA:SMD_BD5.6-D3.6"
+		(property "Footprint" "Library:M2_SMD_nut_SMTSOM225_ring4.2"
 			(at 227.33 26.67 0)
 			(hide yes)
 			(show_name no)
@@ -8483,6 +8939,80 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 59.69 173.99 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "658c86ce-478d-4706-aeff-0008fabab3de")
+		(property "Reference" "#PWR46"
+			(at 59.69 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 65.09 173.99 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 59.69 173.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 59.69 173.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 59.69 173.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "dfb53560-1515-4885-800b-f547f78d3ba2")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "#PWR46")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 144.78 45.72 0)
 		(unit 1)
@@ -8756,9 +9286,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "6deee731-e39b-4351-87db-0f6bd440ddba")
 		(property "Reference" "U1"
@@ -9785,7 +10315,7 @@
 				)
 			)
 		)
-		(property "Value" "10k"
+		(property "Value" "2.2k"
 			(at 248.92 158.75 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9806,7 +10336,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.lcsc.com/product-detail/C25744.html"
+		(property "Datasheet" "https://www.lcsc.com/product-detail/C25879.html"
 			(at 248.92 156.21 90)
 			(hide yes)
 			(show_name no)
@@ -9817,7 +10347,7 @@
 				)
 			)
 		)
-		(property "Description" "10k 1% 62.5mW 0402"
+		(property "Description" "2.2k 1% 62.5mW 0402"
 			(at 248.92 156.21 90)
 			(hide yes)
 			(show_name no)
@@ -9839,7 +10369,7 @@
 				)
 			)
 		)
-		(property "MPN" "0402WGF1002TCE"
+		(property "MPN" "0402WGF2201TCE"
 			(at 248.92 156.21 90)
 			(hide yes)
 			(show_name no)
@@ -9850,7 +10380,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C25744"
+		(property "LCSC Part" "C25879"
 			(at 248.92 156.21 90)
 			(hide yes)
 			(show_name no)
@@ -10025,6 +10555,83 @@
 			(project "lock-picking"
 				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
 					(reference "#PWR35")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 57.15 177.8 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "a06e4ec7-fb50-4b88-97cc-204db83016c7")
+		(property "Reference" "TP6"
+			(at 50.55 177.8 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Pad"
+			(at 57.15 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 57.15 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 57.15 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
+			(at 57.15 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d3595131-edb3-4479-8ad6-906fba470b51")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "TP6")
 					(unit 1)
 				)
 			)
@@ -11012,7 +11619,7 @@
 				)
 			)
 		)
-		(property "Value" "10k"
+		(property "Value" "2.2k"
 			(at 248.92 149.86 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11033,7 +11640,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.lcsc.com/product-detail/C25744.html"
+		(property "Datasheet" "https://www.lcsc.com/product-detail/C25879.html"
 			(at 248.92 147.32 90)
 			(hide yes)
 			(show_name no)
@@ -11044,7 +11651,7 @@
 				)
 			)
 		)
-		(property "Description" "10k 1% 62.5mW 0402"
+		(property "Description" "2.2k 1% 62.5mW 0402"
 			(at 248.92 147.32 90)
 			(hide yes)
 			(show_name no)
@@ -11066,7 +11673,7 @@
 				)
 			)
 		)
-		(property "MPN" "0402WGF1002TCE"
+		(property "MPN" "0402WGF2201TCE"
 			(at 248.92 147.32 90)
 			(hide yes)
 			(show_name no)
@@ -11077,7 +11684,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C25744"
+		(property "LCSC Part" "C25879"
 			(at 248.92 147.32 90)
 			(hide yes)
 			(show_name no)
@@ -11098,6 +11705,83 @@
 			(project "lock-picking"
 				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
 					(reference "R3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 57.15 173.99 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "bdc3a924-ebb8-4e40-8123-7003fcbbfcc8")
+		(property "Reference" "TP5"
+			(at 50.55 173.99 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Pad"
+			(at 57.15 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 57.15 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 57.15 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
+			(at 57.15 173.99 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "dfc66959-58e2-47db-88fc-ded0097ea786")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "TP5")
 					(unit 1)
 				)
 			)
@@ -11175,6 +11859,83 @@
 			(project "lock-picking"
 				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
 					(reference "#PWR14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 57.15 181.61 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "c6084463-0f31-46ec-8a33-87c75df36f2a")
+		(property "Reference" "TP7"
+			(at 50.55 181.61 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Pad"
+			(at 57.15 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 57.15 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 57.15 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
+			(at 57.15 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d5ba8c61-5e92-43fb-92a0-c3ce60f351df")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "TP7")
 					(unit 1)
 				)
 			)
@@ -11295,7 +12056,7 @@
 		)
 	)
 	(symbol
-		(lib_id "EasyEDA:DRV8876PWPR")
+		(lib_id "lock-picking:DRV8876RGTR")
 		(at 133.35 125.73 0)
 		(unit 1)
 		(body_style 1)
@@ -11315,7 +12076,7 @@
 				)
 			)
 		)
-		(property "Value" "DRV8876PWPR"
+		(property "Value" "DRV8876RGTR"
 			(at 133.35 144.78 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11325,7 +12086,7 @@
 				)
 			)
 		)
-		(property "Footprint" "EasyEDA:HTSSOP-16_L5.0-W4.4-P0.65-LS6.4-BL-EP"
+		(property "Footprint" "Library:QFN-16-1EP_3x3mm_P0.5mm_EP1.68x1.68mm_ThermalVias0.3"
 			(at 133.35 125.73 0)
 			(hide yes)
 			(show_name no)
@@ -11336,7 +12097,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://lcsc.com/product-detail/Motor-Drivers_Texas-Instruments-Texas-Instruments-DRV8876PWPR_C575551.html"
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/drv8876.pdf"
 			(at 133.35 125.73 0)
 			(hide yes)
 			(show_name no)
@@ -11347,7 +12108,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "3.5A brushed DC motor driver, current sense + regulation, VQFN-16 3x3 (RGT)"
 			(at 133.35 125.73 0)
 			(hide yes)
 			(show_name no)
@@ -11358,7 +12119,7 @@
 				)
 			)
 		)
-		(property "Manufacturer" "TI(德州仪器)"
+		(property "Manufacturer" "Texas Instruments"
 			(at 133.35 125.73 0)
 			(hide yes)
 			(show_name no)
@@ -11369,7 +12130,7 @@
 				)
 			)
 		)
-		(property "MPN" "DRV8876PWPR"
+		(property "MPN" "DRV8876RGTR"
 			(at 133.35 125.73 0)
 			(hide yes)
 			(show_name no)
@@ -11380,7 +12141,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C575551"
+		(property "LCSC Part" "C1852100"
 			(at 133.35 125.73 0)
 			(hide yes)
 			(show_name no)
@@ -11390,53 +12151,53 @@
 					(size 1.27 1.27)
 				)
 			)
-		)
-		(pin "1"
-			(uuid "c6bd7f4c-b390-4b50-a8e7-25a5ad36a1d7")
-		)
-		(pin "2"
-			(uuid "e57caa57-d1b3-47d2-8994-f9167c4c9d11")
-		)
-		(pin "3"
-			(uuid "ddacc8b2-37fd-41f6-82b0-76f3d853b6ae")
-		)
-		(pin "4"
-			(uuid "2419d7ed-3af5-4976-9126-be3b11737e4e")
-		)
-		(pin "5"
-			(uuid "5cca1706-7cd6-4283-8498-ef06bfb3eb6a")
-		)
-		(pin "6"
-			(uuid "6fc5b56f-8f11-46dc-a145-d481822a85e2")
-		)
-		(pin "7"
-			(uuid "64f858a2-6578-4b53-95a0-33c7558515ce")
-		)
-		(pin "8"
-			(uuid "9b37d6bb-ba12-476d-b42f-f2851f2f927a")
-		)
-		(pin "9"
-			(uuid "58b32140-42c8-4fdf-bf38-86ba65fb3585")
-		)
-		(pin "10"
-			(uuid "3c79ac53-7265-480f-8e4c-b50146a4653a")
-		)
-		(pin "11"
-			(uuid "b10c05da-0eba-4527-9a7d-fa324612e5d4")
-		)
-		(pin "12"
-			(uuid "a20ccd91-0c1c-45be-a60d-f946939c1bc7")
-		)
-		(pin "13"
-			(uuid "83da2c3e-aeea-4d07-8e12-fd657af2eeae")
-		)
-		(pin "14"
-			(uuid "78072be6-c17c-41db-ab05-ab400d475231")
 		)
 		(pin "15"
-			(uuid "231e0298-cd27-4fb8-8f00-ec5112272902")
+			(uuid "c6bd7f4c-b390-4b50-a8e7-25a5ad36a1d7")
 		)
 		(pin "16"
+			(uuid "e57caa57-d1b3-47d2-8994-f9167c4c9d11")
+		)
+		(pin "1"
+			(uuid "ddacc8b2-37fd-41f6-82b0-76f3d853b6ae")
+		)
+		(pin "2"
+			(uuid "2419d7ed-3af5-4976-9126-be3b11737e4e")
+		)
+		(pin "3"
+			(uuid "5cca1706-7cd6-4283-8498-ef06bfb3eb6a")
+		)
+		(pin "4"
+			(uuid "6fc5b56f-8f11-46dc-a145-d481822a85e2")
+		)
+		(pin "5"
+			(uuid "64f858a2-6578-4b53-95a0-33c7558515ce")
+		)
+		(pin "6"
+			(uuid "9b37d6bb-ba12-476d-b42f-f2851f2f927a")
+		)
+		(pin "7"
+			(uuid "58b32140-42c8-4fdf-bf38-86ba65fb3585")
+		)
+		(pin "8"
+			(uuid "3c79ac53-7265-480f-8e4c-b50146a4653a")
+		)
+		(pin "9"
+			(uuid "b10c05da-0eba-4527-9a7d-fa324612e5d4")
+		)
+		(pin "10"
+			(uuid "a20ccd91-0c1c-45be-a60d-f946939c1bc7")
+		)
+		(pin "11"
+			(uuid "83da2c3e-aeea-4d07-8e12-fd657af2eeae")
+		)
+		(pin "12"
+			(uuid "78072be6-c17c-41db-ab05-ab400d475231")
+		)
+		(pin "13"
+			(uuid "231e0298-cd27-4fb8-8f00-ec5112272902")
+		)
+		(pin "14"
 			(uuid "38d5beda-0e9d-4b57-ad02-dd6712b2d184")
 		)
 		(pin "17"
@@ -11795,6 +12556,83 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 25.4 181.61 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "d7b28e58-6bf5-4184-89e9-4fa181747a44")
+		(property "Reference" "TP3"
+			(at 18.8 181.61 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Pad"
+			(at 25.4 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 25.4 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 25.4 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
+			(at 25.4 181.61 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "8d789e99-bfe5-42e9-b139-0a82046e6edb")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "TP3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 177.8 149.86 0)
 		(unit 1)
@@ -12140,6 +12978,80 @@
 		)
 	)
 	(symbol
+		(lib_id "power:VBUS")
+		(at 59.69 177.8 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "e4b8526b-73f4-4006-9187-9341ebe9f0e9")
+		(property "Reference" "#PWR47"
+			(at 59.69 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VBUS"
+			(at 65.09 177.8 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 59.69 177.8 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 59.69 177.8 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 59.69 177.8 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c4c3baeb-c243-4a08-9708-5f26c6001eef")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "#PWR47")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 185.42 135.89 90)
 		(unit 1)
@@ -12411,9 +13323,9 @@
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp no)
 		(uuid "f496ad8a-dd54-4962-aa42-ab9b0f3ca8ed")
 		(property "Reference" "J2"
@@ -12517,811 +13429,23 @@
 			)
 		)
 	)
-	(wire
-		(pts
-			(xy 40.64 114.3)
-			(xy 38.1 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "87346608-7542-4888-b0fb-de44c30ca7c1")
-	)
-	(label "EXP_TX"
-		(at 38.1 114.3 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "b054481d-8187-424c-9570-b3df20dcbce7")
-	)
-	(wire
-		(pts
-			(xy 40.64 116.84)
-			(xy 38.1 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c162c4f1-6851-4737-9579-ad5d17a41c5c")
-	)
-	(label "EXP_RX"
-		(at 38.1 116.84 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "29dbde2f-af8f-485d-b8af-d3e33025dd84")
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 25.4 173.99 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "21f55046-c6f0-4a0f-9492-93825678ad72")
-		(property "Reference" "TP1"
-			(at 18.8 173.99 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Pad"
-			(at 25.4 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 25.4 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 25.4 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
-			(at 25.4 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "66786c44-6fed-493a-99f3-380bc7a90c5d")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "TP1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 25.4 173.99)
-			(xy 27.94 173.99)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f2af037d-33b1-4c64-8630-1309af8662f8")
-	)
-	(label "EXP_IO8"
-		(at 27.94 173.99 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c958ab5f-cad5-4464-a884-514e3bca4939")
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 25.4 177.8 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "47a80191-90b8-4ea9-a544-9e0e8086f87f")
-		(property "Reference" "TP2"
-			(at 18.8 177.8 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Pad"
-			(at 25.4 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 25.4 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 25.4 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
-			(at 25.4 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c89b3198-e0f3-4f82-95da-46d072571e10")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "TP2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 25.4 177.8)
-			(xy 27.94 177.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "be605a93-ea39-46c7-94b2-60c0e66cc80d")
-	)
-	(label "EXP_IO9"
-		(at 27.94 177.8 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8959e57a-f8aa-4a55-8061-6166d996ddf7")
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 25.4 181.61 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "d7b28e58-6bf5-4184-89e9-4fa181747a44")
-		(property "Reference" "TP3"
-			(at 18.8 181.61 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Pad"
-			(at 25.4 181.61 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 25.4 181.61 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 25.4 181.61 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
-			(at 25.4 181.61 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8d789e99-bfe5-42e9-b139-0a82046e6edb")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "TP3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 25.4 181.61)
-			(xy 27.94 181.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "35877a55-1f33-4989-a98a-17aaf94358ae")
-	)
-	(label "EXP_TX"
-		(at 27.94 181.61 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f863041a-e96e-495f-86be-8b158669e5f6")
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 25.4 185.42 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "4a8f08e2-deca-42b7-9763-98ee304ff243")
-		(property "Reference" "TP4"
-			(at 18.8 185.42 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Pad"
-			(at 25.4 185.42 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 25.4 185.42 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 25.4 185.42 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
-			(at 25.4 185.42 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "af03d397-8470-4ad8-8d2b-b4a500751bb6")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "TP4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 25.4 185.42)
-			(xy 27.94 185.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bb5a446c-700e-43e4-a8be-e14e3e175e8a")
-	)
-	(label "EXP_RX"
-		(at 27.94 185.42 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "0c75afb5-baf1-4427-b2ca-1c4143e334aa")
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 57.15 173.99 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "bdc3a924-ebb8-4e40-8123-7003fcbbfcc8")
-		(property "Reference" "TP5"
-			(at 50.55 173.99 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Pad"
-			(at 57.15 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 57.15 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 57.15 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
-			(at 57.15 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "dfc66959-58e2-47db-88fc-ded0097ea786")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "TP5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 57.15 173.99)
-			(xy 59.69 173.99)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "03168ac9-d52a-4758-8c25-913b56d997b2")
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 59.69 173.99 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "658c86ce-478d-4706-aeff-0008fabab3de")
-		(property "Reference" "#PWR46"
-			(at 59.69 173.99 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 65.09 173.99 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "dfb53560-1515-4885-800b-f547f78d3ba2")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "#PWR46")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 57.15 177.8 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "a06e4ec7-fb50-4b88-97cc-204db83016c7")
-		(property "Reference" "TP6"
-			(at 50.55 177.8 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Pad"
-			(at 57.15 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 57.15 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 57.15 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
-			(at 57.15 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d3595131-edb3-4479-8ad6-906fba470b51")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "TP6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 57.15 177.8)
-			(xy 59.69 177.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9d5552ed-aeca-4453-b902-0ba04bfb3155")
-	)
-	(symbol
-		(lib_id "power:VBUS")
-		(at 59.69 177.8 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "e4b8526b-73f4-4006-9187-9341ebe9f0e9")
-		(property "Reference" "#PWR47"
-			(at 59.69 177.8 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "VBUS"
-			(at 65.09 177.8 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c4c3baeb-c243-4a08-9708-5f26c6001eef")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "#PWR47")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 57.15 181.61 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "c6084463-0f31-46ec-8a33-87c75df36f2a")
-		(property "Reference" "TP7"
-			(at 50.55 181.61 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Pad"
-			(at 57.15 181.61 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 57.15 181.61 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 57.15 181.61 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1.5 mm SMD solder pad (top side) for a hand-soldered wire"
-			(at 57.15 181.61 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d5ba8c61-5e92-43fb-92a0-c3ce60f351df")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "TP7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 57.15 181.61)
-			(xy 59.69 181.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "374474c7-732e-4b04-8a7e-16c0f9cff75e")
+	(no_connect
+		(at 63.5 134.62)
+		(uuid "a75ae183-39ec-4e20-8d4b-c3cc5a2e5156")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 59.69 181.61 90)
+		(at 154.94 119.38 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
 		(in_bom no)
 		(on_board yes)
-		(in_pos_files no)
+		(in_pos_files yes)
 		(dnp no)
-		(uuid "4be89736-295a-42b2-a511-e08efe04f3ce")
-		(property "Reference" "#PWR48"
-			(at 59.69 181.61 90)
+		(uuid "37181a5b-d920-4245-99e9-b35c35af0d4a")
+		(property "Reference" "#PWR49"
+			(at 154.94 119.38 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13332,7 +13456,40 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 64.54 181.61 90)
+			(at 159.79 119.38 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 154.94 119.38 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 154.94 119.38 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 154.94 119.38 90)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -13342,39 +13499,439 @@
 			)
 		)
 		(pin "1"
-			(uuid "2a897fb5-6279-49a4-8196-a361cbb84265")
+			(uuid "d3769088-1f69-4de8-8670-dc67319c7540")
 		)
 		(instances
 			(project "lock-picking"
 				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "#PWR48")
+					(reference "#PWR49")
 					(unit 1)
 				)
 			)
 		)
 	)
-	(text "SPARE PINS - solder pads"
+	(symbol
+		(lib_id "Device:C")
+		(at 276.86 124.46 0)
+		(unit 1)
+		(body_style 1)
 		(exclude_from_sim no)
-		(at 13.97 168.91 0)
-		(effects
-			(font
-				(size 2 2)
-				(bold yes)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d61d4e3a-f2c6-41f2-a996-22330c0f50ee")
+		(property "Reference" "C11"
+			(at 279.4 123.19 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
-			(justify left top)
 		)
-		(uuid "6abdb582-d712-4892-9d2e-455d941147a1")
+		(property "Value" "10uF 6.3V"
+			(at 279.4 125.73 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 276.86 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.lcsc.com/product-detail/C15525.html"
+			(at 276.86 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "10uF 6.3V X5R 20% 0402"
+			(at 276.86 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 276.86 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL05A106MQ5NUNC"
+			(at 276.86 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part" "C15525"
+			(at 276.86 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "8ba0fba8-0168-42f0-8dfb-b479d997ea67")
+		)
+		(pin "2"
+			(uuid "69ff387b-225e-4102-9d95-2ed054906819")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "C11")
+					(unit 1)
+				)
+			)
+		)
 	)
-	(text "1.5 mm SMD pads, top side, nothing fitted. Glue wires so pads do not lift.\nGPIOs are 3.3 V only, NOT 5 V tolerant. VBUS is ~4.6 V.\nTX prints the ROM boot log at reset; RX is an input."
+	(wire
+		(pts
+			(xy 271.78 120.65)
+			(xy 276.86 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7b48e02-ea7f-4e2e-8b1c-b7e358f1da32")
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 276.86 128.27 0)
+		(unit 1)
+		(body_style 1)
 		(exclude_from_sim no)
-		(at 13.97 189.23 0)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "454b839a-1c45-41bc-bbbc-4758b8c89e9f")
+		(property "Reference" "#PWR50"
+			(at 276.86 128.27 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 276.86 132.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 276.86 128.27 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 276.86 128.27 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 276.86 128.27 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "91e9e623-562b-499a-bbfc-c53c909ceb1e")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "#PWR50")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 185.42 101.6 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d1fbdc85-b430-48bf-8a07-acb279cf92d9")
+		(property "Reference" "C12"
+			(at 185.42 99.06 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10nF 50V"
+			(at 185.42 104.14 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 185.42 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.lcsc.com/product-detail/C15195.html"
+			(at 185.42 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "10nF 50V X7R 10% 0402"
+			(at 185.42 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 185.42 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL05B103KB5NNNC"
+			(at 185.42 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part" "C15195"
+			(at 185.42 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c4689faa-2ed6-4a71-a82a-aa6629a3c781")
+		)
+		(pin "2"
+			(uuid "bceeb77a-97c1-42e2-9018-44d3195f4770")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "C12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 189.23 101.6)
+			(xy 191.77 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7810399a-6f08-4468-a855-ebc7acc8c8ad")
+	)
+	(wire
+		(pts
+			(xy 181.61 101.6)
+			(xy 179.07 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5875f3ee-8a31-47f0-a882-1bb62be778bc")
+	)
+	(label "DRV_IPROPI"
+		(at 179.07 101.6 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left top)
+			(justify right bottom)
 		)
-		(uuid "4bf09fff-f2e8-4c11-a0ab-d1bab8ee6973")
+		(uuid "aaebd797-6dd4-4015-9fd8-8f377fa8460a")
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 191.77 101.6 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "43be0454-1a88-4dca-92ab-b5f8fcb193e2")
+		(property "Reference" "#PWR51"
+			(at 191.77 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 196.62 101.6 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 191.77 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 191.77 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 191.77 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0ea2e9ee-c906-4205-81d9-6aae3fea8435")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "#PWR51")
+					(unit 1)
+				)
+			)
+		)
 	)
 	(sheet_instances
 		(path "/"
