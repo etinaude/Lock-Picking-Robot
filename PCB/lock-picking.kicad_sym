@@ -20,7 +20,7 @@
 			)
 		)
 		(property "Value" "ESP32-S3-SuperMini"
-			(at 0 14.986 0)
+			(at 0 15.24 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -31,9 +31,9 @@
 		)
 		(property "Footprint" "footprints:ESP32-S3-SuperMini"
 			(at 0 0 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
-			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -51,7 +51,7 @@
 				)
 			)
 		)
-		(property "Description" "ESP32-S3 SuperMini module. Pin numbers match the footprint pad names."
+		(property "Description" "ESP32-S3 SuperMini module on 2.54 mm headers. Pin numbers match the footprint pad names; pins are drawn where they sit on the board (USB-C at top)."
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -85,17 +85,17 @@
 					(type background)
 				)
 			)
-			(pin power_in line
-				(at 11.43 11.43 180)
+			(pin bidirectional line
+				(at -11.43 6.35 0)
 				(length 2.54)
-				(name "5V"
+				(name "GPIO1"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "5V"
+				(number "1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -103,17 +103,35 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at 11.43 8.89 180)
+			(pin bidirectional line
+				(at -11.43 3.81 0)
 				(length 2.54)
-				(name "GND"
+				(name "GPIO2"
 					(effects
 						(font
 							(size 1.27 1.27)
 						)
 					)
 				)
-				(number "GND"
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -11.43 1.27 0)
+				(length 2.54)
+				(name "GPIO3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -140,7 +158,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 11.43 3.81 180)
+				(at -11.43 -1.27 0)
 				(length 2.54)
 				(name "GPIO4"
 					(effects
@@ -158,97 +176,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 11.43 1.27 180)
-				(length 2.54)
-				(name "GPIO3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 11.43 -1.27 180)
-				(length 2.54)
-				(name "GPIO2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 11.43 -3.81 180)
-				(length 2.54)
-				(name "GPIO1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 11.43 -6.35 180)
-				(length 2.54)
-				(name "GPIO43/TX"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "TX"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 11.43 -8.89 180)
-				(length 2.54)
-				(name "GPIO44/RX"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "RX"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -11.43 11.43 0)
+				(at -11.43 -3.81 0)
 				(length 2.54)
 				(name "GPIO5"
 					(effects
@@ -265,8 +193,26 @@
 					)
 				)
 			)
+			(pin power_in line
+				(at 11.43 11.43 180)
+				(length 2.54)
+				(name "5V"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5V"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin bidirectional line
-				(at -11.43 8.89 0)
+				(at -11.43 -6.35 0)
 				(length 2.54)
 				(name "GPIO6"
 					(effects
@@ -284,7 +230,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -11.43 6.35 0)
+				(at -11.43 -8.89 0)
 				(length 2.54)
 				(name "GPIO7"
 					(effects
@@ -302,7 +248,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -11.43 3.81 0)
+				(at 11.43 -8.89 180)
 				(length 2.54)
 				(name "GPIO8"
 					(effects
@@ -320,7 +266,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -11.43 1.27 0)
+				(at 11.43 -6.35 180)
 				(length 2.54)
 				(name "GPIO9"
 					(effects
@@ -338,7 +284,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -11.43 -1.27 0)
+				(at 11.43 -3.81 180)
 				(length 2.54)
 				(name "GPIO10"
 					(effects
@@ -356,7 +302,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -11.43 -3.81 0)
+				(at 11.43 -1.27 180)
 				(length 2.54)
 				(name "GPIO11"
 					(effects
@@ -374,7 +320,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -11.43 -6.35 0)
+				(at 11.43 1.27 180)
 				(length 2.54)
 				(name "GPIO12"
 					(effects
@@ -392,7 +338,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -11.43 -8.89 0)
+				(at 11.43 3.81 180)
 				(length 2.54)
 				(name "GPIO13"
 					(effects
@@ -402,6 +348,60 @@
 					)
 				)
 				(number "13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 11.43 8.89 180)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -11.43 8.89 0)
+				(length 2.54)
+				(name "RX"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "RX"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -11.43 11.43 0)
+				(length 2.54)
+				(name "TX"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "TX"
 					(effects
 						(font
 							(size 1.27 1.27)
