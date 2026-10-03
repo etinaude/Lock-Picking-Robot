@@ -803,7 +803,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "EasyEDA:AMS1117-5.0_C347223"
+		(symbol "EasyEDA:AMS1117-5.0"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -819,7 +819,7 @@
 					)
 				)
 			)
-			(property "Value" "AMS1117-5.0_C347223"
+			(property "Value" "AMS1117-5.0"
 				(at 0 -7.62 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -829,7 +829,7 @@
 					)
 				)
 			)
-			(property "Footprint" "EasyEDA:SOT-223_L6.7-W3.5-P2.30-BR"
+			(property "Footprint" "EasyEDA:SOT-223_L6.5-W3.5-P2.30-LS7.0-BR"
 				(at 0 -10.16 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -840,7 +840,7 @@
 					)
 				)
 			)
-			(property "Datasheet" "https://lcsc.com/product-detail/Others_Youtai-Semiconductor-Co-Ltd-AMS1117-5-0_C347223.html"
+			(property "Datasheet" "https://lcsc.com/product-detail/Low-Dropout-Regulators-LDO_AMS_AMS1117-5-0_AMS1117-5-0_C6187.html"
 				(at 0 -12.7 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -862,7 +862,7 @@
 					)
 				)
 			)
-			(property "Manufacturer" "UMW(友台半导体)"
+			(property "Manufacturer" "Advanced Monolithic Systems"
 				(at 0 -15.24 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -884,7 +884,7 @@
 					)
 				)
 			)
-			(property "LCSC Part" "C347223"
+			(property "LCSC Part" "C6187"
 				(at 0 -20.32 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -906,10 +906,10 @@
 					)
 				)
 			)
-			(symbol "AMS1117-5.0_C347223_0_1"
+			(symbol "AMS1117-5.0_0_1"
 				(rectangle
-					(start -11.43 5.08)
-					(end 11.43 -3.81)
+					(start -8.89 5.08)
+					(end 8.89 -5.08)
 					(stroke
 						(width 0)
 						(type default)
@@ -919,7 +919,7 @@
 					)
 				)
 				(circle
-					(center -10.16 3.81)
+					(center -7.62 3.81)
 					(radius 0.38)
 					(stroke
 						(width 0)
@@ -930,9 +930,9 @@
 					)
 				)
 				(pin unspecified line
-					(at -13.97 2.54 0)
+					(at -11.43 2.54 0)
 					(length 2.54)
-					(name "ADJ(GND)"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -948,9 +948,9 @@
 					)
 				)
 				(pin unspecified line
-					(at -13.97 0 0)
+					(at -11.43 0 0)
 					(length 2.54)
-					(name "VOUT(TAB)"
+					(name "VOUT"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -966,7 +966,7 @@
 					)
 				)
 				(pin unspecified line
-					(at -13.97 -2.54 0)
+					(at -11.43 -2.54 0)
 					(length 2.54)
 					(name "VIN"
 						(effects
@@ -984,9 +984,9 @@
 					)
 				)
 				(pin unspecified line
-					(at 13.97 0 180)
+					(at 11.43 0 180)
 					(length 2.54)
-					(name "TAB"
+					(name "VOUT"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -994,6 +994,171 @@
 						)
 					)
 					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "EasyEDA:B2B-XH-A"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "CN"
+				(at 0 6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "B2B-XH-A"
+				(at 0 -6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "EasyEDA:CONN-TH_B2B-XH-A-LF-SN"
+				(at 0 -8.89 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" "https://lcsc.com/product-detail/XH-Connectors_JST_B2B-XH-A-LF-SN_XHsocket-1-2P-pitch2-5mm_C158012.html"
+				(at 0 -11.43 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Manufacturer" "JST"
+				(at 0 -13.97 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "MPN" "B2B-XH-A(LF)(SN)"
+				(at 0 -16.51 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "LCSC Part" "C158012"
+				(at 0 -19.05 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "Wire To Board / Wire To Wire Connector"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "B2B-XH-A_0_1"
+				(rectangle
+					(start -3.81 3.81)
+					(end 6.35 -3.81)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(circle
+					(center -2.54 2.54)
+					(radius 0.38)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at -6.35 1.27 0)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at -6.35 -1.27 0)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2881,171 +3046,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "EasyEDA:S2B-PH-K-S"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "U"
-				(at 0 6.35 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "S2B-PH-K-S"
-				(at 0 -6.35 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "EasyEDA:CONN-TH_S2B-PH-K-S-LF-SN"
-				(at 0 -8.89 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" "https://lcsc.com/product-detail/PH-Connectors_JST-Sales-America_S2B-PH-K-S-LF-SN_JST-Sales-America-S2B-PH-K-S-LF-SN_C173752.html"
-				(at 0 -11.43 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Manufacturer" "JST"
-				(at 0 -13.97 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "MPN" "S2B-PH-K-S(LF)(SN)"
-				(at 0 -16.51 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "LCSC Part" "C173752"
-				(at 0 -19.05 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "Wire To Board / Wire To Wire Connector"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "S2B-PH-K-S_0_1"
-				(rectangle
-					(start -2.54 3.81)
-					(end 5.08 -3.81)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(circle
-					(center -1.91 3.17)
-					(radius 0.38)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin unspecified line
-					(at -5.08 1.27 0)
-					(length 2.54)
-					(name "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -5.08 -1.27 0)
-					(length 2.54)
-					(name "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "EasyEDA:SMTSOM225BTR"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -3778,9 +3778,9 @@
 		)
 		(uuid "8f6f7234-8a4f-4ab1-8a22-bb62efa60bd3")
 	)
-	(text "Screw Terminals"
+	(text "Control Board"
 		(exclude_from_sim no)
-		(at 217.17 99.822 0)
+		(at 214.122 116.078 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -3859,10 +3859,6 @@
 	(no_connect
 		(at 147.32 36.83)
 		(uuid "7196e298-3f32-4515-999b-48ec1cd22251")
-	)
-	(no_connect
-		(at 176.53 82.55)
-		(uuid "9232c7b1-055e-437a-ae8c-f8393630de12")
 	)
 	(no_connect
 		(at 50.8 27.94)
@@ -4745,7 +4741,7 @@
 	)
 	(global_label "GND"
 		(shape input)
-		(at 148.59 80.01 180)
+		(at 153.67 83.82 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4755,7 +4751,7 @@
 		)
 		(uuid "3d1c9cd0-d476-4f6a-b00b-37f0bdf62fc0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 141.7343 80.01 0)
+			(at 146.8143 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4764,6 +4760,30 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+	)
+	(global_label "5v"
+		(shape input)
+		(at 176.53 86.36 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3e781d74-1f90-4261-8dbb-85690407596d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 181.6923 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 	)
@@ -5057,7 +5077,7 @@
 	)
 	(global_label "5v"
 		(shape input)
-		(at 148.59 82.55 180)
+		(at 153.67 86.36 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5067,7 +5087,7 @@
 		)
 		(uuid "5e9c053f-0081-547b-977d-bd4153b8cf72")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 144.066 82.55 0)
+			(at 149.146 86.36 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5081,7 +5101,7 @@
 	)
 	(global_label "VIN_LDO"
 		(shape input)
-		(at 148.59 85.09 180)
+		(at 153.67 88.9 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5091,7 +5111,7 @@
 		)
 		(uuid "6bfc601b-3d40-4ec6-bc4c-47f9fa1c8dcb")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.2182 85.09 0)
+			(at 147.2982 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7060,6 +7080,121 @@
 		)
 	)
 	(symbol
+		(lib_id "EasyEDA:B2B-XH-A")
+		(at 88.9 177.8 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "677e56c7-5628-4a25-b21e-5a6684ad25b5")
+		(property "Reference" "CN1"
+			(at 96.52 176.5299 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "B2B-XH-A"
+			(at 96.52 179.0699 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "EasyEDA:CONN-TH_B2B-XH-A-LF-SN"
+			(at 88.9 186.69 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://lcsc.com/product-detail/XH-Connectors_JST_B2B-XH-A-LF-SN_XHsocket-1-2P-pitch2-5mm_C158012.html"
+			(at 88.9 189.23 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 88.9 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "JST"
+			(at 88.9 191.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "B2B-XH-A(LF)(SN)"
+			(at 88.9 194.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part" "C158012"
+			(at 88.9 196.85 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "16ff28af-680c-4c40-b4ec-59abe93202cf")
+		)
+		(pin "2"
+			(uuid "7b4d0150-8643-4045-8c1d-94681e07d0e8")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "CN1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "lock-picking:ESP32-S3-SuperMini")
 		(at 41.91 92.71 0)
 		(unit 1)
@@ -7181,125 +7316,6 @@
 			(project "lock-picking"
 				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
 					(reference "ESP1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "EasyEDA:AMS1117-5.0_C347223")
-		(at 162.56 82.55 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8186f20f-8163-4091-9455-253c5563906d")
-		(property "Reference" "U8"
-			(at 162.56 72.39 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "AMS1117-5.0_C347223"
-			(at 162.56 74.93 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "EasyEDA:SOT-223_L6.7-W3.5-P2.30-BR"
-			(at 162.56 92.71 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://lcsc.com/product-detail/Others_Youtai-Semiconductor-Co-Ltd-AMS1117-5-0_C347223.html"
-			(at 162.56 95.25 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 162.56 82.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "UMW(友台半导体)"
-			(at 162.56 97.79 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MPN" "AMS1117-5.0"
-			(at 162.56 100.33 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC Part" "C347223"
-			(at 162.56 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "4"
-			(uuid "c5c1fd67-9d67-41fc-bd1f-a598e2368a62")
-		)
-		(pin "3"
-			(uuid "c912e306-d510-4c0e-b336-8b946aad1134")
-		)
-		(pin "2"
-			(uuid "51ae03c2-1c40-43fe-b673-1c18242d146b")
-		)
-		(pin "1"
-			(uuid "2ab1a5ad-6542-43f3-9c73-7a6395e2aa82")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "U8")
 					(unit 1)
 				)
 			)
@@ -8261,6 +8277,125 @@
 		)
 	)
 	(symbol
+		(lib_id "EasyEDA:AMS1117-5.0")
+		(at 165.1 86.36 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b8fa5397-7e9d-47f7-bce6-2888cb792791")
+		(property "Reference" "U5"
+			(at 165.1 76.2 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "AMS1117-5.0"
+			(at 165.1 78.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "EasyEDA:SOT-223_L6.5-W3.5-P2.30-LS7.0-BR"
+			(at 165.1 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://lcsc.com/product-detail/Low-Dropout-Regulators-LDO_AMS_AMS1117-5-0_AMS1117-5-0_C6187.html"
+			(at 165.1 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 165.1 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Advanced Monolithic Systems"
+			(at 165.1 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "AMS1117-5.0"
+			(at 165.1 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part" "C6187"
+			(at 165.1 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "4"
+			(uuid "a361db09-dfa9-416d-8338-9002605a37af")
+		)
+		(pin "3"
+			(uuid "1fb211fb-2464-4522-ae37-a07141c199f6")
+		)
+		(pin "2"
+			(uuid "1ca44abe-7f06-453f-a749-cee9dd1300d0")
+		)
+		(pin "1"
+			(uuid "a904bc34-1052-416e-b482-5ec1a3786a3f")
+		)
+		(instances
+			(project "lock-picking"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "U5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "EasyEDA:CC0603KRX7R9BB104")
 		(at 167.64 33.02 90)
 		(unit 1)
@@ -8641,121 +8776,6 @@
 			(project "lock-picking"
 				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
 					(reference "C2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "EasyEDA:S2B-PH-K-S")
-		(at 87.63 177.8 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "f496ad8a-dd54-4962-aa42-ab9b0f3ca8ed")
-		(property "Reference" "U5"
-			(at 93.98 176.5299 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "S2B-PH-K-S"
-			(at 93.98 179.0699 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "EasyEDA:CONN-TH_S2B-PH-K-S-LF-SN"
-			(at 87.63 186.69 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://lcsc.com/product-detail/PH-Connectors_JST-Sales-America_S2B-PH-K-S-LF-SN_JST-Sales-America-S2B-PH-K-S-LF-SN_C173752.html"
-			(at 87.63 189.23 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 87.63 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "JST"
-			(at 87.63 191.77 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MPN" "S2B-PH-K-S(LF)(SN)"
-			(at 87.63 194.31 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC Part" "C173752"
-			(at 87.63 196.85 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "2ca93ab9-fcb7-4828-9407-94ccdd08518f")
-		)
-		(pin "1"
-			(uuid "4e67bd90-1fb7-4f6f-9b91-9e275719e2f1")
-		)
-		(instances
-			(project "lock-picking"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "U5")
 					(unit 1)
 				)
 			)
