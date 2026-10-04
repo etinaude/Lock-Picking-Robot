@@ -526,7 +526,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "./",
+      "plot": "production/",
       "specctra_dsn": "",
       "step": "../../../../Downloads/picsockets.step",
       "vrml": ""
