@@ -11,10 +11,13 @@ Outputs (all written next to this script, named <Title>_<rev>_...):
     render    3D renders: top, bottom, isometric                  ..._3D_top.png, ...
     dxf       Component layout DXF for CAD sketches: board outline,
               mounting holes, ESP32 pins + non-passive courtyards ..._component_layout.dxf
+    analysis  Current-flow, magnetic-pickup (at U3) and heat maps ..._current_motor.svg,
+              plus the numbers (board_analysis.py, ~1 min)        ..._thermal.svg, ...
 
 Run it with no arguments to be asked which outputs to make (Enter = all), or pass
 --only gerbers,bom,... / --all to skip the question. Needs only the Python standard
-library and KiCad 10 (kicad-cli on PATH, or the org.kicad.KiCad flatpak).
+library and KiCad 10 (kicad-cli on PATH, or the org.kicad.KiCad flatpak); 'analysis'
+runs in KiCad's own Python, which brings pcbnew and numpy.
 
 BOM/CPL follow the Fabrication Toolkit plugin (bennymeg/JLC-Plugin-for-KiCad) the
 project used before: CPL position = footprint anchor (SMD) or pad centre (THT), Y
@@ -46,6 +49,7 @@ OUTPUTS = [
     ('step', 'STEP 3D model of the assembled PCB'),
     ('render', '3D images: top, bottom, isometric (PNG)'),
     ('dxf', 'Component layout DXF (board outline + part courtyards, no text)'),
+    ('analysis', 'Current, magnetic-pickup and heat maps (SVG) + numbers, ~1 min'),
 ]
 GROUPS = {'all': [o for o, _ in OUTPUTS], 'jlc': ['gerbers', 'bom', 'cpl', 'netlist']}
 
@@ -89,23 +93,40 @@ LCSC_FIELDS = ['LCSC Part #', 'LCSC Part', 'LCSC PN', 'LCSC P/N', 'LCSC Part No.
 
 class KiCadCli:
     def __init__(self, board, out_dir):
+        flatpak = shutil.which('flatpak') and subprocess.run(
+            ['flatpak', 'info', 'org.kicad.KiCad'], capture_output=True).returncode == 0
+        # the sandbox only sees what we grant: the project, this folder and the output folder
+        grants = {os.path.dirname(os.path.dirname(board)), out_dir, HERE}
+        sandbox = ['flatpak', 'run'] + [f'--filesystem={g}' for g in sorted(grants)]
         if shutil.which('kicad-cli'):
             self.cmd = ['kicad-cli']
-        elif shutil.which('flatpak') and subprocess.run(
-                ['flatpak', 'info', 'org.kicad.KiCad'], capture_output=True).returncode == 0:
-            # the sandbox only sees what we grant: the project and this folder
-            grants = {os.path.dirname(os.path.dirname(board)), out_dir}
-            self.cmd = ['flatpak', 'run'] + [f'--filesystem={g}' for g in sorted(grants)] + \
-                       ['--command=kicad-cli', 'org.kicad.KiCad']
+        elif flatpak:
+            self.cmd = sandbox + ['--command=kicad-cli', 'org.kicad.KiCad']
         else:
             sys.exit('kicad-cli not found (install KiCad 10 or the org.kicad.KiCad flatpak)')
+        # KiCad's Python (pcbnew + numpy) for board_analysis.py
+        if subprocess.run([sys.executable, '-c', 'import pcbnew, numpy'], capture_output=True).returncode == 0:
+            self.python = [sys.executable]
+        elif flatpak:
+            self.python = sandbox + ['--command=python3', 'org.kicad.KiCad']
+        else:
+            self.python = None
 
     def run(self, *args, check=True):
-        p = subprocess.run(self.cmd + list(args), capture_output=True, text=True)
+        return self._run(self.cmd, args, check, 'kicad-cli')
+
+    def run_python(self, *args):
+        if not self.python:
+            raise RuntimeError("KiCad's Python (pcbnew + numpy) not found")
+        return self._run(self.python, args, True, 'python')[1]
+
+    @staticmethod
+    def _run(cmd, args, check, what):
+        p = subprocess.run(cmd + list(args), capture_output=True, text=True)
         out = '\n'.join(l for l in (p.stdout + p.stderr).splitlines()
-                        if l.strip() and not l.startswith('F:'))
+                        if l.strip() and not l.startswith('F:') and 'Debug:' not in l and 'swig/python' not in l)
         if check and p.returncode != 0:
-            raise RuntimeError(f'kicad-cli {" ".join(args[:3])} failed:\n{out}')
+            raise RuntimeError(f'{what} {" ".join(os.path.basename(a) for a in args[:3])} failed:\n{out}')
         return p.returncode, out
 
 
@@ -515,6 +536,21 @@ class Generator:
                   f'mounting-hole drills ({", ".join(holes)}) and pin drills ({", ".join(pins)}) '
                   f'only (no text, pads or copper); '
                   f'passives left out: {", ".join(skipped)}')
+
+    def analysis(self):
+        out = self.cli.run_python(os.path.join(HERE, 'board_analysis.py'), self.board_path,
+                                  os.path.join(self.out, self.prefix))
+        if 'warning:' in out:
+            self.warnings.append('analysis: ' + '; '.join(l for l in out.splitlines() if 'warning:' in l))
+        num = lambda pat: (re.search(pat, out) or [None, '?'])[1]
+        field = num(r'NET\s+([-+\d.]+) uT/A   \(sign')
+        tj, u3 = num(r'radiation : .*?U2 junction\s+([\d.]+)'), num(r'radiation : .*?U3\s+([\d.]+) K')
+        self.note(self.path('current_motor.svg'),
+                  f'motor current (1 A) on both layers and its field at U3: net {field} uT/A')
+        self.note(self.path('current_5V.svg'), 'ESP 5 V supply loop current (1 A) and its field at U3')
+        self.note(self.path('thermal.svg'), f'temperature rise per W in U2: U2 junction {tj} K/W, '
+                  f'U3 {u3} K/W (still air, convection + radiation)')
+        self.note(self.path('analysis.txt'), 'the numbers behind the maps')
 
     def manifest(self, chosen):
         try:

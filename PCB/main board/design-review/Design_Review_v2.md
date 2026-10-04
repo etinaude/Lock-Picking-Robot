@@ -308,3 +308,16 @@ Also use `analogReadMilliVolts()` rather than a linear 3.3/4095 conversion. The 
 The ESP-connected nets (IPROPI, nFAULT, I²C, MAG I²C, EN/PH/nSLEEP, 3V3, VBUS) were already probe-able. You can reach them on the socket solder joints on the bottom, or in the sockets with the module removed. Motor outputs are on J2's THT pins. The switch node was deliberately not given a pad, to avoid extra radiating copper; probe it at L1 pad 1.
 
 All four TPs are in the schematic (spare-pins box, "PROBE PADS") with matching footprints. DRC is unchanged (the same 15 silkscreen warnings), with 0 unconnected and 0 parity issues. Backups: `lock-picking-backups/*.before-test-points-rev4`.
+
+## Appendix C: rev 3c (2026-10-04)
+
+U3 and the Ø2.5 mm shaft hole moved 3.5 mm in +y so the board clears the carriage shaft, and the area around U3 was re-routed. The full re-check of rev 3c, with every check classed as an issue, a warning or not a problem, is in [`Board_Check_rev3c.md`](Board_Check_rev3c.md).
+
+The production script now also renders the current and heat maps used for §3 (`generate_production.py --only analysis`). Run through that same code, rev 3b and rev 3c compare as follows (signs as in §3.1):
+
+| | rev 3b | rev 3c |
+|---|---|---|
+| Motor loop at U3, net | +3.5 µT/A | +6.1 µT/A |
+| U3 rise per W in U2 | 38.5 K | 35.4 K |
+| U2 junction per W | 112 K | 111 K |
+| U3 rise from buck + D1 (0.13 W) | 5.4 K | 6.4 K |
