@@ -9,8 +9,8 @@ Outputs (all written next to this script, named <Title>_<rev>_...):
     netlist   IPC-D-356 netlist (JLC compares it with its e-test) ..._netlist.ipc
     step      STEP model of the assembled board                   ..._3D.step
     render    3D renders: top, bottom, isometric                  ..._3D_top.png, ...
-    dxf       Component layout DXF: board outline, part outlines,
-              courtyards and pad outlines, no copper              ..._component_layout.dxf
+    dxf       Component layout DXF for CAD sketches: board outline,
+              mounting holes, ESP32 pins + non-passive courtyards ..._component_layout.dxf
 
 Run it with no arguments to be asked which outputs to make (Enter = all), or pass
 --only gerbers,bom,... / --all to skip the question. Needs only the Python standard
@@ -45,13 +45,19 @@ OUTPUTS = [
     ('netlist', 'IPC-D-356 netlist for JLC e-test'),
     ('step', 'STEP 3D model of the assembled PCB'),
     ('render', '3D images: top, bottom, isometric (PNG)'),
-    ('dxf', 'Component layout DXF (outlines only, no traces)'),
+    ('dxf', 'Component layout DXF (board outline + part courtyards, no text)'),
 ]
 GROUPS = {'all': [o for o, _ in OUTPUTS], 'jlc': ['gerbers', 'bom', 'cpl', 'netlist']}
 
 GERBER_LAYERS = ['F.Cu', 'B.Cu', 'F.Paste', 'B.Paste', 'F.SilkS', 'B.SilkS',
                  'F.Mask', 'B.Mask', 'Edge.Cuts']
-DXF_LAYERS = ['Edge.Cuts', 'F.Fab', 'B.Fab', 'F.Courtyard', 'B.Courtyard']
+# KiCad layer -> (DXF layer name, DXF colour). The DXF is written directly from the board
+# file so it holds only lines/arcs/circles: no text, pads, copper or passives.
+DXF_LAYERS = {'Edge.Cuts': ('Edge.Cuts', 2), 'F.CrtYd': ('F.Courtyard', 1),
+              'B.CrtYd': ('B.Courtyard', 5)}
+DXF_SKIP_REFS = r'(R|C|L|FB)\d'  # passives: resistors, capacitors, inductors, ferrite beads
+DXF_HOLE_REFS = r'H\d'  # mounting holes: drawn as their drill circle (on Edge.Cuts), not courtyard
+DXF_PIN_REFS = r'U1$'  # also draw these parts' pin drill holes (ESP32 module headers)
 RENDERS = [  # suffix, extra kicad-cli render args
     ('top', ['--side', 'top']),
     ('bottom', ['--side', 'bottom']),
@@ -153,9 +159,11 @@ def load_board(path):
             pat = child(pad, 'at')
             size = child(pad, 'size')
             pad_rot = float(pat[3]) if len(pat) > 3 else rot
+            drill = child(pad, 'drill')
             pads.append(dict(x=float(pat[1]), y=float(pat[2]), rot=pad_rot - rot,
                              w=float(size[1]), h=float(size[2]), shape=pad[3],
-                             prims=_custom_pad_points(pad)))
+                             prims=_custom_pad_points(pad),
+                             drill=float(drill[1]) if drill and drill[1] != 'oval' else None))
         lib_id = fp[1]
         footprints.append(dict(ref=props.get('Reference', '?'), value=props.get('Value', ''),
                                lib_id=lib_id, name=lib_id.split(':')[-1],
@@ -163,8 +171,54 @@ def load_board(path):
                                in_bom='exclude_from_bom' not in flags and not dnp,
                                in_pos='exclude_from_pos_files' not in flags and not dnp,
                                smd='smd' in flags, pads=pads,
-                               models=[m[1] for m in children(fp, 'model')]))
-    return dict(title=title, rev=rev, footprints=footprints)
+                               models=[m[1] for m in children(fp, 'model')],
+                               shapes=_shapes(fp, 'fp_', DXF_LAYERS, (x, y, rot)),
+                               holes=[(to_board((x, y, rot), p['x'], p['y']), p['drill'] / 2)
+                                      for p in pads if p['drill']]))
+    return dict(title=title, rev=rev, footprints=footprints,
+                shapes=_shapes(pcb, 'gr_', DXF_LAYERS))
+
+
+def to_board(place, x, y):
+    """Footprint-local point (unrotated) -> board coordinates; place = footprint (x, y, rotation)."""
+    px, py, rot = place
+    a = math.radians(rot)
+    return px + x * math.cos(a) + y * math.sin(a), py - x * math.sin(a) + y * math.cos(a)
+
+
+def _shapes(node, prefix, layers, place=(0.0, 0.0, 0.0)):
+    """The node's gr_*/fp_* lines, arcs, circles, rects and polygons on `layers`, as
+    (layer, 'line', a, b) / (layer, 'arc', start, mid, end) / (layer, 'circle', centre, r)
+    in board coordinates. Text is never returned. Footprint graphics are stored relative to
+    the footprint and unrotated (bottom-side ones already mirrored), so `place` is the
+    footprint's (x, y, rotation)."""
+    def xy(item):
+        return to_board(place, float(item[1]), float(item[2]))
+
+    def outline(pts):
+        return [(layer, 'line', a, b) for a, b in zip(pts, pts[1:] + pts[:1])]
+
+    out = []
+    for g in node:
+        if not (isinstance(g, list) and g and g[0].startswith(prefix)):
+            continue
+        kind = g[0][len(prefix):]
+        layer = (child(g, 'layer') or [None, None])[1]
+        if layer not in layers:
+            continue
+        if kind == 'line':
+            out.append((layer, 'line', xy(child(g, 'start')), xy(child(g, 'end'))))
+        elif kind == 'arc':
+            out.append((layer, 'arc', xy(child(g, 'start')), xy(child(g, 'mid')), xy(child(g, 'end'))))
+        elif kind == 'circle':
+            centre = xy(child(g, 'center'))
+            out.append((layer, 'circle', centre, math.dist(centre, xy(child(g, 'end')))))
+        elif kind == 'rect':
+            (x1, y1), (x2, y2) = child(g, 'start')[1:3], child(g, 'end')[1:3]
+            out += outline([xy([None, x, y]) for x, y in ((x1, y1), (x2, y1), (x2, y2), (x1, y2))])
+        elif kind == 'poly':
+            out += outline([xy(p) for p in child(g, 'pts')[1:] if p[0] == 'xy'])
+    return out
 
 
 def _custom_pad_points(pad):
@@ -206,10 +260,7 @@ def pad_centre(fp):
             xs.append(p['x'] + px * ca + py * sa)
             ys.append(p['y'] - px * sa + py * ca)
     # pad positions are footprint-local (unrotated); rotate the bbox centre into the board
-    lx, ly = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
-    a = math.radians(fp['rot'])
-    return (fp['x'] + lx * math.cos(a) + ly * math.sin(a),
-            fp['y'] - lx * math.sin(a) + ly * math.cos(a))
+    return to_board((fp['x'], fp['y'], fp['rot']), (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2)
 
 
 def rotation_table():
@@ -250,6 +301,60 @@ def lcsc_of(fp):
 def natural_key(ref):
     m = re.match(r'([A-Za-z#]*)(\d*)', ref)
     return (m.group(1), int(m.group(2) or 0), ref)
+
+
+def write_dxf(path, shapes):
+    """Minimal ASCII DXF (R12, mm) of LINE/ARC/CIRCLE entities, one DXF layer per KiCad
+    layer. Y is negated (KiCad's Y points down), matching KiCad's own DXF export."""
+    def num(v):
+        t = f'{v:.6f}'.rstrip('0').rstrip('.')
+        return '0' if t == '-0' else t
+
+    def pt(p, code=10):
+        return [str(code), num(p[0]), str(code + 10), num(-p[1])]
+
+    out = ['0', 'SECTION', '2', 'HEADER', '9', '$ACADVER', '1', 'AC1009',
+           '9', '$INSUNITS', '70', '4', '0', 'ENDSEC',
+           '0', 'SECTION', '2', 'TABLES',
+           '0', 'TABLE', '2', 'LTYPE', '70', '1',
+           '0', 'LTYPE', '2', 'CONTINUOUS', '70', '0', '3', 'Solid line', '72', '65', '73', '0', '40', '0',
+           '0', 'ENDTAB', '0', 'TABLE', '2', 'LAYER', '70', str(len(DXF_LAYERS))]
+    for name, colour in DXF_LAYERS.values():
+        out += ['0', 'LAYER', '2', name, '70', '0', '62', str(colour), '6', 'CONTINUOUS']
+    out += ['0', 'ENDTAB', '0', 'ENDSEC', '0', 'SECTION', '2', 'ENTITIES']
+    for layer, kind, *geo in shapes:
+        head = ['8', DXF_LAYERS[layer][0]]
+        if kind == 'circle':
+            out += ['0', 'CIRCLE', *head, *pt(geo[0]), '40', num(geo[1])]
+            continue
+        if kind == 'arc':
+            # circle through start/mid/end, in DXF orientation (Y up). The board file rounds
+            # `mid`, so the centre is moved back onto the perpendicular bisector of the exact
+            # start/end: the arc then meets the neighbouring lines exactly (closed sketch regions).
+            (x1, y1), (x2, y2), (x3, y3) = [(x, -y) for x, y in geo]
+            d = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
+            if abs(d) > 1e-9:
+                s1, s2, s3 = x1 * x1 + y1 * y1, x2 * x2 + y2 * y2, x3 * x3 + y3 * y3
+                cx = (s1 * (y2 - y3) + s2 * (y3 - y1) + s3 * (y1 - y2)) / d
+                cy = (s1 * (x3 - x2) + s2 * (x1 - x3) + s3 * (x2 - x1)) / d
+                mx, my, nx, ny = (x1 + x3) / 2, (y1 + y3) / 2, y1 - y3, x3 - x1
+                t = ((cx - mx) * nx + (cy - my) * ny) / (nx * nx + ny * ny)
+                cx, cy = mx + t * nx, my + t * ny
+                snapped = round(cx, 5), round(cy, 5)  # clean centre if it is still exact
+                if abs(math.dist(snapped, (x1, y1)) - math.dist(snapped, (x3, y3))) < 1e-9:
+                    cx, cy = snapped
+                a1, a2, a3 = [round(math.degrees(math.atan2(y - cy, x - cx)), 6) % 360
+                              for x, y in ((x1, y1), (x2, y2), (x3, y3))]
+                if (a2 - a1) % 360 > (a3 - a1) % 360:  # DXF arcs run counter-clockwise
+                    a1, a3 = a3, a1
+                out += ['0', 'ARC', *head, *pt((cx, -cy)), '40', num(math.dist((cx, cy), (x1, y1))),
+                        '50', num(a1), '51', num(a3)]
+                continue
+            geo = [geo[0], geo[2]]  # degenerate (straight) arc
+        out += ['0', 'LINE', *head, *pt(geo[0]), *pt(geo[1], 11)]
+    out += ['0', 'ENDSEC', '0', 'EOF']
+    with open(path, 'w', encoding='ascii', newline='\r\n') as f:
+        f.write('\n'.join(out) + '\n')
 
 
 # --------------------------------------------------------------------------- generators
@@ -384,11 +489,32 @@ class Generator:
 
     def dxf(self):
         path = self.path('component_layout.dxf')
-        self.cli.run('pcb', 'export', 'dxf', '--mode-single', '--layers', ','.join(DXF_LAYERS),
-                     '--sketch-pads-on-fab-layers', '--output-units', 'mm', '--drill-shape-opt', '2',
-                     '-o', path, self.board_path)
-        self.note(path, 'DXF layers: ' + ', '.join(DXF_LAYERS) +
-                  ' (part outlines + refs, courtyards, pad outlines; no tracks or zones)')
+        shapes = list(self.board['shapes'])
+        skipped, holes, pins, no_courtyard = [], [], [], []
+        for fp in sorted(self.board['footprints'], key=lambda fp: natural_key(fp['ref'])):
+            if re.match(DXF_SKIP_REFS, fp['ref']):
+                skipped.append(fp['ref'])
+                drawn = []
+            elif re.match(DXF_HOLE_REFS, fp['ref']):
+                holes.append(fp['ref'])
+                drawn = [('Edge.Cuts', 'circle', c, r) for c, r in fp['holes']]
+            else:
+                drawn = [s for s in fp['shapes'] if s[0] != 'Edge.Cuts']
+                if not drawn:
+                    no_courtyard.append(fp['ref'])
+                if re.match(DXF_PIN_REFS, fp['ref']):
+                    pins.append(fp['ref'])
+                    side = 'B.CrtYd' if fp['layer'] == 'B.Cu' else 'F.CrtYd'
+                    drawn += [(side, 'circle', c, r) for c, r in fp['holes']]
+            shapes += drawn + [s for s in fp['shapes'] if s[0] == 'Edge.Cuts']
+        write_dxf(path, shapes)
+        if no_courtyard:
+            self.warnings.append(f'DXF: no courtyard drawn, so not shown: {", ".join(no_courtyard)}')
+        self.note(path, f'{len(shapes)} lines/arcs/circles on DXF layers '
+                  f'{", ".join(n for n, _ in DXF_LAYERS.values())}: board outline, part courtyards, '
+                  f'mounting-hole drills ({", ".join(holes)}) and pin drills ({", ".join(pins)}) '
+                  f'only (no text, pads or copper); '
+                  f'passives left out: {", ".join(skipped)}')
 
     def manifest(self, chosen):
         try:

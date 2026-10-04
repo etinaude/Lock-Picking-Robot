@@ -1,8 +1,8 @@
 ** Drc report for lock-picking.kicad_pcb **
-** Created on 2026-10-03T23:19:27 **
+** Created on 2026-10-04T18:35:35 **
 ** Report includes: Errors, Warnings, Exclusions **
 
-** Found 15 DRC violations **
+** Found 17 DRC violations **
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; warning
     @(13.0000 mm, 12.0000 mm): Segment on Edge.Cuts
@@ -27,6 +27,12 @@
     Rule: board setup constraints silk; warning
     @(37.0000 mm, 13.0000 mm): Segment on Edge.Cuts
     @(38.4375 mm, 28.4200 mm): Segment of J1 on B.Silkscreen
+[lib_footprint_issues]: The footprint library 'EasyEDA' is not enabled in the current configuration
+    Local override; warning
+    @(19.2500 mm, 17.2900 mm): Footprint J2
+[lib_footprint_issues]: The footprint library 'EasyEDA' is not enabled in the current configuration
+    Local override; warning
+    @(17.1000 mm, 24.6000 mm): Footprint U3
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
     @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
