@@ -38,4 +38,4 @@
 
 PCB/unlocked-PCB/
 # KiCad local history (its own git repo of autosaves)
-PCB/.history/
+PCB/**/.history/
