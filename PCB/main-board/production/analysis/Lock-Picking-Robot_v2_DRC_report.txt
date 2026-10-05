@@ -1,24 +1,24 @@
 ** Drc report for main-board.kicad_pcb **
-** Created on 2026-10-05T09:33:24 **
+** Created on 2026-10-05T21:41:43 **
 ** Report includes: Errors, Warnings, Exclusions **
 
-** Found 15 DRC violations **
+** Found 21 DRC violations **
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; warning
     @(13.0000 mm, 12.0000 mm): Segment on Edge.Cuts
-    @(16.2500 mm, 11.0900 mm): Segment of J2 on F.Silkscreen
+    @(16.2500 mm, 10.0500 mm): Segment of J2 on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; warning
     @(13.0000 mm, 12.0000 mm): Segment on Edge.Cuts
-    @(18.2500 mm, 11.0900 mm): Segment of J2 on F.Silkscreen
+    @(18.2500 mm, 10.0500 mm): Segment of J2 on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; warning
     @(13.0000 mm, 12.0000 mm): Segment on Edge.Cuts
-    @(20.2500 mm, 15.3900 mm): Segment of J2 on F.Silkscreen
+    @(20.2500 mm, 14.3500 mm): Segment of J2 on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; warning
     @(13.0000 mm, 12.0000 mm): Segment on Edge.Cuts
-    @(22.2500 mm, 18.6900 mm): Segment of J2 on F.Silkscreen
+    @(22.2500 mm, 17.6500 mm): Segment of J2 on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; warning
     @(37.0000 mm, 13.0000 mm): Segment on Edge.Cuts
@@ -29,36 +29,60 @@
     @(38.4375 mm, 28.4200 mm): Segment of J1 on B.Silkscreen
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
-    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
-    @(20.2500 mm, 15.3900 mm): Segment of J2 on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
-    @(16.2500 mm, 11.0900 mm): Segment of J2 on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
-    @(18.2500 mm, 11.0900 mm): Segment of J2 on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
-    @(22.2500 mm, 18.6900 mm): Segment of J2 on F.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
     @(30.8500 mm, 34.0100 mm): Circle of U1 on F.Silkscreen
     @(33.3000 mm, 32.3500 mm): Circle of H2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+    @(17.2500 mm, 12.2500 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+    @(18.2500 mm, 10.0500 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+    @(20.2500 mm, 14.3500 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(20.6500 mm, 12.2500 mm): Segment of J2 on F.Silkscreen
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+    @(16.2500 mm, 10.0500 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(17.2500 mm, 16.0500 mm): Segment of J2 on F.Silkscreen
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+    @(17.8500 mm, 12.2500 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+    @(20.6500 mm, 16.0500 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(21.2500 mm, 12.2500 mm): Segment of J2 on F.Silkscreen
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(13.1000 mm, 12.1000 mm): Segment of U1 on F.Silkscreen
+    @(22.2500 mm, 17.6500 mm): Segment of J2 on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(30.8500 mm, 34.0100 mm): Circle of U1 on F.Silkscreen
     @(33.3000 mm, 32.3500 mm): Pad 1 [GND] of H2 on F.Cu
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
-    @(17.8500 mm, 13.2900 mm): Segment of J2 on F.Silkscreen
-    @(18.2500 mm, 17.2900 mm): PTH pad 2 [/MOT_OUT2] of J2
+    @(17.8500 mm, 12.2500 mm): Segment of J2 on F.Silkscreen
+    @(18.2500 mm, 16.2500 mm): PTH pad 2 [/MOT_OUT2] of J2
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
-    @(20.6500 mm, 17.0900 mm): Segment of J2 on F.Silkscreen
-    @(20.2500 mm, 17.2900 mm): PTH pad 1 [/MOT_OUT1] of J2
+    @(20.6500 mm, 16.0500 mm): Segment of J2 on F.Silkscreen
+    @(20.2500 mm, 16.2500 mm): PTH pad 1 [/MOT_OUT1] of J2
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(30.6275 mm, 19.3800 mm): Circle of J1 on B.Silkscreen

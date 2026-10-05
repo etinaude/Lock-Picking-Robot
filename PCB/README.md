@@ -29,11 +29,12 @@ KiCad 10 projects for the lock-picking robot. This README covers the **main boar
 | Motor driver | TI DRV8876 (PH/EN, current sense, 2.2 A current limit) |
 | Position sensor | Melexis MLX90393 3-axis magnetometer, centred over the carriage magnet |
 | Power | 12 V from the splitter → AP63205 buck → 5 V → SuperMini (its own LDO makes 3.3 V) |
-| Link to the motherboard | USB-C *connector* carrying 12 V and I²C (not USB) |
-| Board | 25.0 × 23.7 mm, 2 layers, 1.6 mm FR4, 1 oz copper, 1 mm corner radius, Ø2.5 mm shaft hole |
-| Assembly | Bottom side by JLCPCB (Economic PCBA); top side hand-soldered (SuperMini sockets, J2, M2 nuts) |
-| Revision | v2, routing rev 3c (2026-10-04) |
-| Status | DRC 0 errors, ERC 0 errors. **Update the firmware pin map before powering it** ([I1](#i1-firmware-pin-map-is-still-v1)) |
+| Link to the motherboard | USB-C *connector* carrying 12 V and **CAN** (default) or I²C, chosen with solder jumpers (not USB) |
+| CAN transceiver | TI SN65HVD230 (U5, SOIC-8), hand-soldered on top under the SuperMini; 120 Ω termination on a jumper |
+| Board | 25.0 × 23.7 mm, 2 layers, 1.6 mm FR4, 1 oz copper, 1 mm corner radius; a Ø2.5 mm silkscreen circle marks the old shaft-hole position (no hole since rev 4) |
+| Assembly | Bottom side by JLCPCB (Economic PCBA); top side hand-soldered (SuperMini sockets, U5, J2, M2 nuts) |
+| Revision | v2 rev 4b, CAN option, re-placed CAN block (2026-10-05) |
+| Status | DRC 0 errors, ERC 0 errors. **Update the firmware pin map and add a CAN (TWAI) driver before powering it** ([I1](#i1-firmware-pin-map-is-still-v1)) |
 
 ## Production files
 
@@ -48,7 +49,7 @@ The manifest stays at the top of `production/`.
 | File | Use |
 |---|---|
 | [Gerber + drill zip](main-board/production/JLC/Lock-Picking-Robot_v2_JLCPCB_gerbers.zip) | Upload to JLCPCB (11 files) |
-| [BOM](main-board/production/JLC/Lock-Picking-Robot_v2_JLCPCB_BOM.csv) | JLCPCB assembly BOM: 22 parts on 17 lines, all with LCSC numbers |
+| [BOM](main-board/production/JLC/Lock-Picking-Robot_v2_JLCPCB_BOM.csv) | JLCPCB assembly BOM: 25 parts on 18 lines, all with LCSC numbers |
 | [CPL](main-board/production/JLC/Lock-Picking-Robot_v2_JLCPCB_CPL.csv) | JLCPCB pick-and-place (all bottom side) |
 | [IPC-D-356 netlist](main-board/production/JLC/Lock-Picking-Robot_v2_netlist.ipc) | Optional upload, for JLC's electrical test |
 | [STEP model](main-board/production/CAD/Lock-Picking-Robot_v2_3D.step) | Assembled board for CAD; every part except the SuperMini |
@@ -63,9 +64,11 @@ The manifest stays at the top of `production/`.
 2. Choose **PCB Assembly → Economic → Bottom side**.
 3. Upload the BOM and CPL. Check every part's pin 1 in JLC's placement preview, especially U2, U3, U4, D1 and J1.
 4. JLC doesn't fit these; hand-solder them on the top side:
+   - U5 (SN65HVD230DR, C12084), **before** the SuperMini headers: it sits under the module;
    - U1 (SuperMini + two 9-pin female headers);
    - J2 (JST S2B-PH-K-S, C173752);
    - H1/H2 (M2 SMD nuts SMTSOM225BTR, C5301773). Use a hot plate or hot air: they sit on solid GND.
+5. The solder jumpers come set for CAN with no termination. Change them before fitting the SuperMini ([CAN or I²C](#can-or-i2c-select-u5-jp1-to-jp4-r5-r6-c13)).
 
 ## 3D renders
 
@@ -117,13 +120,33 @@ The project footprints:
 
 ## Component choices
 
-### 12 V + I²C in: J1, USB-C used as a connector
+### 12 V + CAN/I²C in: J1, USB-C used as a connector
 
-- **Pins:** VBUS = +12 V, D+ = I2C_SDA, D− = I2C_SCL. Both D+/D− pairs are tied, so the plug works either way up.
+- **Pins:** VBUS = +12 V, D+ = BUS_P, D− = BUS_N. Both D+/D− pairs are tied, so the plug works either way up.
+  - CAN (default): BUS_P = CANH, BUS_N = CANL.
+  - I²C (jumpers changed): BUS_P = SDA, BUS_N = SCL.
 - **Unused and shell:** CC and SBU are unused, so a plain USB-C cable passes VBUS, GND, D+ and D−. The shell tabs go to GND.
-- **Pull-ups:** the I²C pull-ups live on the motherboard only, because all six arms share the bus.
+- **Pull-ups (I²C mode only):** they live on the motherboard, because all six arms share the bus.
 - **Never** plug these ports into real USB devices ([I2](#i2-12-v-on-a-usb-c-connector)).
 - **Probe pads:** TP8 (+12 V) and TP9 (GND) sit over J1 on the top side.
+
+### CAN or I2C select: U5, JP1 to JP4, R5, R6, C13
+
+- **U5, SN65HVD230DR:** 3.3 V CAN transceiver in SOIC-8, hand-soldered on the top side under the SuperMini.
+  - TXD (pin 1) is on SDA_CANTX = GPIO3; RXD (pin 4) reaches SCL_CANRX = GPIO4 through JP3.
+  - Rs (pin 8) goes to GND through R6 (10 kΩ), which selects slope control (the fastest slope-control setting; ground Rs directly for high-speed mode). Vref (pin 5) is left open.
+  - C13 (100 nF) decouples VCC from the bottom side, right under pin 3 (one via and a 0.5 mm top-side stub).
+- **Solder jumpers** (top side, all under the SuperMini; labelled on the silk):
+
+| Jumper | Pads | Default (as made) | For I²C |
+|---|---|---|---|
+| JP1, D+ select (right column, lower; "CAN · I2C" above JP2) | 1 = CANH, 2 = BUS_P, 3 = SDA_CANTX | 1–2 bridged = CAN | Cut 1–2, bridge 2–3 |
+| JP2, D− select (right column, upper; "CAN · I2C") | 1 = CANL, 2 = BUS_N, 3 = SCL_CANRX | 1–2 bridged = CAN | Cut 1–2, bridge 2–3 |
+| JP3, RX link ("RX CAN", next to U1 pin 4) | 1 = CAN_RXD, 2 = SCL_CANRX | Bridged | Cut, so U5's RXD can't fight SCL |
+| JP4, termination ("TERM", left of JP3) | 1 = CANH, 2 = R5 | Open | Leave open |
+
+- **Termination:** bridge JP4 only on the two boards at the ends of the bus. R5 (120 Ω) then sits across CANH–CANL.
+- **I²C mode:** U5 can stay fitted. With JP1/JP2 cut on 1–2, its CANH/CANL no longer reach J1, so whatever SDA does to its TXD input goes nowhere. With JP3 cut, its RXD output is off SCL. U5 can also be left off.
 
 ### Power: U4, L1, D1
 
@@ -160,7 +183,7 @@ The project footprints:
 |---|---|---|
 | GPIO1 | DRV_IPROPI | Motor current (ADC1_CH0, works with Wi-Fi on), 1.5 V/A |
 | GPIO2 | DRV_nFAULT | Driver fault input (10 k pull-up) |
-| GPIO3 / GPIO4 | I2C_SDA / I2C_SCL | Bus to the motherboard via J1 (GPIO3 strapping only matters if the eFuse is burnt) |
+| GPIO3 / GPIO4 | SDA_CANTX / SCL_CANRX | Bus to the motherboard via J1: CAN TX/RX through U5 by default, or I²C SDA/SCL with JP1–JP3 changed (GPIO3 strapping only matters if the eFuse is burnt) |
 | GPIO5 | DRV_nSLEEP | Drive **high** to run |
 | GPIO6 | DRV_IN2_PH | Direction |
 | GPIO7 | DRV_IN1_EN | PWM |
@@ -178,7 +201,6 @@ GPIOs are 3.3 V only: they are **not** 5 V tolerant.
 |---|---|---|---|
 | TP1–TP7 | Top, 1.5 mm | IO12, IO13, TX, RX, 3V3, 5V (VBUS), GND | Labelled on the silk. Glue wires down so the pads don't lift |
 | TP8, TP9 | Top, over J1 | +12 V, GND | Supply health and motor droop, reachable with the robot assembled |
-| TP10, TP11 | Bottom | +5 V (buck output, before D1), GND | On the buck's feedback line between U3 and U4 |
 
 ### Mechanical parts and passives
 
@@ -198,31 +220,42 @@ GPIOs are 3.3 V only: they are **not** 5 V tolerant.
 
 - **Sides.**
   - **Bottom:** every JLC-assembled part and most signals.
-  - **Top:** the hand-fitted parts, a GND pour, a 12 V copper area and short hops.
-  - Bottom parts stay ≥ 0.9 mm from the U1/J2 through-hole pins so those can be hand-soldered. J1's 12 V pads are 0.98 mm from ESP pins 2 and 4: solder those carefully.
-- **12 V path.** J1's top VBUS pad → 3 vias → the front 12 V copper (through the gaps between ESP pins 6/5 and 5/4) → inside the right header → along the top edge → 3 vias → C5/C7/U2 VM. The narrowest point is about 1 mm. J1's bottom VBUS pad feeds the buck on the back.
+  - **Top:** the hand-fitted parts, a GND pour, the 12 V track and short hops.
+  - Bottom parts stay ≥ 0.9 mm from the U1/J2 through-hole pins so those can be hand-soldered (closest: C11 to U1 pin 11, 0.91 mm). J1's 12 V pads are 0.97 mm from ESP pins 2 and 4: solder those carefully.
+- **12 V path (rev 4b).** J1's top VBUS pad → 3 vias → a 0.8 mm front track (0.6 mm where it passes between ESP pins 5 and 4) → up inside the right header at x = 27 → along the top edge → 3 vias → C5/C7/U2 VM. It runs over the motor GND return on the back, so the motor loop stays small. A 0.8 mm front track at x = 30.2 joins J1's bottom VBUS pad and the buck feed (the via at (29.95, 27.66)), and a 0.5 mm stub feeds TP8. The front 12 V pour of rev 4 is gone; its area is now front GND.
 - **Motor loop.**
   - OUT1/OUT2 run to J2 in 0.6 mm tracks under 3 mm long.
-  - The return goes through U2's 4 thermal vias into the front GND, right under the 12 V feed.
-- **Magnetometer.** U3 is centred on the magnet. The MAG I²C lines run on the back over unbroken front GND, ≥ 1.2 mm from J2 and the motor copper.
-- **Distances from U3's centre (rev 3c):**
+  - The return goes from U2 to J1 through the back GND, right under the 12 V feed. A 0.2 mm notch in the front pour between J2's pins keeps U2's front GND from joining the top-left pour and the left-edge GND link; without it the return loops around U3 (15 µT/A instead of 1.6).
+- **Magnetometer.** U3 is centred on the magnet. The MAG I²C lines run on the back, ≥ 1.2 mm from J2 and the motor copper. Since rev 4 only part of them has front GND above ([W12](#warnings)).
+- **CAN block (rev 4b, hand-placed and hand-routed).** The space under the SuperMini is tight, so the parts sit where the copper leaves room:
+  - U5 at (19.7, 25.9), rotated 180° (pins 1–4 face U1's right-hand pins; CANH/CANL on the left side);
+  - JP2 (y 22.0) and JP1 (y 24.66) in one column at x = 25.85, next to U1 pins 3/4 and J1, CAN pads on the left and I²C pads on the right; nothing in the pocket above U2;
+  - JP4 (17.1, 19.5) and JP3 (20.55, 19.5) in one row above U5;
+  - R5, R6 and C13 on the bottom (C13 under U5's VCC pin).
+  - CANL and CANH leave U5 under its body. CANH hops to the back once (x = 20.85) to reach JP4, and CAN_RXD hops once (x = 20.15) to reach JP3. CAN_RS runs up the left of U5 to R6.
+  - BUS_N/BUS_P drop to the back between JP2 and JP1 and below JP1, and cross to J1 through the gaps between ESP pins 4/3 and 3/2. DRV_nFAULT moved down to y = 26.75 on the back to make room.
+- **Distances from U3's centre (rev 4b, in plan):**
 
 | To | Distance |
 |---|---|
-| J2 pins | 10.9 mm |
-| MOT_OUT copper | 10.2 mm |
+| J2 pins | 11.2 mm |
+| MOT_OUT copper | 11.2 mm |
 | U2 | 13.6 mm |
 | +12 V copper | 9.1 mm |
 | U4 | 8.7 mm |
 | L1 | 4.6 mm |
 | D1 | 4.4 mm |
 | SW node | 4.1 mm |
+| JP1 (CAN bus jumper, top side) | 9.4 mm (was right over U3 in rev 4) |
+| BUS_P/BUS_N copper | 8.7 mm |
+| CANH/CANL copper | 1.3 mm |
+| U5 | 3.4 mm |
 
-- **Zones.** GND pours sit on both layers, plus a +12 V island on F.Cu. SMD pads join the pours by tracks only (`thru_hole_only`), which prevents 0402 tombstoning. Zone clearance is 0.25 mm and the minimum width is 0.2 mm.
+- **Zones.** GND pours sit on both layers (no +12 V pour since rev 4b). SMD pads join the pours by tracks only (`thru_hole_only`), which prevents 0402 tombstoning. Zone clearance is 0.25 mm and the minimum width is 0.2 mm.
 - **Rules.** The default net class is 0.2 mm track and 0.2 mm clearance. Vias are 0.6/0.3 mm (some 0.5/0.3). `main-board.kicad_dru` adds:
   - U1 sits on sockets, so parts may sit under its courtyard;
   - TP courtyards may overlap (2.54 mm grid);
-  - copper to the board edge and the shaft hole is 0.3 mm (JLC's routed-edge minimum);
+  - copper to the board edge is 0.3 mm (JLC's routed-edge minimum);
   - J1's peg holes may sit 0.15 mm from its own pads (vendor land pattern).
 - **Carriage fit (rev 3c).** U3 and the Ø2.5 mm shaft hole were moved 3.5 mm in +y. Both still sit over the carriage's magnet and top-right holes, while the board edge moves 3.5 mm away from the carriage shaft:
 
@@ -238,39 +271,46 @@ GPIOs are 3.3 V only: they are **not** 5 V tolerant.
   - DRV_IPROPI passes under the shaft hole.
   - DRV_nFAULT passes over the hole and down the single-track gap to ESP pin 2.
   - The buck's +5 V feedback line moved 0.25 mm down to clear C10.
+- **rev 4 re-route (CAN).**
+  - The old I²C tracks from J1's D+/D− straight to ESP pins 3/4 were removed; they would bypass the jumpers.
+  - The +3V3 hop that fed R2 and U2 VREF across DRV_IPROPI moved off the top at y = 19.9: it now runs down the back between DRV_IPROPI and DRV_nFAULT, crosses under U5 on the top and joins the x = 20.6 +3V3 track.
+  - Two GND stitching vias were removed to make room: (21.7, 18.4) and (26.3, 19.8).
+  - Two GND link tracks (about 3 mm under U5 and 10 mm on the left) keep the U3 and U5/R1/C12 ground areas tied to the main GND. Without them the front pour splits into islands.
+  - The CAN tracks were laid out with a scripted grid router (not part of this repo), then checked with KiCad DRC.
 
 ## Checks performed
 
-All checks were last run on rev 3c (2026-10-04).
+All checks were last run on rev 4b (2026-10-05). Rows marked "rev 3c" or "rev 4" were not re-run.
 
 | # | Check | Result | Status |
 |---|---|---|---|
-| 1 | KiCad DRC, custom rules, all track errors | 0 errors, 0 unconnected, 0 schematic-parity issues; 15 silkscreen warnings | OK |
-| 2 | KiCad ERC | 0 errors; 46 "Unspecified pin type" warnings from the EasyEDA symbols | OK |
-| 3 | Copper clearance (independent re-measure) | ≥ 0.200 mm (rule 0.2, JLC 0.127) | OK |
-| 4 | Copper to edge and shaft hole | ≥ 0.300 mm | OK |
-| 5 | Hole-to-hole spacing (slots exact) | ≥ 0.275 mm (JLC 0.254) | OK |
-| 6 | Tracks, vias, annular rings | Tracks ≥ 0.2 mm; vias 0.3 mm drill with ≥ 0.1 mm ring | OK |
-| 7 | Acid traps, duplicate or dangling tracks | None | OK |
+| 1 | KiCad DRC, custom rules, all track errors | 0 errors, 0 unconnected, 0 schematic-parity issues; 21 silkscreen warnings | OK |
+| 2 | KiCad ERC | 0 errors; 46 pin-type warnings from the EasyEDA symbols | OK |
+| 3 | Copper clearance | ≥ 0.200 mm by DRC (rule 0.2, JLC 0.127); independent re-measure is rev 3c | OK |
+| 4 | Copper to edge | ≥ 0.300 mm | OK |
+| 5 | Hole-to-hole spacing | ≥ 0.25 mm by DRC (JLC 0.254 at the J1 slots, measured 0.275 in rev 3c) | OK |
+| 6 | Tracks, vias, annular rings | Tracks ≥ 0.2 mm; 40 vias, 0.3 mm drill with ≥ 0.1 mm ring | OK |
+| 7 | Acid traps, duplicate or dangling tracks | DRC: no dangling tracks or vias; acid traps not re-checked since rev 3c | OK |
 | 8 | ESP32 socket pin grid | All 18 holes on 2.54 mm | OK |
-| 9 | MAG I²C over unbroken front GND | Only the pin and via ends are uncovered | OK |
+| 9 | MAG I²C over front GND | 40 % of MAG_SDA and 40 % of MAG_SCL have front GND above (41 / 31 % in rev 4, 94 / 92 % in rev 3c) | Warning |
 | 10 | MAG lines to motor copper | 1.21 mm (needs ≥ 1.2) | OK |
-| 11 | Crosstalk (parallel runs ≤ 1 mm apart) | Only I²C lines next to each other or +3V3 | OK |
-| 12 | Power-path resistance / current density | +12 V 9.1 mΩ, GND 2.1 mΩ; peak 4.8 A/mm per A on the short U2 VM stub | OK |
-| 13 | ESP 5 V loop field at U3 | 1.7 µT/A | OK |
+| 11 | Crosstalk (parallel runs ≤ 1 mm apart) | rev 4, not re-run for rev 4b. CANH crosses over MAG_SDA under U5 (other layer, 1.6 mm apart) | Warning |
+| 12 | Power-path resistance / current density | +12 V 13.5 mΩ, GND 5.6 mΩ (rev 4: 9.5 / 5.7); peak 4.8 A/mm per A on the short U2 VM stub; narrowest +12 V copper 0.6 mm (between ESP pins 5/4) | OK |
+| 13 | ESP 5 V loop field at U3 | 1.0 µT/A | OK |
 | 14 | Decoupling at U3 | C10 1.0 mm from pin 8, C9 2.4 mm from pin 2 | OK |
-| 15 | Hand-solder clearance to U1/J2 pins | 0.91 mm | OK |
-| 16 | Production files vs board | Gerbers, drills, CPL, BOM, netlist and DXF all match | OK |
-| 17 | BOM sourcing | 22 parts, all with LCSC numbers; single-sided assembly | OK |
+| 15 | Hand-solder clearance to U1/J2 pins | 0.91 mm (C11 to U1 pin 11) | OK |
+| 16 | Production files vs board | Drill hits match (40 vias + 30 PTH + 2 NPTH; rev 4 numbers, not re-checked); CPL positions, BOM and netlist nets match | OK |
+| 17 | BOM sourcing | 25 parts, all with LCSC numbers; single-sided assembly (U5 hand-fitted) | OK |
 | 18 | Libraries | All bundled in `libraries/`; no missing-library or mismatch warnings | OK |
-| 19 | Motor-current field at U3 | 6.1 µT/A ([details](#motor-current-field-at-the-magnetometer)) | Warning |
+| 19 | Motor-current field at U3 | 1.6 µT/A ([details](#motor-current-field-at-the-magnetometer)) | OK |
 | 20 | Carriage fit: shaft boss, screws, alignment | See [W1–W3](#warnings) | Warning |
-| 21 | STEP completeness | Every part except U1 (no SuperMini model) | Warning |
-| 22 | Silkscreen | J1/J2 overhang the edge; EasyEDA silk lines 0.06 mm; text 0.8 mm | Warning |
+| 21 | STEP completeness | Every part except U1 (no SuperMini model) and JP1–JP4 (no model in the KiCad library) | Warning |
+| 22 | Silkscreen | J1/J2 overhang the edge; EasyEDA silk lines 0.06 mm; text 0.8 mm; U1's outline crosses J2's | Warning |
 | 23 | Firmware pin map | Still v1 | **Issue** |
 | 24 | 12 V on a USB-C connector | Hazard to real USB devices | **Issue** |
-| 25 | Heat reaching U3 | +35.4 K per W in U2 | **Issue** (accuracy) |
-| 26 | U2 at 1 A continuous | Reaches thermal shutdown in still air | **Issue** |
+| 25 | Heat reaching U3 | +29.2 K per W in U2 | **Issue** (accuracy) |
+| 25a | CAN bus current field at U3 | rev 4: 28 µT/A ≈ 0.9 µT during dominant bits; not re-run for rev 4b, where JP1 and the bus tracks moved 9 mm away from U3 ([W11](#warnings)) | Warning |
+| 26 | U2 at 1 A continuous | 124 K/W (129 in rev 4, 111 in rev 3c); reaches thermal shutdown in still air | **Issue** |
 
 ## Issues that might arise
 
@@ -283,7 +323,9 @@ All checks were last run on rev 3c (2026-10-04).
 - driving "MODE" low holds the bridge in brake;
 - current sensing reads I2C_SCL.
 
-**Fix:** use the [pin map above](#mcu-u1-esp32-s3-supermini-on-sockets) and 1.5 V/A before the first power-up.
+The link to the motherboard is CAN by default since rev 4, and the firmware has no CAN code yet (`firmware/arm/comms.h` only starts `Serial`).
+
+**Fix:** use the [pin map above](#mcu-u1-esp32-s3-supermini-on-sockets) and 1.5 V/A before the first power-up. For CAN, drive the ESP32-S3 TWAI controller with TX = GPIO3 and RX = GPIO4. For I²C, change JP1–JP3 first ([CAN or I²C](#can-or-i2c-select-u5-jp1-to-jp4-r5-r6-c13)).
 
 ### I2. 12 V on a USB-C connector
 
@@ -295,13 +337,13 @@ J1 always carries 12 V on VBUS, right next to the SuperMini's real USB-C port. O
 
 ### I3. Heat reaching the magnetometer
 
-U3 rises 35.4 K per watt dissipated in U2, plus about 6.4 K from the buck and D1. The board takes about 100 s to warm up, so what matters is the motor's average power:
+U3 rises 29.2 K per watt dissipated in U2, plus about 6.9 K from the buck and D1. The board takes about 100 s to warm up, so what matters is the motor's average power:
 
 | Motor use | U2 power | U3 rise (steady state) |
 |---|---|---|
 | 0.5 A for 10 % of the time | ≈ 0.024 W | < 1 K |
-| 0.5 A continuous | 0.24 W | ≈ 8.5 K |
-| 1.0 A continuous | ≈ 1.1 W | ≈ 39 K (and U2 hits TSD, see I4) |
+| 0.5 A continuous | 0.24 W | ≈ 7 K |
+| 1.0 A continuous | ≈ 1.1 W | ≈ 32 K (and U2 hits TSD, see I4) |
 
 The firmware currently divides the field by a magnet tempco based on U3's *die* temperature, but the magnet doesn't see the board's heat. That adds about 1.2 % of B per +10 K: roughly 27, 41 and 58 µm at 2.5, 6 and 10.5 mm of travel.
 
@@ -310,11 +352,13 @@ The firmware currently divides the field by a magnet tempco based on U3's *die* 
   - stop applying the magnet tempco from the die temperature;
   - enable `TCMP_EN`;
   - re-zero against an end stop now and then.
-- **Hardware:** add a heat sink.
+- **Hardware:** add a heat sink. The table below was computed on rev 3c and not re-run for rev 4; expect similar gains.
 
 | Option | U2 junction per W | U3 per W in U2 |
 |---|---|---|
-| None (as built) | 111 K | 35.4 K |
+| None (rev 3c) | 111 K | 35.4 K |
+| None (rev 4) | 129 K | 28.9 K |
+| None (rev 4b, as built) | 124 K | 29.2 K |
 | ~40 K/W stick-on sink, top side over U2 (≈ 6 × 8 mm, between J2 and the right-hand ESP pins, on a thermal pad over U2's vias; must fit under the SuperMini) | 77 K | 15.4 K |
 | ~20 K/W sink, same place | 69 K | 10.7 K |
 | Small sink glued on U2's package (bottom side, if the carriage leaves room) | 50–56 K | 16–18 K |
@@ -322,7 +366,7 @@ The firmware currently divides the field by a magnet tempco based on U3's *die* 
 
 ### I4. U2 at high continuous current
 
-The DRV8876 junction runs at 111 K/W in still air (150 K/W with convection only). At 1 A continuous, U2 dissipates about 1.1 W, so the junction reaches ≈ 145–160 °C, at its thermal-shutdown threshold. 1.5 A trips shutdown within seconds; the driver recovers by itself and pulls nFAULT low.
+The DRV8876 junction runs at 124 K/W in still air (164 K/W with convection only); rev 4 was 129 K/W and rev 3c 111 K/W. The CAN tracks still box in part of the front copper around U2's thermal vias. At 1 A continuous, U2 dissipates about 1.1 W, so the junction reaches ≈ 165–185 °C, past its thermal-shutdown threshold. 1.5 A trips shutdown within seconds; the driver recovers by itself and pulls nFAULT low.
 
 **Fix:**
 - limit continuous current or duty, and read nFAULT (GPIO2);
@@ -331,13 +375,15 @@ The DRV8876 junction runs at 111 K/W in still air (150 K/W with convection only)
 
 ### Motor-current field at the magnetometer
 
-The motor current's own copper creates 6.1 µT per amp at U3's Hall plate. That's up from 3.5 µT/A in rev 3b, because U3 now sits nearer the front-GND return path; the shaft hole only accounts for 0.1 µT/A of it. The error only exists while current flows. At the target, where precision matters, the controller's current is close to zero.
+The motor current's own copper creates 1.6 µT per amp at U3's Hall plate in rev 4b (1.5 in rev 4, 6.1 µT/A in rev 3c, 3.5 in rev 3b). The GND return contributes −2.6 µT/A, which nearly cancels the 12 V copper's +4.9 µT/A. The front-pour notch between J2's pins is what keeps it there (see [Layout decisions](#layout-decisions)). The error only exists while current flows. At the target, where precision matters, the controller's current is close to zero.
 
 | Motor current | Error at 2.5 mm travel | at 6 mm | at 10.5 mm |
 |---|---|---|---|
-| 0.3 A | 0.3 µm | 1.4 µm | 6 µm |
-| 1.0 A | 0.9 µm | 4.6 µm | 20 µm |
-| 1.5 A | 1.3 µm | 6.9 µm | 30 µm |
+| 0.3 A | 0.07 µm | 0.3 µm | 1.4 µm |
+| 1.0 A | 0.24 µm | 1.1 µm | 4.8 µm |
+| 1.5 A | 0.36 µm | 1.7 µm | 7.2 µm |
+
+(Scaled from the rev 3c table by 1.5 / 6.1.)
 
 The firmware deadband is 10 µm.
 
@@ -353,12 +399,16 @@ The firmware deadband is 10 µm.
 | W1 | **Shaft boss.** The board edge clears the Ø6.9 mm shaft hole by 0.87 mm but overlaps the R5 boss by 0.68 mm in plan view | Confirm in CAD that the boss doesn't reach the PCB plane |
 | W2 | **Mounting screws.** The board, including H1/H2, moved 3.5 mm relative to the carriage in rev 3c | Move the carriage's screw holes; use the new DXF |
 | W3 | **Magnet alignment.** U3 is 9.114 mm from the shaft hole, but the carriage's magnet is 9.000 mm from its hole | U3 sits within 0.11 mm of the magnet centre; calibrate in place |
-| W4 | **Bottom side faces the carriage.** That includes the TP10/TP11 wire pads; TP10 is 1.5 mm from the hole edge | Make sure the carriage has pockets for the parts and room for wires |
+| W4 | **Bottom side faces the carriage** | Make sure the carriage has pockets for the parts |
+| W14 | **No shaft hole since rev 4.** The Ø2.5 mm hole is replaced by a silkscreen circle at (25.86, 25.60), on the back only since rev 4b (JP1 now sits there on the top). W1–W3 still refer to that position | If the carriage shaft needs to pass through the board, the hole has to come back |
 | W5 | **No SuperMini 3D model** | Add an ESP32-S3 SuperMini STEP to `libraries/3dmodels/` and assign it to U1 |
-| W6 | **Silkscreen.** 15 DRC warnings: J1/J2 deliberately overhang the edge, some silk sits over pads, U1 overlaps J2/H2. EasyEDA silk lines are 0.06 mm (JLC minimum 0.153); text is 0.8 mm (JLC recommends 1.0) | Cosmetic only |
+| W6 | **Silkscreen.** 21 DRC warnings: J1/J2 deliberately overhang the edge, some silk sits over pads, and U1's outline overlaps J2 (moved up 1 mm in rev 4b) and H2. EasyEDA silk lines are 0.06 mm (JLC minimum 0.153); text is 0.8 mm (JLC recommends 1.0) | Cosmetic only |
 | W7 | **No TVS on 12 V,** and ceramic-only bulk (about 12 µF effective): PWM ripple flows in the cable, and a hot-plug can overshoot towards 24 V against 25 V caps | Next spin: 47–100 µF polymer + SMAJ15A at J1; run PWM at 20–25 kHz |
-| W8 | **Motherboard I²C over the USB-C cable,** with no ESD protection or series R; SDA and SCL are coupled in the twisted pair | ≤ 100 kHz; next spin: TVS + 33–100 Ω series R, or CAN/RS-485 |
+| W8 | **Bus over the USB-C cable has no ESD protection.** In I²C mode there's no series R either, and SDA and SCL are coupled in the twisted pair | CAN (default) is the robust choice; for I²C keep ≤ 100 kHz. Next spin: a CAN TVS (e.g. PESD2CAN) at J1 |
 | W9 | **J1 peg holes** are 0.18 mm from its pads (vendor pattern) | JLC may query it; accept |
+| W11 | **CAN current near U3.** In rev 4, JP1 sat right over U3, and the on-board bus loop (U5 → JP1 → J1 → JP2 → U5) gives 28 µT per amp at the Hall plate. Dominant bits drive about 33 mA into the two 120 Ω terminations, so about 0.9 µT while the bus is busy (≈ 0.7 µm at 6 mm travel, ≈ 3 µm at 10.5 mm). The JP4 termination loop adds −1.6 µT/A. In rev 4b JP1/JP2 moved to the right-hand column, 9 mm from U3; not re-computed | Keep the bus quiet during a position conversion near the target, or average over idle frames |
+| W12 | **MAG I²C front-GND cover.** The CAN tracks on the top cut the front GND above the MAG lines: 40 % of MAG_SDA and 40 % of MAG_SCL are covered (41 / 31 % in rev 4, 94 / 92 % in rev 3c) | Keep the MAG bus at ≤ 400 kHz; next spin: move the CAN block so the front GND under U3's bus stays whole |
+| W13 | **U5 under the SuperMini.** It's SOIC-8, 1.75 mm tall, hand-soldered, and can't be reworked once the headers are fitted. JP1/JP2/JP3/JP4 are only reachable with the module off | Fit and test U5 and set the jumpers before soldering the headers |
 | W10 | **Background field.** The firmware uses \|B_z\|, so re-orienting the robot after calibration shifts readings by up to ±50 µT | Calibrate in the working orientation; subtract a parked-magnet baseline |
 
 ## Heat and current analysis
@@ -378,17 +428,18 @@ The firmware deadband is 10 µm.
 - **Heat:** a steady-state network of copper (35 µm, 385 W/mK), FR4 (1.6 mm, 0.3 W/mK) and via barrels (20 µm plating). It assumes still air and no heat path into the frame, so it is an upper bound. Losses into the air use h = 18/24 W/m²K top/bottom (10/12 for convection only), and RθJC(bot) of U2 is 7.1 K/W.
 - **Validation:** run on rev 3b, the model reproduces the original review: U2 112 vs 117 K/W, U3 38.5 vs 39 K/W, motor loop 3.5 vs 3.4 µT/A.
 
-| Result (rev 3c) | Value |
-|---|---|
-| Motor loop at U3, net (12 V copper / GND return / motor leads / cable) | 6.1 µT/A (+4.9 / −10.2 / −1.5 / +0.7) |
-| ESP 5 V loop at U3 | 1.7 µT/A (near-cancellation of large terms; model-sensitive) |
-| 12 V / GND path resistance | 9.1 / 2.1 mΩ |
-| U2 junction, U3, board average per W in U2 | 111 / 35.4 / 40 K |
-| U3 from buck + D1 losses (0.13 W) | 6.4 K |
+| Result | rev 3c | rev 4 | rev 4b |
+|---|---|---|
+| Motor loop at U3, net (12 V copper / GND return / motor leads / cable) | 6.1 µT/A (+4.9 / −10.2 / −1.5 / +0.7) | 1.5 µT/A (+4.9 / −2.6 / −1.5 / +0.7) | 1.6 µT/A (+4.9 / −2.6 / −1.3 / +0.6) |
+| ESP 5 V loop at U3 | 1.7 µT/A | 1.0 µT/A (near-cancellation of large terms; model-sensitive) | 1.0 µT/A |
+| 12 V / GND path resistance | 9.1 / 2.1 mΩ | 9.5 / 5.7 mΩ | 13.5 / 5.6 mΩ |
+| U2 junction, U3, board average per W in U2 | 111 / 35.4 / 40 K | 129 / 28.9 / 40 K | 124 / 29.2 / 40 K |
+| U3 from buck + D1 losses (0.13 W) | 6.4 K | 6.8 K | 6.8 K |
+| CAN bus loop at U3 (not in the script; computed with its solver) | — | 28 µT/A; JP4 termination loop −1.6 µT/A | not re-run |
 
 ## Cost
 
-These are JLCPCB estimates from 2026-10-03, using live part prices and JLC's published fees, excluding shipping and tax. The order is 2-layer FR4, 1.6 mm, green, HASL, with Economic PCBA on the bottom side.
+These are JLCPCB estimates from 2026-10-03 (before rev 4), using live part prices and JLC's published fees, excluding shipping and tax. The order is 2-layer FR4, 1.6 mm, green, HASL, with Economic PCBA on the bottom side.
 
 | Assembled / PCBs | PCB | Setup | Stencil | Extended-part feeders | SMT joints | Parts | **Total** | **Per board** |
 |---|---|---|---|---|---|---|---|---|
@@ -400,7 +451,8 @@ These are JLCPCB estimates from 2026-10-03, using live part prices and JLC's pub
 
 - **Parts:** about $4.90 per board at 1–9 pcs; U3 (≈ 50 %) and U2 (≈ 28 %) dominate.
 - **Feeder fees:** five Extended parts (U2, U3, U4, J1, L1) cost $3.07 each per order, whatever the quantity.
-- **Hand-fitted, not from JLC:** SuperMini + headers (≈ $4–6), J2 (≈ $0.06) and 2 × M2 nuts ($0.08 each; can be added to the JLC order as loose parts).
+- **Rev 4 additions:** R5, R6 and C13 are Basic 0402 parts, so they add a few cents and three SMT joints per board. U5 is hand-fitted.
+- **Hand-fitted, not from JLC:** SuperMini + headers (≈ $4–6), U5 (SN65HVD230DR), J2 (≈ $0.06) and 2 × M2 nuts ($0.08 each; can be added to the JLC order as loose parts).
 - **Optional extras:** ENIG ≈ +$15–20, QFN X-ray ≈ $1.6/board, shipping $3–25.
 - **Cheaper:**
   - panelise (2 × 2) for 10+ boards;
@@ -471,6 +523,24 @@ The paths it solves, the heat sources and the physical constants are named at th
 | v2 rev 3b | 2026-10-03 | Full design review; test pads TP8–TP11 added |
 | v2 rev 3c | 2026-10-04 | Re-route and fixes, below |
 | — | 2026-10-04 | Project restructure, below |
+| v2 rev 4 | 2026-10-05 | CAN option, below |
+| v2 rev 4b | 2026-10-05 | CAN block re-placed, 12 V pour replaced by a track, below |
+
+**rev 4b changes:**
+- J2 moved up 1 mm, TP8/TP9 moved (hand placement). U5 at (19.7, 25.9), rot 180; JP1/JP2 in one column right of U5; JP3/JP4 in one row above it; C13 under U5's VCC pin, C12 0.15 mm down.
+- CAN/I²C nets, MOT_OUT1/2 at J2 and DRV_nFAULT re-routed by hand ([Layout decisions](#layout-decisions)).
+- The front +12 V pour replaced by a 0.8 mm track over the motor GND return; the front GND pour takes its area. A 0.2 mm notch in the front GND between J2's pins keeps the motor field at U3 at 1.6 µT/A.
+- GND stitching vias: four moved or removed around U5, one added in U3's ground area and one between R1 and C12.
+- The top copy of the shaft-marker circle removed (JP1 sits there); the bottom copy stays. The IO12/IO13/3V3 test-pad labels nudged off U5.
+- Production files and analysis regenerated: +12 V path 13.5 mΩ (was 9.5), GND 5.6 mΩ, U2 124 K/W (was 129), motor field at U3 1.6 µT/A, MAG_SDA/SCL front-GND cover 40 / 40 %.
+
+**rev 4 changes:**
+- CAN transceiver U5 (SN65HVD230) added, with JP1/JP2 to switch J1's D+/D− between CAN (default) and I²C, JP3 for U5's RXD and JP4 + R5 for 120 Ω termination. R6 sets U5's slope control; C13 decouples it.
+- GPIO3/GPIO4 renamed SDA_CANTX/SCL_CANRX; J1's D+/D− are now BUS_P/BUS_N.
+- Board re-routed around the new parts ([rev 4 re-route](#layout-decisions)); the +3V3 hop moved and two GND vias removed.
+- Production files and analysis regenerated: motor field at U3 down to 1.5 µT/A, U2 junction up to 129 K/W.
+- Bottom test pads TP10 (+5 V) and TP11 (GND) removed from the schematic and board, with their stub tracks.
+- The Ø2.5 mm shaft hole removed; a silkscreen circle on the top marks where it was.
 
 **rev 3c changes:**
 - U3 and the shaft hole moved 3.5 mm for carriage-shaft clearance, then the area was re-routed. TP10/TP11 moved onto the buck's feedback line.
