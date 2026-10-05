@@ -28,6 +28,9 @@ OUTPUTS = [
     ('analysis', 'Current, magnetic-pickup and heat maps (SVG) + numbers, ~1 min'),
 ]
 GROUPS = {'all': [o for o, _ in OUTPUTS], 'jlc': ['gerbers', 'bom', 'cpl', 'netlist']}
+# production/ sub-folder of each output; the manifest stays at the top
+FOLDERS = {'gerbers': 'JLC', 'bom': 'JLC', 'cpl': 'JLC', 'netlist': 'JLC',
+           'step': 'CAD', 'render': 'CAD', 'dxf': 'CAD', 'analysis': 'analysis', 'drc': 'analysis'}
 
 GERBER_LAYERS = ['F.Cu', 'B.Cu', 'F.Paste', 'B.Paste', 'F.SilkS', 'B.SilkS',
                  'F.Mask', 'B.Mask', 'Edge.Cuts']
@@ -355,15 +358,17 @@ class Generator:
         self.made = []
         self.warnings = []
 
-    def path(self, suffix):
-        return os.path.join(self.out, f'{self.prefix}_{suffix}')
+    def path(self, suffix, output=None):
+        folder = os.path.join(self.out, FOLDERS[output]) if output else self.out
+        os.makedirs(folder, exist_ok=True)
+        return os.path.join(folder, f'{self.prefix}_{suffix}')
 
     def note(self, path, what):
         self.made.append((os.path.relpath(path, self.out), what))
         print(f'  -> {os.path.relpath(path, self.out)}')
 
     def preflight_drc(self, allow_errors):
-        rpt = self.path('DRC_report.txt')
+        rpt = self.path('DRC_report.txt', 'drc')
         code, out = self.cli.run('pcb', 'drc', '--schematic-parity', '--severity-all',
                                  '-o', rpt, self.board_path, check=False)
         text = open(rpt, encoding='utf-8').read() if os.path.exists(rpt) else out
@@ -391,16 +396,11 @@ class Generator:
                          '--excellon-separate-th', '--generate-map', '--map-format', 'pdf',
                          '-o', tmp + '/', self.board_path)
             files = sorted(f for f in os.listdir(tmp) if not f.endswith('.pdf') and not f.endswith('.gbrjob'))
-            gdir = self.path('gerbers')
-            os.makedirs(gdir, exist_ok=True)
-            for f in os.listdir(tmp):
-                shutil.copy2(os.path.join(tmp, f), gdir)
-            zpath = self.path('JLCPCB_gerbers.zip')
+            zpath = self.path('JLCPCB_gerbers.zip', 'gerbers')
             with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
                 for f in files:
                     z.write(os.path.join(tmp, f), f)
         self.note(zpath, f'upload to JLCPCB ({len(files)} files: {", ".join(files)})')
-        self.note(gdir, 'the same Gerber/drill files unzipped, plus drill maps (PDF) and the job file')
 
     def bom(self):
         rows = {}
@@ -410,7 +410,7 @@ class Generator:
             key = (fp['value'], fp['name'], lcsc_of(fp))
             r = rows.setdefault(key, dict(refs=[], fp=fp))
             r['refs'].append(fp['ref'])
-        path = self.path('JLCPCB_BOM.csv')
+        path = self.path('JLCPCB_BOM.csv', 'bom')
         missing = []
         with open(path, 'w', newline='', encoding='utf-8') as f:
             w = csv.writer(f)
@@ -429,7 +429,7 @@ class Generator:
 
     def cpl(self):
         table, source = rotation_table()
-        path = self.path('JLCPCB_CPL.csv')
+        path = self.path('JLCPCB_CPL.csv', 'cpl')
         sides = set()
         n = 0
         with open(path, 'w', newline='', encoding='utf-8') as f:
@@ -449,12 +449,12 @@ class Generator:
         self.note(path, f'{n} placements, side(s): {", ".join(sorted(sides))}; rotation corrections from {source}')
 
     def netlist(self):
-        path = self.path('netlist.ipc')
+        path = self.path('netlist.ipc', 'netlist')
         self.cli.run('pcb', 'export', 'ipcd356', '-o', path, self.board_path)
         self.note(path, 'IPC-D-356 netlist (optional upload for the electrical-test comparison)')
 
     def step(self):
-        path = self.path('3D.step')
+        path = self.path('3D.step', 'step')
         _, out = self.cli.run('pcb', 'export', 'step', '--subst-models', '--force',
                               '-o', path, self.board_path)
         missing = sorted(set(re.findall(r'Could not add 3D model for (\S+?)\.', out)))
@@ -468,13 +468,13 @@ class Generator:
 
     def render(self):
         for suffix, args in RENDERS:
-            path = self.path(f'3D_{suffix}.png')
+            path = self.path(f'3D_{suffix}.png', 'render')
             self.cli.run('pcb', 'render', '--quality', 'high', '-w', '2000', '-h', '1500',
                          '--background', 'opaque', *args, '-o', path, self.board_path)
             self.note(path, f'3D render, {suffix} view')
 
     def dxf(self):
-        path = self.path('component_layout.dxf')
+        path = self.path('component_layout.dxf', 'dxf')
         shapes = list(self.board['shapes'])
         skipped, holes, pins, no_courtyard = [], [], [], []
         for fp in sorted(self.board['footprints'], key=lambda fp: natural_key(fp['ref'])):
@@ -503,19 +503,20 @@ class Generator:
                   f'passives left out: {", ".join(skipped)}')
 
     def analysis(self):
+        folder = os.path.dirname(self.path('analysis.txt', 'analysis'))
         out = self.cli.run_python(os.path.join(HERE, 'board_analysis.py'), self.board_path,
-                                  os.path.join(self.out, self.prefix))
+                                  os.path.join(folder, self.prefix))
         if 'warning:' in out:
             self.warnings.append('analysis: ' + '; '.join(l for l in out.splitlines() if 'warning:' in l))
         num = lambda pat: (re.search(pat, out) or [None, '?'])[1]
         field = num(r'NET\s+([-+\d.]+) uT/A   \(sign')
         tj, u3 = num(r'radiation : .*?U2 junction\s+([\d.]+)'), num(r'radiation : .*?U3\s+([\d.]+) K')
-        self.note(self.path('current_motor.svg'),
+        self.note(self.path('current_motor.svg', 'analysis'),
                   f'motor current (1 A) on both layers and its field at U3: net {field} uT/A')
-        self.note(self.path('current_5V.svg'), 'ESP 5 V supply loop current (1 A) and its field at U3')
-        self.note(self.path('thermal.svg'), f'temperature rise per W in U2: U2 junction {tj} K/W, '
+        self.note(self.path('current_5V.svg', 'analysis'), 'ESP 5 V supply loop current (1 A) and its field at U3')
+        self.note(self.path('thermal.svg', 'analysis'), f'temperature rise per W in U2: U2 junction {tj} K/W, '
                   f'U3 {u3} K/W (still air, convection + radiation)')
-        self.note(self.path('analysis.txt'), 'the numbers behind the maps')
+        self.note(self.path('analysis.txt', 'analysis'), 'the numbers behind the maps')
 
     def manifest(self, chosen):
         try:
@@ -532,7 +533,7 @@ class Generator:
             f.write(f'Outputs: {", ".join(chosen)}\n\n')
             for name, what in self.made:
                 f.write(f'{name}\n    {what}\n')
-            f.write('\nJLCPCB order: upload the Gerber zip, choose PCB Assembly (Economic, '
+            f.write('\nJLCPCB order (files in JLC/): upload the Gerber zip, choose PCB Assembly (Economic, '
                     'assemble BOTTOM side), then upload the BOM and CPL. Check every part\'s '
                     'rotation in JLC\'s placement preview before paying.\n'
                     'Hand-fitted, not in the BOM/CPL: U1 (ESP32-S3 SuperMini + sockets), J2, H1, H2.\n'
@@ -581,11 +582,14 @@ def ask():
 
 
 def clean(out, prefix):
-    """Delete earlier outputs (files starting with the prefix)."""
-    for name in os.listdir(out):
-        p = os.path.join(out, name)
-        if name.startswith(prefix + '_') or name.startswith('.tmp_'):
-            shutil.rmtree(p) if os.path.isdir(p) and not os.path.islink(p) else os.remove(p)
+    """Delete earlier outputs (files starting with the prefix) here and in the sub-folders."""
+    for folder in [out] + [os.path.join(out, f) for f in sorted(set(FOLDERS.values()))]:
+        if not os.path.isdir(folder):
+            continue
+        for name in os.listdir(folder):
+            p = os.path.join(folder, name)
+            if name.startswith(prefix + '_') or name.startswith('.tmp_'):
+                shutil.rmtree(p) if os.path.isdir(p) and not os.path.islink(p) else os.remove(p)
 
 
 def main():

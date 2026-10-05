@@ -11,8 +11,7 @@ _autosave-*
 *-bak
 *-save.kicad_*
 
-# Generated Gerber folder (the zip is kept)
-production/*_gerbers/
+# Gerber export scratch folder
 production/.tmp_*/
 
 # Python
