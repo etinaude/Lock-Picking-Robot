@@ -1,4 +1,0 @@
-(sym_lib_table
-	(version 7)
-	(lib (name "lock-picking") (type "KiCad") (uri "${KIPRJMOD}/lock-picking.kicad_sym") (options "") (descr "Project symbols"))
-)

@@ -36,8 +36,5 @@
 
 .pio/
 
-PCB/unlocked-PCB/
-# KiCad local history (its own git repo of autosaves)
+# KiCad local history (its own git repo)
 PCB/**/.history/
-# Unzipped Gerbers (the JLCPCB zip next to them is kept)
-PCB/main board/production/Lock-Picking-Robot_v2_gerbers/
