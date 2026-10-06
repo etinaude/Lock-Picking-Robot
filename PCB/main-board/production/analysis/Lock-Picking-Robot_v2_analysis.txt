@@ -1,24 +1,27 @@
 Board analysis of /home/etienne/Documents/git/Lock-Picking-Robot/PCB/main-board/main-board.kicad_pcb
-grid 0.08 mm; field at U3 Hall plate (17.10, 28.10), 0.5 mm below the bottom copper; B_z sign: + = towards the top face
+grid 0.08 mm; field at U3 Hall plate (23.20, 37.75), 0.5 mm below the bottom copper; B_z sign: + = towards the top face
 
 MOTOR LOOP, per amp of motor current (B_z at the Hall plate)
-  +12V supply J1 -> U2 VM                                +4.88 uT/A
-  GND return U2 -> J1                                    -2.56 uT/A
-  motor leads U2 -> J2                                   -1.32 uT/A
+  +12V supply CN2 -> U2 VM                               +4.13 uT/A
+  GND return U2 -> CN2                                   -4.51 uT/A
+  motor leads U2 -> J2                                   -1.34 uT/A
   motor cable (2 wires, 2 mm above, off the top edge)    +0.61 uT/A
-  NET                                                    +1.61 uT/A   (sign flips with the motor direction)
-  path resistance: +12V 13.5 mOhm, GND return 5.6 mOhm
-  peak sheet current outside J1/U2 pads: 4.77 A/mm per A at (23.13, 14.41) on B.Cu
+  NET                                                    -1.12 uT/A   (sign flips with the motor direction)
+  path resistance: +12V 13.7 mOhm, GND return 3.5 mOhm
+  peak sheet current outside CN2/U2 pads: 4.69 A/mm per A at (29.21, 24.02) on B.Cu
 
 ESP 5 V SUPPLY LOOP, per amp of ESP current
-  +5V copper                                             -6.05 uT/A
-  VBUS copper                                            -1.27 uT/A
-  GND copper                                            +26.88 uT/A
-  Net-(U4-SW) copper                                     -2.80 uT/A
+  +5V copper                                             -6.18 uT/A
+  VBUS copper                                            -1.25 uT/A
+  GND copper                                            +25.76 uT/A
+  Net-(U4-SW) copper                                     -2.77 uT/A
   L1 / D1 / U4 / module bodies (line currents)          -15.79 uT/A
-  NET                                                    +0.96 uT/A   (a near-cancellation of large terms: model-sensitive)
+  NET                                                    -0.23 uT/A   (a near-cancellation of large terms: model-sensitive)
 
 THERMAL, steady state, still air, no frame contact (upper bound)
-  1 W in U2, convection only        : board under U2 157.1 K, U2 junction 164.2 K/W, U3  64.2 K, board average  76.5 K
-  1 W in U2, convection + radiation : board under U2 117.0 K, U2 junction 124.1 K/W, U3  29.2 K, board average  40.1 K
-  buck + D1 losses (U4 0.05 W, L1 0.04 W, D1 0.04 W), with radiation: U3 6.8 K, hottest 15.8 K
+  1 W in U2, convection only        : board under U2 154.4 K, U2 junction 161.5 K/W, U3  62.2 K, board average  74.9 K
+  1 W in U2, convection + radiation : board under U2 115.4 K, U2 junction 122.5 K/W, U3  28.0 K, board average  39.3 K
+  heat-sink pad on the top: 4.0 x 4.6 mm
+  1 W in U2, with a 40 K/W sink on 10 K/W thermal tape: U2 junction  77.2 K/W, U3  12.1 K
+  1 W in U2, with a 20 K/W sink on 10 K/W thermal tape: U2 junction  69.7 K/W, U3   9.5 K
+  buck + D1 losses (U4 0.05 W, L1 0.04 W, D1 0.04 W), with radiation: U3 6.8 K, hottest 15.5 K

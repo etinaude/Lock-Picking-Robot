@@ -13,8 +13,8 @@ H_RAD = (18.0, 24.0)            # ... plus radiation (the realistic case)
 RJC_U2 = 7.1                    # DRV8876 RGT junction to exposed pad, K/W
 
 SENSOR = 'U3'
-MOTOR = dict(supply=('+12V', [('J1', '+12V')], [('U2', '9')]),
-             ret=('GND', [('U2', 'GND')], [('J1', 'GND')]),
+MOTOR = dict(supply=('+12V', [('CN2', '+12V')], [('U2', '9')]),
+             ret=('GND', [('U2', 'GND')], [('CN2', 'GND')]),
              leads=[('/MOT_OUT1', [('U2', '6')], [('J2', '1')]), ('/MOT_OUT2', [('J2', '2')], [('U2', '8')])],
              cable=(('J2', '1'), ('J2', '2')))          # cable leaves J2 towards the top edge
 SUPPLY = [('+5V', [('L1', '2')], [('D1', '2')]), ('VBUS', [('D1', '1')], [('U1', '5V')]),
@@ -22,6 +22,7 @@ SUPPLY = [('+5V', [('L1', '2')], [('D1', '2')]), ('VBUS', [('D1', '1')], [('U1',
 SUPPLY_BODIES = [(('L1', '1'), ('L1', '2'), -2.2), (('D1', '2'), ('D1', '1'), -2.1),
                  (('U4', '4'), ('U4', '5'), -2.1), (('U1', '5V'), ('U1', 'GND'), 8.0)]   # line currents, z mm
 HEAT_U2 = [('U2', '17', 1.0)]
+SINKS = [(40.0, 10.0), (20.0, 10.0)]   # stick-on sink on the top pad over U2: (sink-to-air, thermal pad) K/W
 HEAT_BUCK = [('U4', None, 0.05), ('L1', None, 0.04), ('D1', None, 0.04)]
 
 
@@ -301,7 +302,7 @@ def sheet_density(ix, iy):
     return np.hypot(kx, ky) / GRID
 
 
-def thermal(B, sources, h_top, h_bot):
+def thermal(B, sources, h_top, h_bot, sink=None):
     cu = np.stack([B.copper(L) for L in B.layers]) & B.board
     A = (GRID * 1e-3) ** 2
     g = np.where(cu, K_CU * T_CU, 0.0) + K_FR4 * T_FR4 / 2
@@ -314,6 +315,8 @@ def thermal(B, sources, h_top, h_bot):
     for j, i, _, gt in B.barrels():
         N.gz[j, i] += gt
     N.gd[0] = np.where(B.board, h_top * A, 0.0); N.gd[1] = np.where(B.board, h_bot * A, 0.0)
+    if sink is not None:                     # (mask on the top layer, total conductance W/K)
+        N.gd[0][sink[0]] += sink[1] / sink[0].sum()
     q = np.zeros((2, B.ny, B.nx))
     for ref, num, watts in sources:          # heat enters the copper on the part's own side
         k = 1 if B.fps[ref].IsFlipped() else 0
@@ -415,7 +418,7 @@ def main(board_path, prefix):
     s = B.fps[SENSOR].GetPosition(); sx, sy = pcbnew.ToMM(s.x), pcbnew.ToMM(s.y)
     hall = np.array([sx * 1e-3, -sy * 1e-3, -T_FR4 - HALL_BELOW])
     labels = [(SENSOR, sx, sy, 'cross')] + [(r, pcbnew.ToMM(B.fps[r].GetPosition().x), pcbnew.ToMM(B.fps[r].GetPosition().y), 'ref')
-                                            for r in ('U2', 'U4', 'L1', 'D1', 'J1', 'J2') if r in B.fps]
+                                            for r in ('U2', 'U4', 'L1', 'D1', 'CN2', 'J2') if r in B.fps]
     lines = [f'Board analysis of {board_path}', f'grid {GRID} mm; field at {SENSOR} Hall plate ({sx:.2f}, {sy:.2f}), '
              f'{HALL_BELOW * 1e3:.1f} mm below the bottom copper; B_z sign: + = towards the top face', '']
     any_cu = np.stack([B.copper(L) for L in B.layers])
@@ -423,7 +426,7 @@ def main(board_path, prefix):
     # ---- motor loop
     parts, dens, K = {}, np.zeros((B.ny, B.nx)), np.zeros((2, B.ny, B.nx))
     res = {}
-    for key, (net, src, snk) in (('+12V supply J1 -> U2 VM', MOTOR['supply']), ('GND return U2 -> J1', MOTOR['ret'])):
+    for key, (net, src, snk) in (('+12V supply CN2 -> U2 VM', MOTOR['supply']), ('GND return U2 -> CN2', MOTOR['ret'])):
         ix, iy, r = solve_path(B, net, src, snk)
         d = bz_sheet(B, ix, iy, hall); parts[key] = d.sum() * 1e6; dens += d; K += sheet_density(ix, iy); res[key] = r
     d_leads = np.zeros_like(dens)
@@ -439,12 +442,12 @@ def main(board_path, prefix):
     lines.append('MOTOR LOOP, per amp of motor current (B_z at the Hall plate)')
     lines += [f'  {k:52} {v:+7.2f} uT/A' for k, v in parts.items()]
     lines.append(f'  {"NET":52} {net_motor:+7.2f} uT/A   (sign flips with the motor direction)')
-    lines.append(f'  path resistance: +12V {res["+12V supply J1 -> U2 VM"] * 1e3:.1f} mOhm, GND return {res["GND return U2 -> J1"] * 1e3:.1f} mOhm')
+    lines.append(f'  path resistance: +12V {res["+12V supply CN2 -> U2 VM"] * 1e3:.1f} mOhm, GND return {res["GND return U2 -> CN2"] * 1e3:.1f} mOhm')
     shown = K > 0
-    outside = ~np.stack([B.pad_mask(B.pads([('J1', None), ('U2', None)]), L) for L in B.layers])
+    outside = ~np.stack([B.pad_mask(B.pads([('CN2', None), ('U2', None)]), L) for L in B.layers])
     kmax = np.where(outside, K, 0)
     peak = np.unravel_index(np.argmax(kmax), kmax.shape)
-    lines.append(f'  peak sheet current outside J1/U2 pads: {kmax[peak]:.2f} A/mm per A at '
+    lines.append(f'  peak sheet current outside CN2/U2 pads: {kmax[peak]:.2f} A/mm per A at '
                  f'({B.xs[peak[2]]:.2f}, {B.ys[peak[1]]:.2f}) on {"F.Cu" if peak[0] == 0 else "B.Cu"}')
     lines.append('')
     km = robust_max(K, 98)
@@ -488,6 +491,19 @@ def main(board_path, prefix):
         lines.append(f'  1 W in U2, {name:23}: board under U2 {under:5.1f} K, U2 junction {under + RJC_U2:5.1f} K/W, '
                      f'{SENSOR} {T[1, sj, si]:5.1f} K, board average {T[:, B.board].mean():5.1f} K')
         maps[name] = T
+    pad = None                               # exposed top copper for a stick-on sink (F.Cu + F.Mask rectangle, GND)
+    for d in B.b.GetDrawings():
+        if d.GetLayer() == pcbnew.F_Cu and d.IsOnLayer(pcbnew.F_Mask) and d.GetShape() == pcbnew.SHAPE_T_RECTANGLE:
+            bb = d.GetBoundingBox(); mm = pcbnew.ToMM
+            X, Y = np.meshgrid(B.xs, B.ys)
+            pad = (X >= mm(bb.GetLeft())) & (X <= mm(bb.GetRight())) & (Y >= mm(bb.GetTop())) & (Y <= mm(bb.GetBottom())) & B.board
+            lines.append(f'  heat-sink pad on the top: {mm(bb.GetWidth()):.1f} x {mm(bb.GetHeight()):.1f} mm')
+    if pad is not None and pad.any():
+        for rsa, rtim in SINKS:
+            T = thermal(B, HEAT_U2, *H_RAD, sink=(pad, 1.0 / (rsa + rtim)))
+            under = T[1][ep[1]].mean()
+            lines.append(f'  1 W in U2, with a {rsa:.0f} K/W sink on {rtim:.0f} K/W thermal tape: U2 junction {under + RJC_U2:5.1f} K/W, '
+                         f'{SENSOR} {T[1, sj, si]:5.1f} K')
     Tb = thermal(B, HEAT_BUCK, *H_RAD)
     lines.append(f'  buck + D1 losses ({", ".join(f"{r} {w} W" for r, _, w in HEAT_BUCK)}), with radiation: '
                  f'{SENSOR} {Tb[1, sj, si]:.1f} K, hottest {Tb.max():.1f} K')

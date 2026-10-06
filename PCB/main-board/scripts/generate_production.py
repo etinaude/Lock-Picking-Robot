@@ -536,7 +536,7 @@ class Generator:
             f.write('\nJLCPCB order (files in JLC/): upload the Gerber zip, choose PCB Assembly (Economic, '
                     'assemble BOTTOM side), then upload the BOM and CPL. Check every part\'s '
                     'rotation in JLC\'s placement preview before paying.\n'
-                    'Hand-fitted, not in the BOM/CPL: U1 (ESP32-S3 SuperMini + sockets), J2, H1, H2.\n'
+                    'Hand-fitted, not in the BOM/CPL: U1 (ESP32-S3 SuperMini + sockets), U5 (SN65HVD230), CN2 (XT30), J2, H1, H2.\n'
                     'Design notes: PCB/README.md\n')
             if self.warnings:
                 f.write('\nWarnings:\n' + ''.join(f'  - {w}\n' for w in self.warnings))
