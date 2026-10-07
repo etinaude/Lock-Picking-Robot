@@ -4,7 +4,7 @@ KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm
 
 ## Status
 
-- **Schematic:** v2 rev 6. ERC 0 errors (38 pin-type warnings from the EasyEDA symbols).
+- **Schematic:** v2 rev 6, with the GPIOs re-assigned for U1 at 0° and a third spare-pin pad (TP3). ERC 0 errors (38 pin-type warnings from the EasyEDA symbols).
 - **PCB: being re-laid out.** It still carries the rev 5 parts (AP63205 buck, 4.7 µH L1, R1 = 1.5 kΩ 0402) and its tracks and vias have been removed. See [Layout to-do](#layout-to-do).
 - **Production files** in [`main-board/production/`](main-board/production/) are from rev 5 and don't match the schematic. Don't order from them.
 - **Firmware isn't ready for this board** ([Known issues](#known-issues)).
@@ -45,19 +45,20 @@ Pin 1 = OUT1, pin 2 = OUT2. The body overhangs the board edge by design.
 | Pin | Net | Use |
 |---|---|---|
 | GPIO1 | DRV_IPROPI | Motor current, ADC1_CH0, 3.3 V/A |
-| GPIO2 | DRV_nFAULT | Driver fault, active low (10 k pull-up) |
-| GPIO3 | SDA_CANTX | CAN TX (to U5) or I²C SDA |
-| GPIO4 | SCL_CANRX | CAN RX (from U5 via JP3) or I²C SCL |
-| GPIO5 | DRV_nSLEEP | Drive **high** to run |
-| GPIO6 | DRV_IN2_PH | Direction |
-| GPIO7 | DRV_IN1_EN | PWM |
-| GPIO8 | | Free |
-| GPIO9 / 10 / 11 | MAG_SDA / MAG_SCL / MAG_INT | Magnetometer, I²C address 0x0C |
-| GPIO12 / 13 | EXP_IO12 / EXP_IO13 | Spare, on TP1 / TP2 |
-| TX / RX | EXP_TX / EXP_RX | On TP3 / TP4. TX prints the ROM boot log at reset |
+| GPIO2 / 3 / 4 | MAG_SDA / MAG_SCL / MAG_INT | Magnetometer, I²C address 0x0C |
+| GPIO5 / 6 / 7 | EXP_IO5 / EXP_IO6 / EXP_IO7 | Spare, on TP1 / TP2 / TP3 |
+| GPIO8 | SCL_CANRX | CAN RX (from U5 via JP3) or I²C SCL |
+| GPIO9 | SDA_CANTX | CAN TX (to U5) or I²C SDA |
+| GPIO10 | DRV_nFAULT | Driver fault, active low (10 k pull-up) |
+| GPIO11 | DRV_nSLEEP | Drive **high** to run |
+| GPIO12 | DRV_IN2_PH | Direction |
+| GPIO13 | DRV_IN1_EN | PWM |
+| TX / RX | | Not used. TX prints the ROM boot log at reset |
 | 5V / 3V3 | VBUS / +3V3 | VBUS ≈ 4.7 V after D1 |
 
-GPIOs are 3.3 V only. Test pads TP1–TP7 (top, 1.5 mm, labelled) carry IO12, IO13, TX, RX, 3V3, 5V and GND.
+The pins follow the layout: U1 sits at 0°, so the left header (GPIO1–7) is next to U3 and the right header (GPIO8–13) is next to U2 and CN2. The reasoning is in [`main-board/layout plan.md`](main-board/layout%20plan.md).
+
+GPIOs are 3.3 V only. Test pads TP1, TP2, TP3, TP5, TP6, TP7 (top, 1.5 mm, labelled) carry IO5, IO6, IO7, 3V3, 5V and GND.
 
 ## CAN or I²C: U5, JP1–JP4
 
@@ -71,7 +72,7 @@ All four jumpers are on the top side under the SuperMini, so set them (and fit U
 | JP4, termination ("TERM") | CANH to R5 (120 Ω) to CANL | Open | Leave open |
 
 - **Termination:** the whole bus needs exactly two 120 Ω terminations, at its two ends. Bridge JP4 on at most one arm; on every arm it would be about 17 Ω and the bus won't work. Keep the bit rate modest (250 kbit/s).
-- **U5 details:** R7 pulls TXD high so a resetting or flashing arm can't hold the bus dominant (GPIO3 floats during boot). R6 (10 kΩ on Rs) selects slope control. C13 decouples VCC.
+- **U5 details:** R7 pulls TXD high so a resetting or flashing arm can't hold the bus dominant (GPIO9 floats during boot). R6 (10 kΩ on Rs) selects slope control. C13 decouples VCC.
 - **I²C mode:** U5 can stay fitted or be left off; with JP1–JP3 changed it is disconnected from the bus.
 
 ## Power
@@ -99,7 +100,9 @@ I²C mode, address 0x0C (A0 = A1 = GND), INT on MAG_INT. The Hall plates are at 
 
 ### Layout to-do
 
-1. **Update PCB from Schematic.** U4 changes part, L1 and R1 change value, R1 gets the 0805 footprint, and R8, R9 and C14 arrive unplaced.
+The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20plan.md).
+
+1. **Update PCB from Schematic.** U4 changes part, L1 and R1 change value, R1 gets the 0805 footprint, R8, R9, C14 and TP3 arrive unplaced, and U1's pad nets follow the new [pin map](#u1-supermini-pin-map). The TP silk labels ("IO12", "IO13") need changing to IO5, IO6, IO7.
 2. **Route the buck the TI way.** The TPS54202 pinout differs from the old AP63205 (1 GND, 2 SW, 3 VIN, 4 FB, 5 EN, 6 BOOT). C1 tight across VIN–GND, C2 across BOOT–SW, the SW copper as small as possible, R8/R9/C14 next to FB sensing V_OUT at C3/C4, and EN a bare pad away from SW.
 3. **Keep the buck away from U3**, about 12 mm like U2. L1 has a magnetic core and carries a varying current; in rev 5 it was only 4.6 mm away.
 4. Put R1 near U2's IPROPI pin, then route the rest.
@@ -118,7 +121,7 @@ I²C mode, address 0x0C (A0 = A1 = GND), INT on MAG_INT. The Hall plates are at 
 
 | Issue | What to do |
 |---|---|
-| **Firmware pin map is still v1.** `firmware/common/config.h` doesn't match the [pin map](#u1-supermini-pin-map) (PWM would go to nSLEEP, current sense uses 2.5 V/A), and there is no CAN code yet | Before first power-up, switch to this board's pins, `CURRENT_SENSE_V_PER_A 3.3`, and add a TWAI driver on TX = GPIO3, RX = GPIO4 |
+| **Firmware pin map is still v1.** `firmware/common/config.h` doesn't match the [pin map](#u1-supermini-pin-map) (PWM would go to nSLEEP, current sense uses 2.5 V/A), and there is no CAN code yet | Before first power-up, switch to this board's pins, `CURRENT_SENSE_V_PER_A 3.3`, and add a TWAI driver on TX = GPIO9, RX = GPIO8 |
 | **U2 overheats at 1 A continuous** (≈ 1.1 W, about 120 K/W bare in still air) | Stop the motor on stall rather than holding it, read nFAULT, or fit a sink on the heat-sink pad (≈ 77 K/W) |
 | **Board heat reaches U3** (≈ 28 K per W in U2), which shifts readings if the firmware applies the magnet tempco from U3's die temperature | Don't apply the magnet tempco from the die temperature, enable `TCMP_EN`, re-zero against an end stop |
 | **Motor current shifts the field at U3** by about 1 µT/A | Negligible at the target where current is near zero; otherwise compensate as B − k·I |
