@@ -1,8 +1,0 @@
-(version 1)
-(rule "Hole clearance 0.25 mm everywhere"
-	(constraint hole_clearance (min 0.25mm)))
-(rule "USB-C locating pegs sit 0.18 mm from the pad toes (manufacturer land pattern)"
-	(condition "A.Reference == 'J*' && B.Reference == 'J*'")
-	(constraint hole_clearance (min 0.15mm)))
-(rule "Copper to board edge: 0.3 mm (JLC routed-edge minimum is 0.2-0.3)"
-	(constraint edge_clearance (min 0.3mm)))

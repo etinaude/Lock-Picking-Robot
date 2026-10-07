@@ -1,4 +1,0 @@
-(sym_lib_table
-	(version 7)
-	(lib (name "splitter") (type "KiCad") (uri "${KIPRJMOD}/splitter.kicad_sym") (options "") (descr "Splitter project symbols"))
-)
