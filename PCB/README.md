@@ -1,11 +1,11 @@
 # PCBs
 
-KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm of the robot has one: an ESP32-S3 SuperMini drives the arm's brushed DC motor and reads the carriage position from a magnet, and talks to the motherboard over CAN (default) or I²C. Etienne calls it the "main board"; the schematic title is "Lock Picking Robot - Arm Board" and the firmware env is `arm`. It is not the motherboard.
+KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm of the robot has one: an ESP32-S3 SuperMini drives the arm's brushed DC motor and reads the carriage position from a magnet, and talks to the motherboard over CAN. Etienne calls it the "main board"; the schematic title is "Lock Picking Robot - Arm Board" and the firmware env is `arm`. It is not the motherboard.
 
 ## Status
 
-- **Schematic:** v2 rev 6, with the GPIOs re-assigned for U1 at 0° and a third spare-pin pad (TP3). ERC 0 errors (38 pin-type warnings from the EasyEDA symbols).
-- **PCB: rev 6 placement done, not routed.** Updated from the schematic and every part is placed (2026-10-07); no tracks or vias yet. See [Layout to-do](#layout-to-do).
+- **Schematic:** v2 rev 7: CAN only (the I²C option and JP1–JP3 are gone) and CAN TX/RX moved to GPIO8/GPIO9. Rev 6 re-assigned the GPIOs for U1 at 0° and added TP3. ERC 0 errors (38 pin-type warnings from the EasyEDA symbols).
+- **PCB: rev 7 placement done, not routed.** Matches the schematic (DRC 0 errors, parity clean, 2026-10-07); no tracks or vias yet. U1, U2, U3, J2, CN2, H1/H2, the TPs, the outline and both zones are locked. The heat-sink pad over U2 is missing (see [Layout to-do](#layout-to-do)).
 - **Production files** in [`main-board/production/`](main-board/production/) are from rev 5 and don't match the schematic. Don't order from them.
 - **Firmware isn't ready for this board** ([Known issues](#known-issues)).
 
@@ -16,7 +16,7 @@ KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm
 | MCU | ESP32-S3 SuperMini (U1) on 2 × 9-pin 2.54 mm female headers, top side |
 | Motor driver | TI DRV8876 (U2), PH/EN mode, 1.0 A current limit |
 | Position sensor | Melexis MLX90393 (U3) 3-axis magnetometer, centred over the carriage magnet |
-| Bus | TI SN65HVD230 CAN transceiver (U5), or I²C, picked with solder jumpers |
+| Bus | TI SN65HVD230 CAN transceiver (U5), 120 Ω termination on solder jumper JP4 |
 | Power | 12 V in on CN2 → TPS54202 buck (U4) → 5 V → SuperMini (its LDO makes 3.3 V) |
 | Board | 24.7 × 23.75 mm with 1 mm corners, plus R 3.2 mm bulges round the two M2 nuts (24.7 × 28.4 mm overall). 2 layers, 1.6 mm FR4, 1 oz |
 | Assembly | Bottom side by JLCPCB (Economic PCBA); top side hand-soldered |
@@ -27,14 +27,12 @@ KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm
 
 Vertical male, plug enters from the top. Polarised: make sure the cable and the motherboard use the same pin order.
 
-| Pin | Net | CAN mode (default) | I²C mode |
-|---|---|---|---|
-| 4 | +12V | | |
-| 3 | GND (solid to both pours, carries the motor return) | | |
-| 2 | BUS_P | CANH | SDA |
-| 1 | BUS_N | CANL | SCL |
-
-In I²C mode the motherboard provides the bus pull-ups. R7 (10 kΩ, the CAN TXD pull-up) also pulls SDA up on every arm, so six arms add about 1.7 kΩ on SDA.
+| Pin | Net |
+|---|---|
+| 4 | +12V |
+| 3 | GND (solid to both pours, carries the motor return) |
+| 2 | CANH |
+| 1 | CANL |
 
 ### J2: motor (JST S2B-PH-K-S, side entry, C173752)
 
@@ -47,8 +45,8 @@ Pin 1 = OUT1, pin 2 = OUT2. The body overhangs the board edge by design.
 | GPIO1 | DRV_IPROPI | Motor current, ADC1_CH0, 3.3 V/A |
 | GPIO2 / 3 / 4 | MAG_SDA / MAG_SCL / MAG_INT | Magnetometer, I²C address 0x0C |
 | GPIO5 / 6 / 7 | EXP_IO5 / EXP_IO6 / EXP_IO7 | Spare, on TP1 / TP2 / TP3 |
-| GPIO8 | SCL_CANRX | CAN RX (from U5 via JP3) or I²C SCL |
-| GPIO9 | SDA_CANTX | CAN TX (to U5) or I²C SDA |
+| GPIO8 | CAN_TX | CAN TX to U5 (R7 pulls it high) |
+| GPIO9 | CAN_RX | CAN RX from U5 |
 | GPIO10 | DRV_nFAULT | Driver fault, active low (10 k pull-up) |
 | GPIO11 | DRV_nSLEEP | Drive **high** to run |
 | GPIO12 | DRV_IN2_PH | Direction |
@@ -58,22 +56,13 @@ Pin 1 = OUT1, pin 2 = OUT2. The body overhangs the board edge by design.
 
 The pins follow the layout: U1 sits at 0°, so the left header (GPIO1–7) is next to U3 and the right header (GPIO8–13) is next to U2 and CN2. The reasoning is in [`main-board/layout plan.md`](main-board/layout%20plan.md).
 
-GPIOs are 3.3 V only. Test pads TP1, TP2, TP3, TP5, TP6, TP7 (top, 1.5 mm, labelled) carry IO5, IO6, IO7, 3V3, 5V and GND.
+GPIOs are 3.3 V only. Test pads TP1, TP2, TP3, TP5 and TP7 (top, 1.5 mm, labelled) carry IO5, IO6, IO7, 3V3 and GND. TP6 (VBUS, labelled 5V) is on the bottom next to the 5V header pin.
 
-## CAN or I²C: U5, JP1–JP4
+## CAN: U5, JP4
 
-All four jumpers are on the top side under the SuperMini, so set them (and fit U5) **before** soldering the headers.
-
-| Jumper | Pads | As made (CAN) | For I²C |
-|---|---|---|---|
-| JP1, D+ select | 1 = CANH, 2 = BUS_P, 3 = SDA_CANTX | 1–2 bridged | Cut 1–2, bridge 2–3 |
-| JP2, D− select | 1 = CANL, 2 = BUS_N, 3 = SCL_CANRX | 1–2 bridged | Cut 1–2, bridge 2–3 |
-| JP3, RX link ("RX CAN") | U5 RXD to SCL_CANRX | Bridged | Cut |
-| JP4, termination ("TERM") | CANH to R5 (120 Ω) to CANL | Open | Leave open |
-
-- **Termination:** the whole bus needs exactly two 120 Ω terminations, at its two ends. Bridge JP4 on at most one arm; on every arm it would be about 17 Ω and the bus won't work. Keep the bit rate modest (250 kbit/s).
-- **U5 details:** R7 pulls TXD high so a resetting or flashing arm can't hold the bus dominant (GPIO9 floats during boot). R6 (10 kΩ on Rs) selects slope control. C13 decouples VCC.
-- **I²C mode:** U5 can stay fitted or be left off; with JP1–JP3 changed it is disconnected from the bus.
+- **U5** is hand-soldered on the top under the SuperMini, so fit and test it **before** soldering the headers.
+- **Termination:** JP4 ("TERM") is on the bottom under the XT30, between the bus pins, with R5 (120 Ω) beside it. It is open as made and can be bridged after assembly. The whole bus needs exactly two 120 Ω terminations, at its two ends: bridge JP4 on the two end arms only. On every arm it would be about 17 Ω and the bus won't work. Keep the bit rate modest (250 kbit/s).
+- **U5 details:** R7 pulls TXD high so a resetting or flashing arm can't hold the bus dominant (GPIO8 floats during boot). R6 (10 kΩ on Rs) selects slope control. C13 decouples VCC.
 
 ## Power
 
@@ -82,7 +71,7 @@ All four jumpers are on the top side under the SuperMini, so set them (and fit U
   - L1 = 10 µH FTC252012S100MBCA (C5832376). Stock was low (389 on 2026-10-07); fallback SWPA3015S100MT (C45403, needs a 3 × 3 mm footprint).
   - C1 10 µF 25 V in, C2 100 nF BOOT–SW, C3/C4 2 × 47 µF 6.3 V out. Add a third 47 µF (C16780) if the output rings on a load step.
   - **EN floats** on its internal pull-up. It is rated 7 V max, so never tie it to VIN.
-- **D1, 1N5819WS:** feeds the SuperMini's 5 V pin and stops its USB back-feeding the buck while programming.
+- **D1, 1N5819WS:** feeds the SuperMini's 5 V pin and stops its USB back-feeding the buck while programming. It sits outside the right header next to the 5V pin, so the ESP's supply current stays in the top-right corner, away from U3.
 - **+3V3** comes from the SuperMini's LDO and feeds U3, the pull-ups, U5 and the DRV8876 VREF.
 
 ## Motor driver: U2, DRV8876RGTR
@@ -103,11 +92,11 @@ I²C mode, address 0x0C (A0 = A1 = GND), INT on MAG_INT. The Hall plates are at 
 The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20plan.md).
 
 1. ~~Update PCB from Schematic and place.~~ Done. Placement as built:
-   - **Bottom, U2:** C5–C8 as rev 5. R1 (0805) below the IPROPI line, C12 at the IO1 end, R2 under U2's VREF/nFAULT pins.
+   - **Bottom, U2:** C5–C8 along the top edge. R2 right under U2, across nFAULT and VREF (3V3). The strip right of U2 is kept clear for EN/PH and the motor return. R1 (0805) stands on the IPROPI line at (24.3, 29.3), IPROPI pad up, so IPROPI runs straight to C12 and IO1 and MAG_SDA passes underneath.
    - **Bottom, buck:** stacked L1 → C1 → U4. C1 straddles the SW trace, which runs up between C1's pads to L1, so the VIN–GND loop is about 2 mm. C3/C4 sit left of L1, C2 left of U4, and R8/C14/R9 in a row under U4's FB pin.
-   - **Bottom, other:** D1 outside the right header next to the 5V pin. U3's caps and pull-ups around U3, with R4 on SCL by the CS via.
-   - **Top, under the SuperMini:** U5 with R6/R7 beside it and C13 under it on the bottom. JP2/JP1 side by side below U5 (CAN pads up, I²C pads down). JP3, JP4 and R5 in a column on the left with their labels.
-   - **Still open:** the PCB footprint for TP3 is called "IO7", so DRC parity reports TP3 missing and IO7 extra. It also misses the TP courtyard exception, so it overlaps TP2.
+   - **Bottom, other:** D1 outside the right header, VBUS end towards the 5V pin. TP6 right of C8 next to the 5V pin. U3's caps and pull-ups around U3, with C10 beside pin 8 and R4 on SCL by the CS via. R6 by U5's Rs pin and C13 under U5's VCC/GND pins. JP4 and R5 under the XT30 between the bus pins, ≥ 0.98 mm from them.
+   - **Top, under the SuperMini:** U5 at 90°: TXD/RXD face IO8/IO9 above the TP row, CANH/CANL leave through the IO10/IO9 gap to the CN2 pins.
+   - **Still open:** the heat-sink pad over U2 was deleted in the `layout` commit (4722493). Restore it from `lock-picking-backups/main-board.kicad_pcb.before-rev6-placement` (GND on F.Cu + F.Mask, 28.6–32.4 × 23.45–27.85) before routing.
 2. **Route the buck the TI way.** The TPS54202 pinout differs from the old AP63205 (1 GND, 2 SW, 3 VIN, 4 FB, 5 EN, 6 BOOT). C1 tight across VIN–GND, C2 across BOOT–SW, the SW copper as small as possible, R8/R9/C14 next to FB sensing V_OUT at C3/C4, and EN a bare pad away from SW.
 3. **Keep the buck away from U3**, about 12 mm like U2. L1 has a magnetic core and carries a varying current; in rev 5 it was only 4.6 mm away.
 4. Put R1 near U2's IPROPI pin, then route the rest.
@@ -115,7 +104,8 @@ The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20
 
 ### Guidelines
 
-- **Sides:** every JLC-assembled part on the bottom; the hand-fitted parts (U1 headers, U5, JP1–JP4, CN2, J2, H1/H2) on the top. Keep bottom parts ≥ 0.9 mm from U1/J2 through-hole pins so they can be hand-soldered.
+- **Sides:** every JLC-assembled part on the bottom; the hand-fitted parts (U1 headers, U5, CN2, J2, H1/H2) on the top. Keep bottom parts ≥ 0.9 mm from the U1, J2 and CN2 through-hole pins so they can be hand-soldered.
+- **Screw-head circles:** keep bottom copper (other than GND) out of the hatched 3 mm circles round H1/H2 on the back silk. The screw heads and the carriage press there, and the screws are on GND.
 - **Motor loop:** run the 12 V feed to U2 directly over the GND return to CN2's GND pin, so the loop is small and its field at U3 cancels. Keep motor copper ≥ 2 mm from the MAG I²C lines.
 - **MAG I²C:** keep it away from switching CAN tracks (≥ 0.5 mm) and under unbroken front GND where possible.
 - **Heat-sink pad:** a 3.8 × 4.4 mm bare-copper GND pad on the top, right over U2, stitched to U2's thermal vias. It takes a small stick-on sink under the SuperMini. Use **aluminium or copper only**: steel or ferrite would bend the field at U3. Keep the sink below the header height and use insulating tape if it overhangs a track.
@@ -126,12 +116,12 @@ The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20
 
 | Issue | What to do |
 |---|---|
-| **Firmware pin map is still v1.** `firmware/common/config.h` doesn't match the [pin map](#u1-supermini-pin-map) (PWM would go to nSLEEP, current sense uses 2.5 V/A), and there is no CAN code yet | Before first power-up, switch to this board's pins, `CURRENT_SENSE_V_PER_A 3.3`, and add a TWAI driver on TX = GPIO9, RX = GPIO8 |
+| **Firmware pin map is still v1.** `firmware/common/config.h` doesn't match the [pin map](#u1-supermini-pin-map) (PWM would go to nSLEEP, current sense uses 2.5 V/A), and there is no CAN code yet | Before first power-up, switch to this board's pins, `CURRENT_SENSE_V_PER_A 3.3`, and add a TWAI driver on TX = GPIO8, RX = GPIO9 |
 | **U2 overheats at 1 A continuous** (≈ 1.1 W, about 120 K/W bare in still air) | Stop the motor on stall rather than holding it, read nFAULT, or fit a sink on the heat-sink pad (≈ 77 K/W) |
 | **Board heat reaches U3** (≈ 28 K per W in U2), which shifts readings if the firmware applies the magnet tempco from U3's die temperature | Don't apply the magnet tempco from the die temperature, enable `TCMP_EN`, re-zero against an end stop |
 | **Motor current shifts the field at U3** by about 1 µT/A | Negligible at the target where current is near zero; otherwise compensate as B − k·I |
 | **No TVS on 12 V or ESD protection on the bus** | Hot-plugging can overshoot the 25 V caps. Next spin: bulk polymer cap + SMAJ15A, and a CAN TVS (e.g. PESD2CAN) at CN2 |
-| **U5 and JP1–JP4 sit under the SuperMini** | Fit and test U5 and set the jumpers before soldering the headers |
+| **U5 sits under the SuperMini** | Fit and test U5 before soldering the headers. JP4 is on the bottom and can be set at any time |
 | **Carriage fit not re-checked** since the nuts and outline moved in rev 5 | Redraw the carriage's screw holes from the component-layout DXF and check clearance to the shaft boss |
 | **No SuperMini 3D model**, so the STEP export lacks U1 | Add a STEP to `libraries/3dmodels/` if needed |
 
@@ -154,7 +144,7 @@ python3 scripts/generate_production.py --only dxf,analysis --skip-drc
 
 1. Upload the Gerber zip: 2 layers, 1.6 mm, HASL.
 2. **PCB Assembly → Economic → Bottom side.** Upload the BOM and CPL, and check pin 1 of U2, U3, U4 and D1 in the placement preview.
-3. Hand-solder on the top, in this order: U5 (SN65HVD230DR, C12084) and any jumper changes, then the SuperMini headers, CN2, J2, and H1/H2 (M2 nuts SMTSOM225BTR, C5301773; use hot air, they sit on solid GND).
+3. Hand-solder on the top, in this order: U5 (SN65HVD230DR, C12084), then the SuperMini headers, CN2, J2, and H1/H2 (M2 nuts SMTSOM225BTR, C5301773; use hot air, they sit on solid GND).
 
 ## Working in KiCad
 

@@ -1,6 +1,6 @@
 # Lock Picking Robot v2
 
-Open source lock picking robot ("Unlocked"). v1 fed wire through a hollow key to brute-force pin combinations (see `README.md`, which still describes v1). v2, on branch `v2`, moves to ESP32-S3 boards: one arm board per arm (DC motor + magnetometer for carriage position) talking to a motherboard over CAN or I²C, plus a web UI for bench calibration.
+Open source lock picking robot ("Unlocked"). v1 fed wire through a hollow key to brute-force pin combinations (see `README.md`, which still describes v1). v2, on branch `v2`, moves to ESP32-S3 boards: one arm board per arm (DC motor + magnetometer for carriage position) talking to a motherboard over CAN, plus a web UI for bench calibration.
 
 ## Rules
 

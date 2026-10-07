@@ -18,9 +18,9 @@ MOTOR = dict(supply=('+12V', [('CN2', '+12V')], [('U2', '9')]),
              leads=[('/MOT_OUT1', [('U2', '6')], [('J2', '1')]), ('/MOT_OUT2', [('J2', '2')], [('U2', '8')])],
              cable=(('J2', '1'), ('J2', '2')))          # cable leaves J2 towards the top edge
 SUPPLY = [('+5V', [('L1', '2')], [('D1', '2')]), ('VBUS', [('D1', '1')], [('U1', '5V')]),
-          ('GND', [('U1', 'GND')], [('U4', '4')]), ('Net-(U4-SW)', [('U4', '5')], [('L1', '1')])]
+          ('GND', [('U1', 'GND')], [('U4', '1')]), ('Net-(U4-SW)', [('U4', '2')], [('L1', '1')])]   # TPS54202: 1 GND, 2 SW
 SUPPLY_BODIES = [(('L1', '1'), ('L1', '2'), -2.2), (('D1', '2'), ('D1', '1'), -2.1),
-                 (('U4', '4'), ('U4', '5'), -2.1), (('U1', '5V'), ('U1', 'GND'), 8.0)]   # line currents, z mm
+                 (('U4', '1'), ('U4', '2'), -2.1), (('U1', '5V'), ('U1', 'GND'), 8.0)]   # line currents, z mm
 HEAT_U2 = [('U2', '17', 1.0)]
 SINKS = [(40.0, 10.0), (20.0, 10.0)]   # stick-on sink on the top pad over U2: (sink-to-air, thermal pad) K/W
 HEAT_BUCK = [('U4', None, 0.05), ('L1', None, 0.04), ('D1', None, 0.04)]

@@ -30,6 +30,3 @@ PCB/**/~*.lck
 PCB/**/fp-info-cache
 PCB/**/libraries/3dmodels/
 **/__pycache__/
-
-# PCB Production outputs
-PCB/**/production/

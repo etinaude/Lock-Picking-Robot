@@ -4,6 +4,7 @@ Placement plan for the rev 6 arm board ("main board"), written before any layout
 
 Status (2026-10-07):
 
+- **Superseded in part by rev 7** (CAN only, JP1–JP3 removed, CAN TX/RX on GPIO8/GPIO9, U5 turned to 90°, JP4/R5 under the XT30, D1 outside). The as-built placement is in [`PCB/README.md`](../README.md#layout-to-do); the CAN and D1 parts of this plan are history.
 - The schematic is rev 6 plus the GPIO remap in [section 2](#2-gpio-assignment). The PCB has **not** been updated from it yet.
 - The board has no tracks or vias. The GND zones on both layers, the front-pour notch between J2's pins and the heat-sink pad over U2 are still there.
 - Decided with Etienne: the remap below; the [distance targets](#4-magnetometer-distance-targets) are fine; D1's position stays open until the schematic is settled; Claude does the placement once the schematic is fixed.
