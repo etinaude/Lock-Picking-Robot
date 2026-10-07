@@ -1,0 +1,35 @@
+# VCS and editor state
+.git/
+.vscode/
+**/.vscode/
+
+# Firmware build output
+.pio/
+
+# UI dependencies, build output and lockfiles
+UI/node_modules/
+node_modules/
+UI/.svelte-kit/
+UI/build/
+UI/.output/
+bun.lock
+*.lock
+package-lock.json
+
+# Heavy 3D files
+3D files/
+
+# KiCad backups, local history, locks and caches
+PCB/**/lock-picking-backups/
+PCB/**/*-backups/
+PCB/**/.history/
+PCB/**/_autosave-*
+PCB/**/_restore_backup_*/
+PCB/**/*.kicad_prl
+PCB/**/~*.lck
+PCB/**/fp-info-cache
+PCB/**/libraries/3dmodels/
+**/__pycache__/
+
+# PCB Production outputs
+PCB/**/production/
