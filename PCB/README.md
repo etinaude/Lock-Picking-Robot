@@ -5,7 +5,7 @@ KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm
 ## Status
 
 - **Schematic:** v2 rev 6, with the GPIOs re-assigned for U1 at 0° and a third spare-pin pad (TP3). ERC 0 errors (38 pin-type warnings from the EasyEDA symbols).
-- **PCB: being re-laid out.** It still carries the rev 5 parts (AP63205 buck, 4.7 µH L1, R1 = 1.5 kΩ 0402) and its tracks and vias have been removed. See [Layout to-do](#layout-to-do).
+- **PCB: rev 6 placement done, not routed.** Updated from the schematic and every part is placed (2026-10-07); no tracks or vias yet. See [Layout to-do](#layout-to-do).
 - **Production files** in [`main-board/production/`](main-board/production/) are from rev 5 and don't match the schematic. Don't order from them.
 - **Firmware isn't ready for this board** ([Known issues](#known-issues)).
 
@@ -102,7 +102,12 @@ I²C mode, address 0x0C (A0 = A1 = GND), INT on MAG_INT. The Hall plates are at 
 
 The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20plan.md).
 
-1. **Update PCB from Schematic.** U4 changes part, L1 and R1 change value, R1 gets the 0805 footprint, R8, R9, C14 and TP3 arrive unplaced, and U1's pad nets follow the new [pin map](#u1-supermini-pin-map). The TP silk labels ("IO12", "IO13") need changing to IO5, IO6, IO7.
+1. ~~Update PCB from Schematic and place.~~ Done. Placement as built:
+   - **Bottom, U2:** C5–C8 as rev 5. R1 (0805) below the IPROPI line, C12 at the IO1 end, R2 under U2's VREF/nFAULT pins.
+   - **Bottom, buck:** stacked L1 → C1 → U4. C1 straddles the SW trace, which runs up between C1's pads to L1, so the VIN–GND loop is about 2 mm. C3/C4 sit left of L1, C2 left of U4, and R8/C14/R9 in a row under U4's FB pin.
+   - **Bottom, other:** D1 outside the right header next to the 5V pin. U3's caps and pull-ups around U3, with R4 on SCL by the CS via.
+   - **Top, under the SuperMini:** U5 with R6/R7 beside it and C13 under it on the bottom. JP2/JP1 side by side below U5 (CAN pads up, I²C pads down). JP3, JP4 and R5 in a column on the left with their labels.
+   - **Still open:** the PCB footprint for TP3 is called "IO7", so DRC parity reports TP3 missing and IO7 extra. It also misses the TP courtyard exception, so it overlaps TP2.
 2. **Route the buck the TI way.** The TPS54202 pinout differs from the old AP63205 (1 GND, 2 SW, 3 VIN, 4 FB, 5 EN, 6 BOOT). C1 tight across VIN–GND, C2 across BOOT–SW, the SW copper as small as possible, R8/R9/C14 next to FB sensing V_OUT at C3/C4, and EN a bare pad away from SW.
 3. **Keep the buck away from U3**, about 12 mm like U2. L1 has a magnetic core and carries a varying current; in rev 5 it was only 4.6 mm away.
 4. Put R1 near U2's IPROPI pin, then route the rest.

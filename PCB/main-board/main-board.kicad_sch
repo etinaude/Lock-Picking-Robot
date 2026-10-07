@@ -5096,6 +5096,16 @@
 	)
 	(wire
 		(pts
+			(xy 63.5 86.36) (xy 71.12 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d2aef32-c302-4ccb-8695-94ce0be9288d")
+	)
+	(wire
+		(pts
 			(xy 63.5 81.28) (xy 71.12 81.28)
 		)
 		(stroke
@@ -5713,6 +5723,16 @@
 			(type default)
 		)
 		(uuid "ac01fdbd-ce92-4da2-8e98-5589760aeb13")
+	)
+	(wire
+		(pts
+			(xy 25.4 120.65) (xy 27.94 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b02a225e-06b3-4d85-bf3d-c159791e9ee9")
 	)
 	(wire
 		(pts
@@ -6335,6 +6355,26 @@
 		(uuid "a7268411-4dd2-4e48-af4b-4121653f26dc")
 	)
 	(label "EXP_IO7"
+		(at 27.94 120.65 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ad684e4b-0b94-4b6c-b1d7-d96b4a466294")
+	)
+	(label "SCL_CANRX"
+		(at 71.12 86.36 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b361d5e2-78f5-45b7-a8c9-617ba87268bb")
+	)
+	(label "EXP_IO7"
 		(at 38.1 86.36 180)
 		(effects
 			(font
@@ -6906,123 +6946,6 @@
 				)
 			)
 		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 25.4 120.65 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files no)
-		(dnp no)
-		(uuid "75748e93-3d97-468f-ba4b-511a1e1a1c0d")
-		(property "Reference" "TP3"
-			(at 18.8 120.65 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Pad"
-			(at 25.4 120.65 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 25.4 120.65 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 25.4 120.65 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1.5 mm solder pad, top side, for a wire"
-			(at 25.4 120.65 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "e9727011-f1cc-43b9-8678-ea2509fda0c2")
-		)
-		(instances
-			(project "main-board"
-				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
-					(reference "TP3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 63.5 86.36) (xy 71.12 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d2aef32-c302-4ccb-8695-94ce0be9288d")
-	)
-	(label "SCL_CANRX"
-		(at 71.12 86.36 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b361d5e2-78f5-45b7-a8c9-617ba87268bb")
-	)
-	(wire
-		(pts
-			(xy 25.4 120.65) (xy 27.94 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b02a225e-06b3-4d85-bf3d-c159791e9ee9")
-	)
-	(label "EXP_IO7"
-		(at 27.94 120.65 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "ad684e4b-0b94-4b6c-b1d7-d96b4a466294")
 	)
 	(symbol
 		(lib_id "Jumper:SolderJumper_2_Open")
@@ -10680,6 +10603,83 @@
 			(project "main-board"
 				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
 					(reference "#PWR061")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 25.4 120.65 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "75748e93-3d97-468f-ba4b-511a1e1a1c0d")
+		(property "Reference" "TP3"
+			(at 18.8 120.65 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Pad"
+			(at 25.4 120.65 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 25.4 120.65 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 25.4 120.65 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1.5 mm solder pad, top side, for a wire"
+			(at 25.4 120.65 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e9727011-f1cc-43b9-8678-ea2509fda0c2")
+		)
+		(instances
+			(project "main-board"
+				(path "/6f6137d7-11eb-4c61-a7cb-fbe8b66c2e4a"
+					(reference "TP3")
 					(unit 1)
 				)
 			)
