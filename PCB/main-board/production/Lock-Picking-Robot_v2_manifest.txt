@@ -1,5 +1,5 @@
 Lock Picking Robot v2 - production outputs
-Generated 2026-10-06 17:58 by scripts/generate_production.py from ../main-board.kicad_pcb (git d3aabad-dirty)
+Generated 2026-10-07 17:14 by scripts/generate_production.py from ../main-board.kicad_pcb (git 5d29d3e-dirty)
 Outputs: gerbers, bom, cpl, netlist, step, render, dxf, analysis
 
 analysis/Lock-Picking-Robot_v2_DRC_report.txt
@@ -7,9 +7,9 @@ analysis/Lock-Picking-Robot_v2_DRC_report.txt
 JLC/Lock-Picking-Robot_v2_JLCPCB_gerbers.zip
     upload to JLCPCB (11 files: main-board-B_Cu.gbl, main-board-B_Mask.gbs, main-board-B_Paste.gbp, main-board-B_Silkscreen.gbo, main-board-Edge_Cuts.gm1, main-board-F_Cu.gtl, main-board-F_Mask.gts, main-board-F_Paste.gtp, main-board-F_Silkscreen.gto, main-board-NPTH.drl, main-board-PTH.drl)
 JLC/Lock-Picking-Robot_v2_JLCPCB_BOM.csv
-    25 parts on 17 lines
+    28 parts on 19 lines
 JLC/Lock-Picking-Robot_v2_JLCPCB_CPL.csv
-    25 placements, side(s): Bottom; rotation corrections from /home/etienne/.var/app/org.kicad.KiCad/data/kicad/10.0/3rdparty/plugins/com_github_bennymeg_JLC-Plugin-for-KiCad/transformations.csv
+    28 placements, side(s): Bottom; rotation corrections from /home/etienne/.var/app/org.kicad.KiCad/data/kicad/10.0/3rdparty/plugins/com_github_bennymeg_JLC-Plugin-for-KiCad/transformations.csv
 JLC/Lock-Picking-Robot_v2_netlist.ipc
     IPC-D-356 netlist (optional upload for the electrical-test comparison)
 CAD/Lock-Picking-Robot_v2_3D.step
@@ -21,13 +21,13 @@ CAD/Lock-Picking-Robot_v2_3D_bottom.png
 CAD/Lock-Picking-Robot_v2_3D_iso.png
     3D render, iso view
 CAD/Lock-Picking-Robot_v2_component_layout.dxf
-    122 lines/arcs/circles on DXF layers Edge.Cuts, F.Courtyard, B.Courtyard: board outline, part courtyards, mounting-hole drills (H1, H2) and pin drills (U1) only (no text, pads or copper); passives left out: C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, L1, R1, R2, R3, R4, R5, R6, R7
+    109 lines/arcs/circles on DXF layers Edge.Cuts, F.Courtyard, B.Courtyard: board outline, part courtyards, mounting-hole drills (H1, H2) and pin drills (U1) only (no text, pads or copper); passives left out: C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, L1, R1, R2, R3, R4, R5, R6, R7, R8, R9
 analysis/Lock-Picking-Robot_v2_current_motor.svg
-    motor current (1 A) on both layers and its field at U3: net -1.12 uT/A
+    motor current (1 A) on both layers and its field at U3: net -1.59 uT/A
 analysis/Lock-Picking-Robot_v2_current_5V.svg
     ESP 5 V supply loop current (1 A) and its field at U3
 analysis/Lock-Picking-Robot_v2_thermal.svg
-    temperature rise per W in U2: U2 junction 122.5 K/W, U3 28.0 K/W (still air, convection + radiation)
+    temperature rise per W in U2: U2 junction 119.0 K/W, U3 28.6 K/W (still air, convection + radiation)
 analysis/Lock-Picking-Robot_v2_analysis.txt
     the numbers behind the maps
 
@@ -36,4 +36,4 @@ Hand-fitted, not in the BOM/CPL: U1 (ESP32-S3 SuperMini + sockets), U5 (SN65HVD2
 Design notes: PCB/README.md
 
 Warnings:
-  - STEP: footprints with no 3D model assigned: JP3, JP2, U1, JP1, JP4
+  - STEP: footprints with no 3D model assigned: U1, JP4

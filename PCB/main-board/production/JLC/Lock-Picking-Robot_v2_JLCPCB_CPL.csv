@@ -3,7 +3,7 @@ C1,31.4000mm,-34.2750mm,Bottom,0
 C2,29.5000mm,-37.7300mm,Bottom,90
 C3,28.5000mm,-31.7000mm,Bottom,270
 C4,26.5000mm,-31.7000mm,Bottom,270
-C5,28.5000mm,-23.0200mm,Bottom,270
+C5,28.4000mm,-23.0200mm,Bottom,270
 C6,25.2750mm,-23.2500mm,Bottom,0
 C7,29.7500mm,-23.0200mm,Bottom,90
 C8,31.0000mm,-23.0200mm,Bottom,270
@@ -11,7 +11,7 @@ C9,22.2500mm,-41.0400mm,Bottom,270
 C10,25.6500mm,-38.9000mm,Bottom,270
 C11,23.2500mm,-41.0200mm,Bottom,270
 C12,22.7500mm,-28.2500mm,Bottom,90
-C13,29.3000mm,-39.3000mm,Bottom,0
+C13,28.9000mm,-39.9000mm,Bottom,0
 C14,31.6200mm,-40.9500mm,Bottom,270
 D1,36.8000mm,-26.6000mm,Bottom,270
 L1,31.5000mm,-31.5750mm,Bottom,90

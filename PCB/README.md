@@ -4,9 +4,9 @@ KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm
 
 ## Status
 
-- **Schematic:** v2 rev 7: CAN only (the I²C option and JP1–JP3 are gone) and CAN TX/RX moved to GPIO8/GPIO9. Rev 6 re-assigned the GPIOs for U1 at 0° and added TP3. ERC 0 errors (38 pin-type warnings from the EasyEDA symbols).
-- **PCB: rev 7 placement done, not routed.** Matches the schematic (DRC 0 errors, parity clean, 2026-10-07); no tracks or vias yet. U1, U2, U3, J2, CN2, H1/H2, the TPs, the outline and both zones are locked. The heat-sink pad over U2 is missing (see [Layout to-do](#layout-to-do)).
-- **Production files** in [`main-board/production/`](main-board/production/) are from rev 5 and don't match the schematic. Don't order from them.
+- **Schematic:** v2 rev 7: CAN only (the I²C option and JP1–JP3 are gone) and CAN TX/RX moved to GPIO8/GPIO9. Rev 6 re-assigned the GPIOs for U1 at 0° and added TP3. ERC 0 errors (38 pin-type warnings from the EasyEDA symbols). C14 changed to 100 pF on 2026-10-09 in the schematic only; the PCB and production files still carry 47 pF until the next update from schematic.
+- **PCB: rev 7 routed** (2026-10-07). Zones filled; DRC 0 violations, 0 unconnected, parity clean. U1, U2, U3, J2, CN2, H1/H2, the TPs, the outline and both zones are locked. The heat-sink pad over U2 is still missing and must come back smaller than before (see [Layout to-do](#layout-to-do)).
+- **Production files** in [`main-board/production/`](main-board/production/) are from rev 5 and don't match the board. Regenerate before ordering.
 - **Firmware isn't ready for this board** ([Known issues](#known-issues)).
 
 ## At a glance
@@ -67,7 +67,7 @@ GPIOs are 3.3 V only. Test pads TP1, TP2, TP3, TP5 and TP7 (top, 1.5 mm, labelle
 ## Power
 
 - **U4, TPS54202DDCR** (C191884): 4.5–28 V in, 500 kHz synchronous buck.
-  - R8/R9 = 75 kΩ / 10 kΩ set 5.07 V. C14 = 47 pF feed-forward across R8.
+  - R8/R9 = 75 kΩ / 10 kΩ set 5.07 V. C14 = 100 pF (C1546) feed-forward across R8: TI's Eq. 16 puts its zero at the loop crossover, 1/(2π × 75 kΩ × 100 pF) ≈ 21 kHz, the same corner as the datasheet's 100 kΩ / 75 pF. Rev 7 had 47 pF (45 kHz, above crossover, little phase boost).
   - L1 = 10 µH FTC252012S100MBCA (C5832376). Stock was low (389 on 2026-10-07); fallback SWPA3015S100MT (C45403, needs a 3 × 3 mm footprint).
   - C1 10 µF 25 V in, C2 100 nF BOOT–SW, C3/C4 2 × 47 µF 6.3 V out. Add a third 47 µF (C16780) if the output rings on a load step.
   - **EN floats** on its internal pull-up. It is rated 7 V max, so never tie it to VIN.
@@ -94,13 +94,31 @@ The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20
 1. ~~Update PCB from Schematic and place.~~ Done. Placement as built:
    - **Bottom, U2:** C5–C8 along the top edge. R2 right under U2, across nFAULT and VREF (3V3). The strip right of U2 is kept clear for EN/PH and the motor return. R1 (0805) stands on the IPROPI line at (24.3, 29.3), IPROPI pad up, so IPROPI runs straight to C12 and IO1 and MAG_SDA passes underneath.
    - **Bottom, buck:** stacked L1 → C1 → U4. C1 straddles the SW trace, which runs up between C1's pads to L1, so the VIN–GND loop is about 2 mm. C3/C4 sit left of L1, C2 left of U4, and R8/C14/R9 in a row under U4's FB pin.
-   - **Bottom, other:** D1 outside the right header, VBUS end towards the 5V pin. TP6 right of C8 next to the 5V pin. U3's caps and pull-ups around U3, with C10 beside pin 8 and R4 on SCL by the CS via. R6 by U5's Rs pin and C13 under U5's VCC/GND pins. JP4 and R5 under the XT30 between the bus pins, ≥ 0.98 mm from them.
+   - **Bottom, other:** D1 outside the right header, VBUS end towards the 5V pin. TP6 right of C8 next to the 5V pin. U3's caps and pull-ups around U3, with C10 beside pin 8 and R4 on SCL by the CS via. R6 by U5's Rs pin and C13 at (28.9, 39.9) beside U5's VCC via. JP4 and R5 under the XT30 between the bus pins, ≥ 0.98 mm from them.
    - **Top, under the SuperMini:** U5 at 90°: TXD/RXD face IO8/IO9 above the TP row, CANH/CANL leave through the IO10/IO9 gap to the CN2 pins.
-   - **Still open:** the heat-sink pad over U2 was deleted in the `layout` commit (4722493). Restore it from `lock-picking-backups/main-board.kicad_pcb.before-rev6-placement` (GND on F.Cu + F.Mask, 28.6–32.4 × 23.45–27.85) before routing.
-2. **Route the buck the TI way.** The TPS54202 pinout differs from the old AP63205 (1 GND, 2 SW, 3 VIN, 4 FB, 5 EN, 6 BOOT). C1 tight across VIN–GND, C2 across BOOT–SW, the SW copper as small as possible, R8/R9/C14 next to FB sensing V_OUT at C3/C4, and EN a bare pad away from SW.
-3. **Keep the buck away from U3**, about 12 mm like U2. L1 has a magnetic core and carries a varying current; in rev 5 it was only 4.6 mm away.
-4. Put R1 near U2's IPROPI pin, then route the rest.
-5. Run DRC, then `scripts/generate_production.py --all`, and check the analysis output.
+2. ~~Route.~~ Done, see [Routing](#routing).
+3. **Restore the heat-sink pad, smaller.** It was deleted in the `layout` commit (4722493). The old 28.6–32.4 × 23.45–27.85 rectangle now hits the IPROPI via at (28.45, 27.5) and comes within 0.2 mm of the 3V3 trunk at y 28.15. Use **x 28.95–32.4, y 23.45–27.8** (GND, F.Cu + F.Mask), then refill zones and re-run DRC.
+4. Run `scripts/generate_production.py --all` and check the analysis output.
+
+### Routing
+
+| Net group | Layer and path | Width |
+|---|---|---|
+| 12 V motor feed | Top: CN2 +12V up between H1 and the pad, through the 5V/GND header gap, along the top edge to two vias by C5/C7. VM bus C6–C5–C7 on the bottom, a 0.3 mm link between C5 and C7 into pin 9 | 0.6 mm |
+| Motor outputs | Bottom, necked to 0.3 mm at U2. OUT2 runs over the top of J2 pin 1 | 0.5 mm |
+| Motor return | GND pours. U2's PGND pins and exposed pad sit in the main bottom pour, which runs straight to CN2's GND pin | — |
+| Buck | Bottom. C1 onto VIN/GND, SW up between C1's pads to L1 and under U4 to C2, +5V bar L1–C3–C4 | 0.4–0.6 mm |
+| 12 V to the buck | Top through the IO13/IO12 gap, via at (33.55, 32.23), bottom into C1 | 0.4 mm |
+| +5V / VBUS | Bottom: L1 out through the 3V3/IO13 gap to D1, D1 to the 5V pin and TP6 | 0.5 mm |
+| FB sense | Bottom: branch off +5V outside the header, down the outside, in through the IO9/IO8 gap to R8/C14 | 0.25 mm |
+| Driver lines | Bottom fan-out from U2 to four vias, then a top column down the inside of the right header to IO13…IO10, no crossings | 0.2 mm |
+| 3V3 | Top trunk from the 3V3 pin at y 28.15, drops at R2/VREF, at R4/CS and at (26.4, 40.0). U3's pins, caps and pull-ups on the bottom; U5/C13/R7/TP5 joined along the bottom edge | 0.25 mm |
+| IPROPI | Pin 4 via, top run at y 27.4, via onto R1, bottom to C12 and IO1 | 0.25 mm |
+| MAG I²C / INT | Bottom, nested from IO2/3/4, no top copper over them except the 3V3 branch at y 34.8 | 0.2 mm |
+| CAN | Top: CANH/CANL through U5's body area, out of the IO10/IO9 gap, under the XT30 to CN2. Termination JP4/R5 on the bottom between the bus pins | 0.2 mm |
+
+- **GND:** SMD GND pads reach the pours by short tracks and vias (the zones are `thru_hole_only`). The buck's bottom GND patch is fenced by its own nets; it reaches the main ground through the via at (28.2, 42.62) and through the top patch above C3/C4 (vias at (28.0, 33.6), (29.6, 33.75) and (27.2, 29.55)). U5's GND pin drops through a via at (28.66, 39.2).
+- **Analysis** (`board_analysis.py`, routed board): motor loop −1.6 µT/A at U3; 12 V path 15.9 mΩ, GND return 2.7 mΩ; peak sheet current 4.1 A/mm per amp at U2's VM link. ESP 5 V loop about +11 µT/A (model-sensitive), so roughly 1 µT at 100 mA. Moving IPROPI's long run to the top halved this by letting the 5 V return flow under U2 instead of round U3.
 
 ### Guidelines
 
@@ -119,7 +137,7 @@ The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20
 | **Firmware pin map is still v1.** `firmware/common/config.h` doesn't match the [pin map](#u1-supermini-pin-map) (PWM would go to nSLEEP, current sense uses 2.5 V/A), and there is no CAN code yet | Before first power-up, switch to this board's pins, `CURRENT_SENSE_V_PER_A 3.3`, and add a TWAI driver on TX = GPIO8, RX = GPIO9 |
 | **U2 overheats at 1 A continuous** (≈ 1.1 W, about 120 K/W bare in still air) | Stop the motor on stall rather than holding it, read nFAULT, or fit a sink on the heat-sink pad (≈ 77 K/W) |
 | **Board heat reaches U3** (≈ 28 K per W in U2), which shifts readings if the firmware applies the magnet tempco from U3's die temperature | Don't apply the magnet tempco from the die temperature, enable `TCMP_EN`, re-zero against an end stop |
-| **Motor current shifts the field at U3** by about 1 µT/A | Negligible at the target where current is near zero; otherwise compensate as B − k·I |
+| **Motor current shifts the field at U3** by about 1.6 µT/A, and the ESP's supply current by about 11 µT/A (≈ 1 µT at 100 mA, changes with CPU load) | Negligible at the target where motor current is near zero; otherwise compensate as B − k·I. Avoid WiFi during readings |
 | **No TVS on 12 V or ESD protection on the bus** | Hot-plugging can overshoot the 25 V caps. Next spin: bulk polymer cap + SMAJ15A, and a CAN TVS (e.g. PESD2CAN) at CN2 |
 | **U5 sits under the SuperMini** | Fit and test U5 before soldering the headers. JP4 is on the bottom and can be set at any time |
 | **Carriage fit not re-checked** since the nuts and outline moved in rev 5 | Redraw the carriage's screw holes from the component-layout DXF and check clearance to the shaft boss |

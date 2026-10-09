@@ -4844,16 +4844,6 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 45.72) (xy 213.36 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5d6a82b6-b96d-4950-972e-8627e163eb27")
-	)
-	(wire
-		(pts
 			(xy 215.9 115.57) (xy 210.82 115.57)
 		)
 		(stroke
@@ -5934,7 +5924,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 55.88) (xy 213.36 58.42)
+			(xy 213.36 45.72) (xy 213.36 58.42)
 		)
 		(stroke
 			(width 0)
@@ -13388,7 +13378,7 @@
 				)
 			)
 		)
-		(property "Value" "47pF 50V"
+		(property "Value" "100pF 50V"
 			(at 143.51 69.85 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13409,7 +13399,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.lcsc.com/product-detail/C1567.html"
+		(property "Datasheet" "https://www.lcsc.com/product-detail/C1546.html"
 			(at 143.51 66.04 90)
 			(hide yes)
 			(show_name no)
@@ -13420,7 +13410,7 @@
 				)
 			)
 		)
-		(property "Description" "Buck feed-forward across R8 (TI Table 7-2 / Eq. 16). 47pF 50V C0G 5% 0402"
+		(property "Description" "Buck feed-forward across R8 (TI Table 7-2 / Eq. 16). 100pF 50V C0G 5% 0402"
 			(at 143.51 66.04 90)
 			(hide yes)
 			(show_name no)
@@ -13442,7 +13432,7 @@
 				)
 			)
 		)
-		(property "MPN" "0402CG470J500NT"
+		(property "MPN" "0402CG101J500NT"
 			(at 143.51 66.04 90)
 			(hide yes)
 			(show_name no)
@@ -13453,7 +13443,7 @@
 				)
 			)
 		)
-		(property "LCSC Part" "C1567"
+		(property "LCSC Part" "C1546"
 			(at 143.51 66.04 90)
 			(hide yes)
 			(show_name no)
