@@ -4,7 +4,7 @@ KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm
 
 ## Status
 
-- **Schematic:** v2 rev 7: CAN only (the I²C option and JP1–JP3 are gone) and CAN TX/RX moved to GPIO8/GPIO9. Rev 6 re-assigned the GPIOs for U1 at 0° and added TP3. ERC 0 errors (38 pin-type warnings from the EasyEDA symbols). C14 changed to 100 pF on 2026-10-09 in the schematic only; the PCB and production files still carry 47 pF until the next update from schematic.
+- **Schematic:** v2 rev 7: CAN only (the I²C option and JP1–JP3 are gone) and CAN TX/RX moved to GPIO8/GPIO9. Rev 6 re-assigned the GPIOs for U1 at 0° and added TP3. ERC 0 errors (38 pin-type warnings from the EasyEDA symbols). C14 changed to 100 pF on 2026-10-09 (schematic, PCB and JLC BOM all updated; the BOM lists C1546).
 - **PCB: rev 7 routed** (2026-10-07). Zones filled; DRC 0 violations, 0 unconnected, parity clean. U1, U2, U3, J2, CN2, H1/H2, the TPs, the outline and both zones are locked. The heat-sink pad over U2 is still missing and must come back smaller than before (see [Layout to-do](#layout-to-do)).
 - **Production files** in [`main-board/production/`](main-board/production/) are from rev 5 and don't match the board. Regenerate before ordering.
 - **Firmware isn't ready for this board** ([Known issues](#known-issues)).
