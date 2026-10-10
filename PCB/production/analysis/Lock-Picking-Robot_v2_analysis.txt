@@ -1,0 +1,24 @@
+Board analysis of /home/etienne/Documents/git/Lock-Picking-Robot/PCB/main-board/main-board.kicad_pcb
+grid 0.08 mm; field at U3 Hall plate (23.20, 37.75), 0.5 mm below the bottom copper; B_z sign: + = towards the top face
+
+MOTOR LOOP, per amp of motor current (B_z at the Hall plate)
+  +12V supply CN2 -> U2 VM                               +3.35 uT/A
+  GND return U2 -> CN2                                   -4.25 uT/A
+  motor leads U2 -> J2                                   -1.30 uT/A
+  motor cable (2 wires, 2 mm above, off the top edge)    +0.61 uT/A
+  NET                                                    -1.59 uT/A   (sign flips with the motor direction)
+  path resistance: +12V 15.9 mOhm, GND return 2.7 mOhm
+  peak sheet current outside CN2/U2 pads: 4.14 A/mm per A at (29.21, 24.10) on B.Cu
+
+ESP 5 V SUPPLY LOOP, per amp of ESP current
+  +5V copper                                             -0.15 uT/A
+  VBUS copper                                            +0.53 uT/A
+  GND copper                                             +6.63 uT/A
+  Net-(U4-SW) copper                                     +3.25 uT/A
+  L1 / D1 / U4 / module bodies (line currents)           +1.15 uT/A
+  NET                                                   +11.42 uT/A   (a near-cancellation of large terms: model-sensitive)
+
+THERMAL, steady state, still air, no frame contact (upper bound)
+  1 W in U2, convection only        : board under U2 150.2 K, U2 junction 157.3 K/W, U3  63.0 K, board average  74.9 K
+  1 W in U2, convection + radiation : board under U2 111.9 K, U2 junction 119.0 K/W, U3  28.6 K, board average  39.3 K
+  buck + D1 losses (U4 0.05 W, L1 0.04 W, D1 0.04 W), with radiation: U3 4.3 K, hottest 12.0 K

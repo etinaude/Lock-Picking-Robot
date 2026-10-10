@@ -1,0 +1,4 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "main-board") (type "KiCad") (uri "${KIPRJMOD}/libraries/main-board.kicad_sym") (options "") (descr "Main board symbols"))
+)

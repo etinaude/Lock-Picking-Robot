@@ -1,0 +1,14 @@
+(version 1)
+(rule "U1 module sits on sockets; parts fit under it"
+	(condition "A.Reference == 'U1' || B.Reference == 'U1'")
+	(constraint courtyard_clearance (min 0mm))
+	(severity ignore))
+(rule "Test pads on a 2.54 mm grid may overlap"
+	(condition "A.Reference == 'TP*' && B.Reference == 'TP*'")
+	(constraint courtyard_clearance (min 0mm))
+	(severity ignore))
+(rule "Copper to board edge and shaft hole: 0.3 mm"
+	(constraint edge_clearance (min 0.3mm)))
+(rule "J1 peg holes 0.18 mm from pads (vendor pattern)"
+	(condition "A.Reference == 'J1' && B.Reference == 'J1'")
+	(constraint hole_clearance (min 0.15mm)))
