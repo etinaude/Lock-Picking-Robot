@@ -20,11 +20,13 @@ class Motor {
 public:
   void begin() {
     analogReadResolution(12);
-    analogSetPinAttenuation(PIN_CS, ADC_11db);
+    analogSetPinAttenuation(PIN_IPROPI, ADC_11db);
     pinMode(IN1_EN, OUTPUT);
     pinMode(IN2_PH, OUTPUT);
-    pinMode(MODE_PIN, OUTPUT);
-    digitalWrite(MODE_PIN, LOW);
+    pinMode(PIN_nFAULT, INPUT);
+    pinMode(PIN_nSLEEP, OUTPUT);
+    digitalWrite(PIN_nSLEEP, HIGH);
+    delay(2);
     ledcSetup(0, 10000, 8);
     ledcAttachPin(IN1_EN, 0);
 
@@ -74,7 +76,7 @@ public:
   float readCurrent() {
     uint32_t adcTotal = 0;
     for (uint8_t sample = 0; sample < CURRENT_SAMPLE_COUNT; sample++) {
-      adcTotal += analogRead(PIN_CS);
+      adcTotal += analogRead(PIN_IPROPI);
       delayMicroseconds(50);
     }
 
