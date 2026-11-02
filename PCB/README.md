@@ -7,19 +7,19 @@ KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm
 - **Schematic:** v2 rev 7: CAN only (the I²C option and JP1–JP3 are gone) and CAN TX/RX moved to GPIO8/GPIO9. Rev 6 re-assigned the GPIOs for U1 at 0° and added TP3. ERC 0 errors (38 pin-type warnings from the EasyEDA symbols). C14 changed to 100 pF on 2026-10-09 (schematic, PCB and JLC BOM all updated; the BOM lists C1546).
 - **PCB: rev 7 routed** (2026-10-07). Zones filled; DRC 0 violations, 0 unconnected, parity clean. U1, U2, U3, J2, CN2, H1/H2, the TPs, the outline and both zones are locked. The heat-sink pad over U2 is still missing and must come back smaller than before (see [Layout to-do](#layout-to-do)).
 - **Production files** in [`main-board/production/`](main-board/production/) are from rev 5 and don't match the board. Regenerate before ordering.
-- **Firmware isn't ready for this board** ([Known issues](#known-issues)).
+- **Firmware has no CAN yet** ([Known issues](#known-issues)).
 
 ## At a glance
 
-| | |
-|---|---|
-| MCU | ESP32-S3 SuperMini (U1) on 2 × 9-pin 2.54 mm female headers, top side |
-| Motor driver | TI DRV8876 (U2), PH/EN mode, 1.0 A current limit |
-| Position sensor | Melexis MLX90393 (U3) 3-axis magnetometer, centred over the carriage magnet |
-| Bus | TI SN65HVD230 CAN transceiver (U5), 120 Ω termination on solder jumper JP4 |
-| Power | 12 V in on CN2 → TPS54202 buck (U4) → 5 V → SuperMini (its LDO makes 3.3 V) |
-| Board | 24.7 × 23.75 mm with 1 mm corners, plus R 3.2 mm bulges round the two M2 nuts (24.7 × 28.4 mm overall). 2 layers, 1.6 mm FR4, 1 oz |
-| Assembly | Bottom side by JLCPCB (Economic PCBA); top side hand-soldered |
+|                 |                                                                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| MCU             | ESP32-S3 SuperMini (U1) on 2 × 9-pin 2.54 mm female headers, top side                                                              |
+| Motor driver    | TI DRV8876 (U2), PH/EN mode, 1.0 A current limit                                                                                   |
+| Position sensor | Melexis MLX90393 (U3) 3-axis magnetometer, centred over the carriage magnet                                                        |
+| Bus             | TI SN65HVD230 CAN transceiver (U5), 120 Ω termination on solder jumper JP4                                                         |
+| Power           | 12 V in on CN2 → TPS54202 buck (U4) → 5 V → SuperMini (its LDO makes 3.3 V)                                                        |
+| Board           | 24.7 × 23.75 mm with 1 mm corners, plus R 3.2 mm bulges round the two M2 nuts (24.7 × 28.4 mm overall). 2 layers, 1.6 mm FR4, 1 oz |
+| Assembly        | Bottom side by JLCPCB (Economic PCBA); top side hand-soldered                                                                      |
 
 ## Connectors and pinout
 
@@ -27,12 +27,12 @@ KiCad 10 project for the **arm board** in [`main-board/`](main-board/). Each arm
 
 Vertical male, plug enters from the top. Polarised: make sure the cable and the motherboard use the same pin order.
 
-| Pin | Net |
-|---|---|
-| 4 | +12V |
-| 3 | GND (solid to both pours, carries the motor return) |
-| 2 | CANH |
-| 1 | CANL |
+| Pin | Net                                                 |
+| --- | --------------------------------------------------- |
+| 4   | +12V                                                |
+| 3   | GND (solid to both pours, carries the motor return) |
+| 2   | CANH                                                |
+| 1   | CANL                                                |
 
 ### J2: motor (JST S2B-PH-K-S, side entry, C173752)
 
@@ -40,19 +40,19 @@ Pin 1 = OUT1, pin 2 = OUT2. The body overhangs the board edge by design.
 
 ### U1: SuperMini pin map
 
-| Pin | Net | Use |
-|---|---|---|
-| GPIO1 | DRV_IPROPI | Motor current, ADC1_CH0, 3.3 V/A |
-| GPIO2 / 3 / 4 | MAG_SDA / MAG_SCL / MAG_INT | Magnetometer, I²C address 0x0C |
-| GPIO5 / 6 / 7 | EXP_IO5 / EXP_IO6 / EXP_IO7 | Spare, on TP1 / TP2 / TP3 |
-| GPIO8 | CAN_TX | CAN TX to U5 (R7 pulls it high) |
-| GPIO9 | CAN_RX | CAN RX from U5 |
-| GPIO10 | DRV_nFAULT | Driver fault, active low (10 k pull-up) |
-| GPIO11 | DRV_nSLEEP | Drive **high** to run |
-| GPIO12 | DRV_IN2_PH | Direction |
-| GPIO13 | DRV_IN1_EN | PWM |
-| TX / RX | | Not used. TX prints the ROM boot log at reset |
-| 5V / 3V3 | VBUS / +3V3 | VBUS ≈ 4.7 V after D1 |
+| Pin           | Net                         | Use                                           |
+| ------------- | --------------------------- | --------------------------------------------- |
+| GPIO1         | DRV_IPROPI                  | Motor current, ADC1_CH0, 3.3 V/A              |
+| GPIO2 / 3 / 4 | MAG_SDA / MAG_SCL / MAG_INT | Magnetometer, I²C address 0x0C                |
+| GPIO5 / 6 / 7 | EXP_IO5 / EXP_IO6 / EXP_IO7 | Spare, on TP1 / TP2 / TP3                     |
+| GPIO8         | CAN_TX                      | CAN TX to U5 (R7 pulls it high)               |
+| GPIO9         | CAN_RX                      | CAN RX from U5                                |
+| GPIO10        | DRV_nFAULT                  | Driver fault, active low (10 k pull-up)       |
+| GPIO11        | DRV_nSLEEP                  | Drive **high** to run                         |
+| GPIO12        | DRV_IN2_PH                  | Direction                                     |
+| GPIO13        | DRV_IN1_EN                  | PWM                                           |
+| TX / RX       |                             | Not used. TX prints the ROM boot log at reset |
+| 5V / 3V3      | VBUS / +3V3                 | VBUS ≈ 4.7 V after D1                         |
 
 The pins follow the layout: U1 sits at 0°, so the left header (GPIO1–7) is next to U3 and the right header (GPIO8–13) is next to U2 and CN2. The reasoning is in [`main-board/layout plan.md`](main-board/layout%20plan.md).
 
@@ -102,20 +102,20 @@ The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20
 
 ### Routing
 
-| Net group | Layer and path | Width |
-|---|---|---|
-| 12 V motor feed | Top: CN2 +12V up between H1 and the pad, through the 5V/GND header gap, along the top edge to two vias by C5/C7. VM bus C6–C5–C7 on the bottom, a 0.3 mm link between C5 and C7 into pin 9 | 0.6 mm |
-| Motor outputs | Bottom, necked to 0.3 mm at U2. OUT2 runs over the top of J2 pin 1 | 0.5 mm |
-| Motor return | GND pours. U2's PGND pins and exposed pad sit in the main bottom pour, which runs straight to CN2's GND pin | — |
-| Buck | Bottom. C1 onto VIN/GND, SW up between C1's pads to L1 and under U4 to C2, +5V bar L1–C3–C4 | 0.4–0.6 mm |
-| 12 V to the buck | Top through the IO13/IO12 gap, via at (33.55, 32.23), bottom into C1 | 0.4 mm |
-| +5V / VBUS | Bottom: L1 out through the 3V3/IO13 gap to D1, D1 to the 5V pin and TP6 | 0.5 mm |
-| FB sense | Bottom: branch off +5V outside the header, down the outside, in through the IO9/IO8 gap to R8/C14 | 0.25 mm |
-| Driver lines | Bottom fan-out from U2 to four vias, then a top column down the inside of the right header to IO13…IO10, no crossings | 0.2 mm |
-| 3V3 | Top trunk from the 3V3 pin at y 28.15, drops at R2/VREF, at R4/CS and at (26.4, 40.0). U3's pins, caps and pull-ups on the bottom; U5/C13/R7/TP5 joined along the bottom edge | 0.25 mm |
-| IPROPI | Pin 4 via, top run at y 27.4, via onto R1, bottom to C12 and IO1 | 0.25 mm |
-| MAG I²C / INT | Bottom, nested from IO2/3/4, no top copper over them except the 3V3 branch at y 34.8 | 0.2 mm |
-| CAN | Top: CANH/CANL through U5's body area, out of the IO10/IO9 gap, under the XT30 to CN2. Termination JP4/R5 on the bottom between the bus pins | 0.2 mm |
+| Net group        | Layer and path                                                                                                                                                                             | Width                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| 12 V motor feed  | Top: CN2 +12V up between H1 and the pad, through the 5V/GND header gap, along the top edge to two vias by C5/C7. VM bus C6–C5–C7 on the bottom, a 0.3 mm link between C5 and C7 into pin 9 | 0.6 mm                               |
+| Motor outputs    | Bottom, necked to 0.3 mm at U2. OUT2 runs over the top of J2 pin 1                                                                                                                         | 0.5 mm                               |
+| Motor return     | GND pours. U2's PGND pins and exposed pad sit in the main bottom pour, which runs straight to CN2's GND pin                                                                                | —                                    |
+| Buck             | Bottom. C1 onto VIN/GND, SW up between C1's pads to L1 and under U4 to C2, +5V bar L1–C3–C4                                                                                                | 0.4–0.6 mm                           |
+| 12 V to the buck | Top through the IO13/IO12 gap, via at (33.55, 32.23), bottom into C1                                                                                                                       | 0.4 mm                               |
+| +5V / VBUS       | Bottom: L1 out through the 3V3/IO13 gap to D1, D1 to the 5V pin and TP6                                                                                                                    | 0.5 mm                               |
+| FB sense         | Bottom: branch off +5V outside the header, down the outside, in through the IO9/IO8 gap to R8/C14                                                                                          | 0.25 mm                              |
+| Driver lines     | Bottom fan-out from U2 to four vias, then a top column down the inside of the right header to IO13…IO10, no crossings                                                                      | 0.2 (arm board, see PCB/README.md)mm |
+| 3V3              | Top trunk from the 3V3 pin at y 28.15, drops at R2/VREF, at R4/CS and at (26.4, 40.0). U3's pins, caps and pull-ups on the bottom; U5/C13/R7/TP5 joined along the bottom edge              | 0.25 mm                              |
+| IPROPI           | Pin 4 via, top run at y 27.4, via onto R1, bottom to C12 and IO1                                                                                                                           | 0.25 mm                              |
+| MAG I²C / INT    | Bottom, nested from IO2/3/4, no top copper over them except the 3V3 branch at y 34.8                                                                                                       | 0.2 mm                               |
+| CAN              | Top: CANH/CANL through U5's body area, out of the IO10/IO9 gap, under the XT30 to CN2. Termination JP4/R5 on the bottom between the bus pins                                               | 0.2 mm                               |
 
 - **GND:** SMD GND pads reach the pours by short tracks and vias (the zones are `thru_hole_only`). The buck's bottom GND patch is fenced by its own nets; it reaches the main ground through the via at (28.2, 42.62) and through the top patch above C3/C4 (vias at (28.0, 33.6), (29.6, 33.75) and (27.2, 29.55)). U5's GND pin drops through a via at (28.66, 39.2).
 - **Analysis** (`board_analysis.py`, routed board): motor loop −1.6 µT/A at U3; 12 V path 15.9 mΩ, GND return 2.7 mΩ; peak sheet current 4.1 A/mm per amp at U2's VM link. ESP 5 V loop about +11 µT/A (model-sensitive), so roughly 1 µT at 100 mA. Moving IPROPI's long run to the top halved this by letting the 5 V return flow under U2 instead of round U3.
@@ -132,16 +132,16 @@ The full placement plan is in [`main-board/layout plan.md`](main-board/layout%20
 
 ## Known issues
 
-| Issue | What to do |
-|---|---|
-| **Firmware pin map is still v1.** `firmware/common/config.h` doesn't match the [pin map](#u1-supermini-pin-map) (PWM would go to nSLEEP, current sense uses 2.5 V/A), and there is no CAN code yet | Before first power-up, switch to this board's pins, `CURRENT_SENSE_V_PER_A 3.3`, and add a TWAI driver on TX = GPIO8, RX = GPIO9 |
-| **U2 overheats at 1 A continuous** (≈ 1.1 W, about 120 K/W bare in still air) | Stop the motor on stall rather than holding it, read nFAULT, or fit a sink on the heat-sink pad (≈ 77 K/W) |
-| **Board heat reaches U3** (≈ 28 K per W in U2), which shifts readings if the firmware applies the magnet tempco from U3's die temperature | Don't apply the magnet tempco from the die temperature, enable `TCMP_EN`, re-zero against an end stop |
+| Issue                                                                                                                                               | What to do                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **No CAN code yet.** `firmware/common/config.h` now has this board's motor and magnetometer pins and 3.3 V/A, but comms still use the v1 I²C pins   | Add a TWAI driver on TX = GPIO8, RX = GPIO9                                                                            |
+| **U2 overheats at 1 A continuous** (≈ 1.1 W, about 120 K/W bare in still air)                                                                       | Stop the motor on stall rather than holding it, read nFAULT, or fit a sink on the heat-sink pad (≈ 77 K/W)             |
+| **Board heat reaches U3** (≈ 28 K per W in U2), which shifts readings if the firmware applies the magnet tempco from U3's die temperature           | Don't apply the magnet tempco from the die temperature, enable `TCMP_EN`, re-zero against an end stop                  |
 | **Motor current shifts the field at U3** by about 1.6 µT/A, and the ESP's supply current by about 11 µT/A (≈ 1 µT at 100 mA, changes with CPU load) | Negligible at the target where motor current is near zero; otherwise compensate as B − k·I. Avoid WiFi during readings |
-| **No TVS on 12 V or ESD protection on the bus** | Hot-plugging can overshoot the 25 V caps. Next spin: bulk polymer cap + SMAJ15A, and a CAN TVS (e.g. PESD2CAN) at CN2 |
-| **U5 sits under the SuperMini** | Fit and test U5 before soldering the headers. JP4 is on the bottom and can be set at any time |
-| **Carriage fit not re-checked** since the nuts and outline moved in rev 5 | Redraw the carriage's screw holes from the component-layout DXF and check clearance to the shaft boss |
-| **No SuperMini 3D model**, so the STEP export lacks U1 | Add a STEP to `libraries/3dmodels/` if needed |
+| **No TVS on 12 V or ESD protection on the bus**                                                                                                     | Hot-plugging can overshoot the 25 V caps. Next spin: bulk polymer cap + SMAJ15A, and a CAN TVS (e.g. PESD2CAN) at CN2  |
+| **U5 sits under the SuperMini**                                                                                                                     | Fit and test U5 before soldering the headers. JP4 is on the bottom and can be set at any time                          |
+| **Carriage fit not re-checked** since the nuts and outline moved in rev 5                                                                           | Redraw the carriage's screw holes from the component-layout DXF and check clearance to the shaft boss                  |
+| **No SuperMini 3D model**, so the STEP export lacks U1                                                                                              | Add a STEP to `libraries/3dmodels/` if needed                                                                          |
 
 ## Production
 

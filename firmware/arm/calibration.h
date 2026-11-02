@@ -1,9 +1,15 @@
+#ifndef CALIBRATION_H
+#define CALIBRATION_H
+
 // Bench calibration: drives the carriage through set points and prints tables
-// to pair with dial-probe readings. Commands are typed into the serial monitor.
+// to pair with dial-probe readings. Commands are typed into the serial monitor
+// (or sent by the calibration UI) and run from the arm's loop(), so the same
+// firmware works on the test rig and in the robot.
 
 #include "magnet.h"
 #include "motor.h"
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 constexpr float NEUTRAL_MM = 6.0f;
 constexpr float SWEEP_START_MM = 3.0f;
@@ -52,10 +58,8 @@ static_assert(inTravel(PID_STEPS_MM, PID_STEP_COUNT),
 static_assert(PULSE_START_MM - 1.0f >= TRAVEL_MIN_MM &&
                   PULSE_START_MM + 1.0f <= TRAVEL_MAX_MM,
               "pulse test start too close to TRAVEL_MIN_MM / TRAVEL_MAX_MM");
-const float PULSE_HIGH_PWM = MOTOR_MIN_PWM + 100.0f;
-const float PULSE_PWMS[] = {PULSE_HIGH_PWM, -PULSE_HIGH_PWM, MOTOR_MIN_PWM,
-                            -MOTOR_MIN_PWM};
-const int PULSE_COUNT = sizeof(PULSE_PWMS) / sizeof(PULSE_PWMS[0]);
+const float PULSE_HIGH_ABOVE_MIN_PWM = 100.0f; // fast pulses, over the minimum
+const int PULSE_COUNT = 4; // fast up/down, then at the minimum PWM up/down
 const uint32_t PULSE_MS = 250;
 const uint32_t PULSE_FIT_FROM_MS = 125; // steady speed from here to the end
 const uint32_t PULSE_REST_MS = 500;     // braked between pulses
@@ -99,64 +103,31 @@ struct Pulse {
   float readMs;   // mean time between magnet reads
 };
 
+// Shared with the arm's tasks in main.cpp
 QueueHandle_t sampleQueue; // every magnet read, for averaging during a hold
-QueueHandle_t gainsQueue;  // new PID gains for the motor task to apply
 volatile float targetRequest = NEUTRAL_MM;
 volatile bool magnetReady = false;
 volatile bool pidEnabled = true; // off while a test drives the motor itself
+// Counted by the sensing task. Only the loop task prints: the USB serial
+// driver drops bytes when another core writes while its interrupt (on the
+// loop's core) is filling the FIFO.
+volatile uint32_t failedReads = 0;
+
+// The calibration in use: this board's row from defaults.h at boot, then
+// whatever P or a JSON command sets, until reset. Each task applies its part
+// between its own updates.
+ArmCalibration activeCalibration = DEFAULT_CALIBRATION;
+QueueHandle_t motorCalibrationQueue;  // min PWM and gains, for the motor task
+QueueHandle_t magnetCalibrationQueue; // magnet fit, for the sensing task
+
+void setCalibration(const ArmCalibration &calibration) {
+  activeCalibration = calibration;
+  xQueueOverwrite(motorCalibrationQueue, &activeCalibration);
+  xQueueOverwrite(magnetCalibrationQueue, &activeCalibration);
+}
+
 Row rows[MAX_ROWS];
 PidSample pidSamples[MAX_PID_SAMPLES];
-
-static void sensingTask(void *parameter) {
-  while (!magnet.begin(MAG_SDA_PIN, MAG_SCL_PIN)) {
-    Serial.println("Error: MLX90393 magnetometer not detected, retrying...");
-    vTaskDelay(pdMS_TO_TICKS(1000));
-  }
-
-  while (true) {
-    motor.readCurrent();
-    if (magnet.read()) {
-      Sample sample = {magnet.zmT, magnet.rawDistanceMM, millis()};
-      xQueueSend(sampleQueue, &sample, 0); // dropped when nobody is sampling
-      magnetReady = true;
-    } else {
-      Serial.println("Failed to read sensor.");
-    }
-    vTaskDelay(pdMS_TO_TICKS(1));
-  }
-}
-
-// The PID only runs on this task, so targets are handed over via targetRequest
-// and gains via gainsQueue. It steps once per magnet reading, so the
-// derivative never sees a repeated distance; if the readings stop, so does the
-// motor.
-static void motorTask(void *parameter) {
-  motor.begin();
-  while (!magnetReady)
-    vTaskDelay(pdMS_TO_TICKS(10));
-  magnet.readingTask = xTaskGetCurrentTaskHandle();
-
-  Gains gains;
-  bool paused = false;
-  while (true) {
-    bool reading = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MAGNET_TIMEOUT_MS));
-    if (xQueueReceive(gainsQueue, &gains, 0) == pdTRUE)
-      motor.setPIDCalibration(gains.kp, gains.ki, gains.kd);
-    if (!pidEnabled) {
-      paused = true;
-      continue;
-    }
-    // Coming back from a test, the PID's history is stale, so start afresh
-    if (paused || targetRequest != (float)motor.setpoint) {
-      motor.setTarget(targetRequest);
-      paused = false;
-    }
-    if (reading)
-      motor.update(magnet.distanceMM);
-    else
-      motor.stop();
-  }
-}
 
 void printMenu() {
   Serial.println();
@@ -169,6 +140,8 @@ void printMenu() {
   Serial.println("  A   pulse test, measures the motor and suggests gains");
   Serial.printf("  #   go to that distance in mm, %.0f-%.0f, e.g. 7.5\n",
                 TRAVEL_MIN_MM, TRAVEL_MAX_MM);
+  Serial.println("  {}  set calibration values as JSON until reset, e.g. "
+                 "{\"kp\": 250, \"kd\": 8} ({} prints them)");
 }
 
 void printDebug() {
@@ -181,8 +154,10 @@ void printDebug() {
   Serial.printf(">currentDistance:%.3f\n", magnet.distanceMM);
   Serial.printf(">B_z:%.4f\n", magnet.zmT);
   Serial.printf(">pwmValue:%.2f\n", motor.pwmValue);
+  Serial.printf(">motor PID:%.4f\n", motor.output);
   Serial.printf(">Motor Current:%.2f\n", motor.filteredCurrent);
   Serial.printf(">Magnet Temp:%.2f\n", magnet.tempC);
+  Serial.printf(">Failed reads:%u\n", failedReads);
 }
 
 void waitWithDebug(uint32_t ms) {
@@ -262,6 +237,7 @@ void printTrailer() {
   Serial.printf("Remanence: %.2f mT\n", magnet.remanenceMT);
   Serial.printf("Z offset: %.3f mm\n", magnet.zOffsetMM);
   Serial.printf("Calibration temperature: %.2f C\n", magnet.calibrationTempC);
+  printCalibration(activeCalibration);
   printMenu();
 }
 
@@ -372,7 +348,11 @@ void runPid(const String &command) {
       Serial.println("Use P, or P <Kp> <Ki> <Kd> with gains of 0 or more");
       return;
     }
-    xQueueOverwrite(gainsQueue, &gains); // applied before the move below
+    ArmCalibration calibration = activeCalibration;
+    calibration.kp = gains.kp;
+    calibration.ki = gains.ki;
+    calibration.kd = gains.kd;
+    setCalibration(calibration); // applied before the move below
   }
 
   Serial.printf("-> %.2f mm (neutral)\n", NEUTRAL_MM);
@@ -486,11 +466,14 @@ void runPulseTest() {
   vTaskDelay(pdMS_TO_TICKS(100)); // the motor task finishes its last update
   motor.stop();
 
+  const float highPWM = motor.minPWM + PULSE_HIGH_ABOVE_MIN_PWM;
+  const float pwms[PULSE_COUNT] = {highPWM, -highPWM, motor.minPWM,
+                                   -motor.minPWM};
   Pulse pulses[PULSE_COUNT];
   const char *failure = nullptr;
   for (int i = 0; i < PULSE_COUNT && !failure; i++) {
-    Serial.printf("Pulse %+.0f PWM\n", PULSE_PWMS[i]);
-    failure = runPulse(PULSE_PWMS[i], &pulses[i]);
+    Serial.printf("Pulse %+.0f PWM\n", pwms[i]);
+    failure = runPulse(pwms[i], &pulses[i]);
   }
   pidEnabled = true;
 
@@ -514,7 +497,7 @@ void runPulseTest() {
     float fast = fabs(pulses[up].speedMMs);
     float creep = fabs(pulses[2 + up].speedMMs);
     speedPerPWM =
-        fmax(speedPerPWM, (fast - creep) / (PULSE_HIGH_PWM - MOTOR_MIN_PWM));
+        fmax(speedPerPWM, (fast - creep) / PULSE_HIGH_ABOVE_MIN_PWM);
     creepMMs = fmax(creepMMs, creep);
     if (!isnan(pulses[up].lagMs))
       lagMs = fmax(lagMs, pulses[up].lagMs);
@@ -551,11 +534,12 @@ void runPulseTest() {
 
   float creepOvershootMM = creepMMs * (sensingMs + motorLagMs) / 1000.0f;
   if (creepMMs < PULSE_STILL_MM_S)
-    Serial.println(
-        "WARNING: didn't move at the minimum PWM, raise MOTOR_MIN_PWM");
+    Serial.println("WARNING: didn't move at the minimum PWM, raise its Min "
+                   "PWM in defaults.h");
   else if (creepOvershootMM > DISTANCE_DEADBAND)
     Serial.printf("WARNING: creeping at the minimum PWM alone overshoots "
-                  "~%.2f mm, past the deadband; lower MOTOR_MIN_PWM\n",
+                  "~%.2f mm, past the deadband; lower its Min PWM in "
+                  "defaults.h\n",
                   creepOvershootMM);
 
   if (tuned) {
@@ -570,30 +554,92 @@ void runPulseTest() {
   printTrailer();
 }
 
-void setup() {
-  Serial.begin(115200);
-  sampleQueue = xQueueCreate(16, sizeof(Sample));
-  gainsQueue = xQueueCreate(1, sizeof(Gains));
+// Sets one calibration value by its name in ArmCalibration, or returns what's
+// wrong with it
+const char *setParameter(ArmCalibration &calibration, const char *key,
+                         JsonVariant value) {
+  if (!strcmp(key, "mac") || !strcmp(key, "id"))
+    return "comes from defaults.h";
+  double number = value.as<double>();
+  if (!value.is<double>() || !isfinite(number))
+    return "must be a number";
 
-  xTaskCreatePinnedToCore(sensingTask, "sensing", 10000, nullptr, 1, nullptr,
-                          0);
-  xTaskCreatePinnedToCore(motorTask, "motor", 2048, nullptr, 1, nullptr, 1);
+  // PID_v1 ignores all three gains if any is negative
+  bool gain = !strcmp(key, "kp") || !strcmp(key, "ki") || !strcmp(key, "kd");
+  if (gain && number < 0)
+    return "must be 0 or more";
 
-  while (!magnetReady)
-    delay(10);
-  Serial.printf("-> %.2f mm (neutral)\n", NEUTRAL_MM);
-  moveTo(NEUTRAL_MM);
-  printMenu();
+  if (!strcmp(key, "minPWM")) {
+    if (number < 0 || number > MOTOR_MAX_PWM)
+      return "must be 0-254";
+    calibration.minPWM = number;
+  } else if (!strcmp(key, "kp")) {
+    calibration.kp = number;
+  } else if (!strcmp(key, "ki")) {
+    calibration.ki = number;
+  } else if (!strcmp(key, "kd")) {
+    calibration.kd = number;
+  } else if (!strcmp(key, "remanenceMT")) {
+    if (number <= 0)
+      return "must be more than 0";
+    calibration.remanenceMT = number;
+  } else if (!strcmp(key, "zOffsetMM")) {
+    calibration.zOffsetMM = number;
+  } else if (!strcmp(key, "calibrationTempC")) {
+    calibration.calibrationTempC = number;
+  } else {
+    return "isn't a calibration value";
+  }
+  return nullptr;
 }
 
-void loop() {
+// A JSON object of calibration values by their names in ArmCalibration, e.g.
+// {"kp": 250, "kd": 8}. Any left out keep their value, none are applied if one
+// is wrong, and {} only prints the calibration in use. The UI takes the
+// Calibration row line as the end of the reply.
+void runParameters(const String &command) {
+  JsonDocument doc;
+  DeserializationError error = deserializeJson(doc, command);
+  if (error || !doc.is<JsonObject>()) {
+    Serial.printf("Parameters not set: %s\n",
+                  error ? error.c_str() : "not a JSON object");
+    return;
+  }
+
+  ArmCalibration calibration = activeCalibration;
+  JsonObject values = doc.as<JsonObject>();
+  for (JsonPair pair : values) {
+    const char *problem =
+        setParameter(calibration, pair.key().c_str(), pair.value());
+    if (problem) {
+      Serial.printf("Parameters not set: %s %s\n", pair.key().c_str(),
+                    problem);
+      return;
+    }
+  }
+
+  if (values.size() > 0) {
+    setCalibration(calibration);
+    Serial.println("Parameters set, kept until reset");
+  }
+  printCalibration(activeCalibration);
+}
+
+// Runs one command from the serial monitor, or streams the telemetry while
+// there is none
+void handleSerial() {
   if (!Serial.available()) {
+    printDebug();
     delay(20);
     return;
   }
 
   String command = Serial.readStringUntil('\n');
   command.trim();
+  if (command.startsWith("{")) { // before the upper-casing, for the names
+    runParameters(command);
+    return;
+  }
   command.toUpperCase();
   if (command.isEmpty())
     return;
@@ -645,3 +691,5 @@ void loop() {
   while (Serial.available()) // drop anything typed during a run
     Serial.read();
 }
+
+#endif

@@ -4,7 +4,6 @@ Open source lock picking robot ("Unlocked"). v1 fed wire through a hollow key to
 
 ## Rules
 
-- **Never touch `firmware/common/config.h`.** Pins and constants are still being tested on breadboards.
 - **Only edit the lock-picking KiCad files** in `PCB/main-board/` (and their backups). Don't modify other KiCad projects or global libraries.
 - **Ask Etienne to close KiCad before writing any board file** (`.kicad_pcb`, `.kicad_sch`, `.kicad_pro`, `.kicad_sym`, library parts). KiCad overwrites external edits when it saves.
 - **Never commit or push unless asked.**
@@ -14,10 +13,9 @@ Open source lock picking robot ("Unlocked"). v1 fed wire through a hollow key to
 
 | Path | What |
 |---|---|
-| `firmware/arm/` | Arm board firmware: FreeRTOS tasks for magnet sensing and PID motor control, `comms.h` link to the motherboard |
+| `firmware/arm/` | Arm board firmware: FreeRTOS tasks for magnet sensing and PID motor control, `calibration.h` bench calibration routines driven from the serial monitor (same firmware on the test rig and in the robot), plus a JSON line (`{"kp": 250}`) that sets calibration values until reset, sent by the UI's Parameters tab, `comms.h` link to the motherboard |
 | `firmware/motherboard/` | Motherboard firmware (stub so far) |
-| `firmware/calibration/` | Bench calibration routines driven from the serial monitor, reusing the arm's classes |
-| `firmware/common/` | Shared headers: `motor.h`, `magnet.h`, `structure.h`, `config.h` (off limits) |
+| `firmware/common/` | Shared headers: `motor.h`, `magnet.h`, `structure.h`, `config.h` (pins and constants, set for the arm board), `defaults.h` (per-board calibration table looked up by MAC at boot, mirrored in `UI/src/lib/armCalibration.ts`) |
 | `platformio.ini` | PlatformIO config at the repo root (`src_dir = firmware`) |
 | `UI/` | SvelteKit 5 (runes) + TypeScript calibration UI over Web Serial, managed with bun |
 | `PCB/main-board/` | KiCad 10 project for the per-arm board (Etienne calls it the "main board"; schematic title "Arm Board"). Not the motherboard |
@@ -37,7 +35,7 @@ pio run -e arm -t upload       # flash
 pio device monitor             # serial
 ```
 
-Envs: `arm`, `motherboard`, `calibration`.
+Envs: `arm`, `motherboard`.
 
 ## UI
 

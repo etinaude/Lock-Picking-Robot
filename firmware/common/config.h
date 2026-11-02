@@ -1,3 +1,4 @@
+#include "defaults.h"
 #include "structure.h"
 
 #ifndef config_H
@@ -25,8 +26,8 @@ int COMMS_SCL_PIN = 22;
 
 // ~~~ PID & CONTROL ~~~
 #define DISTANCE_AVERAGE_COUNT 3 // rolling median, adds (N-1)/2 reads of lag
-#define DISTANCE_DEADBAND 0.01
-#define MOTOR_MIN_PWM 20.0f
+// DISTANCE_DEADBAND and each board's min PWM and gains are in defaults.h
+
 // ledcWrite turns 255 (8-bit) into "full on", which the S3 outputs as off
 #define MOTOR_MAX_PWM 254.0
 #define MAGNET_TIMEOUT_MS 100

@@ -7,11 +7,8 @@
 #include <Wire.h>
 #include <algorithm>
 
-const float DEFAULT_REMANENCE_MT = 1114.0f;
-const float DEFAULT_Z_OFFSET_MM = 2.85f;
-const float DEFAULT_CALIBRATION_TEMP_C = 25.0f;
-const float MAGNET_R_MM = 2.0f;
-const float MAGNET_T_MM = 2.0f;
+const float MAGNET_R_MM = 2.00f;
+const float MAGNET_T_MM = 2.00f;
 
 const float MAGNET_TEMPCO_PER_C = -0.0012f;
 const uint32_t TEMP_READ_INTERVAL_MS = 1000;
@@ -31,7 +28,11 @@ class Magnet {
 public:
   Magnet() : wire(1) {}
 
+  // Safe to call again after a failure: Wire.begin() alone does nothing once
+  // the bus is started
   bool begin(int sdaPin, int sclPin) {
+    wire.end();
+    clearBus(sdaPin, sclPin);
     wire.begin(sdaPin, sclPin);
 
     if (!sensor.begin_I2C(MLX90393_DEFAULT_ADDR, &wire))
@@ -48,6 +49,24 @@ public:
       tempC = calibrationTempC; // no compensation until a good read
     lastTempRead = millis();
     return true;
+  }
+
+  static void clearBus(int sdaPin, int sclPin) {
+    pinMode(sdaPin, INPUT_PULLUP);
+    pinMode(sclPin, OUTPUT_OPEN_DRAIN);
+    digitalWrite(sclPin, HIGH);
+    delayMicroseconds(10);
+    for (int i = 0; i < 9 && digitalRead(sdaPin) == LOW; i++) {
+      digitalWrite(sclPin, LOW);
+      delayMicroseconds(10);
+      digitalWrite(sclPin, HIGH);
+      delayMicroseconds(10);
+    }
+    pinMode(sdaPin, OUTPUT_OPEN_DRAIN);
+    digitalWrite(sdaPin, LOW);
+    delayMicroseconds(10);
+    digitalWrite(sdaPin, HIGH); // SDA rising while SCL is high
+    delayMicroseconds(10);
   }
 
   // Values from a probe calibration: effective remanence (mT), the sensor to
@@ -79,8 +98,8 @@ public:
     float raw = solveDistance(field / fieldScale) - zOffsetMM;
 
     uint32_t now = millis();
-    float allowedMM = MAX_SPEED_MM_S * (now - lastGoodRead) / 1000.0f +
-                      JUMP_MARGIN_MM;
+    float allowedMM =
+        MAX_SPEED_MM_S * (now - lastGoodRead) / 1000.0f + JUMP_MARGIN_MM;
     if (sampleCount > 0 && fabs(raw - rawDistanceMM) > allowedMM &&
         rejectedReads < MAX_REJECTED_READS) {
       rejectedReads++;
@@ -189,18 +208,19 @@ public:
   Adafruit_MLX90393 sensor;
   TwoWire wire;
 
-  float remanenceMT = DEFAULT_REMANENCE_MT;
-  float zOffsetMM = DEFAULT_Z_OFFSET_MM;
-  float calibrationTempC = DEFAULT_CALIBRATION_TEMP_C;
+  // setCalibration() swaps in this board's row from defaults.h
+  float remanenceMT = DEFAULT_CALIBRATION.remanenceMT;
+  float zOffsetMM = DEFAULT_CALIBRATION.zOffsetMM;
+  float calibrationTempC = DEFAULT_CALIBRATION.calibrationTempC;
 
   bool ok = false;
   float zmT = 0.0f;
-  float tempC = DEFAULT_CALIBRATION_TEMP_C;
+  float tempC = DEFAULT_CALIBRATION.calibrationTempC;
   uint32_t lastTempRead = 0;
   uint32_t lastGoodRead = 0;
-  uint8_t rejectedReads = 0; // in a row
-  float rawDistanceMM = 0.0f; // latest reading
-  float distanceMM = 0.0f;    // rolling median, what the PID runs on
+  uint8_t rejectedReads = 0;          // in a row
+  float rawDistanceMM = 0.0f;         // latest reading
+  float distanceMM = 0.0f;            // rolling median, what the PID runs on
   TaskHandle_t readingTask = nullptr; // notified after each new reading
 
   float samples[DISTANCE_AVERAGE_COUNT];
