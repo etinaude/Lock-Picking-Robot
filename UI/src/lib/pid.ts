@@ -1,5 +1,7 @@
-// Parses the calibration firmware's PID step test (command P) and measures
+// Parses the firmware's PID step test (command P) and measures
 // each step's response.
+
+import { DEFAULT_CALIBRATION } from './armCalibration.ts';
 
 export interface PidGains {
 	kp: number;
@@ -7,10 +9,13 @@ export interface PidGains {
 	kd: number;
 }
 
-// DEFAULT_KP / KI / KD in firmware/common/motor.h
-export const DEFAULT_GAINS: PidGains = { kp: 3.0, ki: 0.1, kd: 1.0 };
-// DISTANCE_DEADBAND and TRAVEL_MIN_MM / MAX_MM in firmware/common/config.h,
-// for output without them in its header
+export const DEFAULT_GAINS: PidGains = {
+	kp: DEFAULT_CALIBRATION.kp,
+	ki: DEFAULT_CALIBRATION.ki,
+	kd: DEFAULT_CALIBRATION.kd
+};
+// DISTANCE_DEADBAND in firmware/common/defaults.h and TRAVEL_MIN_MM / MAX_MM
+// in config.h, for output without them in its header
 const DEFAULT_DEADBAND_MM = 0.05;
 const DEFAULT_TRAVEL_MM: [number, number] = [3.0, 10.0];
 // The mechanical stops are about this far past the travel. Older firmware
@@ -213,7 +218,7 @@ export interface PulseTest {
 	warnings: string[];
 }
 
-// The calibration firmware's pulse test (command A)
+// The firmware's pulse test (command A)
 export function parsePulseTest(text: string): PulseTest {
 	const value = (label: string) => {
 		const match = text.match(new RegExp(`^${label}:\\s*(-?[\\d.]+)`, 'm'));

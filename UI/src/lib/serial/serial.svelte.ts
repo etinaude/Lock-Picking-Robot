@@ -1,6 +1,8 @@
 // USB serial connection to the arm, shared app-wide so switching tabs doesn't
 // drop the port or the log.
 
+import { parseCalibrationRow, type ArmCalibration } from '#lib/armCalibration.ts';
+
 export type LogType = 'system' | 'sent' | 'received';
 
 export interface LogEntry {
@@ -14,12 +16,22 @@ const MAX_LOG_LINES = 2000;
 // Teleplot lines from the firmware, e.g. ">currentDistance:6.012"
 const TELEMETRY_LINE = /^>([^:]+):\s*(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)\s*$/;
 
-// Printed by the calibration firmware at boot and after every run. The arm
-// firmware treats any line as a target distance, so commands like M are only
-// safe once this has been seen.
+// Printed by the arm firmware at boot and after every run. Older arm firmware
+// treated any line as a target distance, so commands like M are only safe once
+// this has been seen.
 const CALIBRATION_MENU = 'Calibration commands:';
 
+// Printed at boot, after every run and after a JSON parameters command:
+// "MAC: 28:84:85:67:44:74 (arm 1)", "(arm N)" only if it's in defaults.h, then
+// the calibration in use as a defaults.h row
+const MAC_LINE = /^MAC:\s*((?:[0-9A-F]{2}:){5}[0-9A-F]{2})(?:\s*\(arm (\d+)\))?/i;
+const CALIBRATION_ROW = 'Calibration row:';
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// The S3 can drop off USB on a reset and come back as a new connection, which
+// mustn't reset it again
+const RESET_RECONNECT_MS = 5000;
 
 // Gets each received line that isn't telemetry, then null when the port closes
 export type LineListener = (line: string | null) => void;
@@ -34,6 +46,9 @@ class SerialConnection {
 	telemetry = $state<Record<string, number>>({});
 	lastCommand = $state('');
 	calibrationFirmware = $state(false);
+	// id is null for a board that isn't in defaults.h yet
+	board = $state<{ mac: string; id: number | null } | null>(null);
+	calibration = $state<ArmCalibration | null>(null);
 
 	#port: SerialPort | null = null;
 	#reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
@@ -41,6 +56,7 @@ class SerialConnection {
 	#nextId = 0;
 	#started = false;
 	#listeners = new Set<LineListener>();
+	#lastReset = 0;
 
 	// Called once from the browser; reconnects to a port the user already granted
 	async init() {
@@ -79,6 +95,8 @@ class SerialConnection {
 			this.#port = port;
 			this.connected = true;
 			this.calibrationFirmware = false;
+			this.board = null;
+			this.calibration = null;
 
 			const { usbVendorId, usbProductId } = port.getInfo();
 			const id =
@@ -91,9 +109,14 @@ class SerialConnection {
 			this.#readLoop = this.#read(port);
 		} catch (error) {
 			this.log(`Connection failed: ${(error as Error).message}`, 'system');
+			return;
 		} finally {
 			this.connecting = false;
 		}
+
+		// So the board prints its MAC, calibration and menu, which it only does
+		// at boot and after a run
+		if (Date.now() - this.#lastReset > RESET_RECONNECT_MS) await this.reset();
 	}
 
 	async disconnect() {
@@ -133,6 +156,7 @@ class SerialConnection {
 	// ESP32 auto-reset: pulse EN low through RTS while DTR keeps IO0 high
 	async reset() {
 		if (!this.#port) return;
+		this.#lastReset = Date.now();
 		try {
 			await this.#port.setSignals({ dataTerminalReady: false, requestToSend: true });
 			await sleep(100);
@@ -210,6 +234,12 @@ class SerialConnection {
 		}
 
 		if (line.startsWith(CALIBRATION_MENU)) this.calibrationFirmware = true;
+		const mac = line.match(MAC_LINE);
+		if (mac) {
+			const [, address = '', id] = mac;
+			this.board = { mac: address.toUpperCase(), id: id === undefined ? null : Number(id) };
+		}
+		if (line.startsWith(CALIBRATION_ROW)) this.calibration = parseCalibrationRow(line);
 		this.log(line, 'received');
 		for (const listener of this.#listeners) listener(line);
 	}

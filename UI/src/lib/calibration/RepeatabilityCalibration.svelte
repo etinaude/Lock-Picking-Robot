@@ -169,8 +169,8 @@ Temperature: 25.40 C`;
 	<header>
 		<h2>Repeatability</h2>
 		<p class="note">
-			Run <code>R</code> (or <code>R5</code> for 5 cycles) on the calibration firmware, paste its table,
-			then type the probe reading at each stop.
+			Run <code>R</code> (or <code>R5</code> for 5 cycles) on the arm, paste its table, then type the
+			probe reading at each stop.
 		</p>
 	</header>
 

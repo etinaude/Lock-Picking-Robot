@@ -26,6 +26,8 @@
 		ERROR_STATS
 	} from './shared.ts';
 	import { runner } from './runner.svelte.ts';
+	import { serial } from '#lib/serial/serial.svelte.ts';
+	import { boardCalibration, calibrationRow } from '#lib/armCalibration.ts';
 
 	const STORAGE_KEY = 'magnet-calibration';
 	const MODEL_VERSION = 2;
@@ -225,9 +227,15 @@ Temperature: 25.40 C`;
 	const cpp = $derived(
 		calibrated
 			? [
-					`const float DEFAULT_REMANENCE_MT = ${calibrated.remanenceMT.toFixed(1)}f;`,
-					`const float DEFAULT_Z_OFFSET_MM = ${calibrated.zOffsetMM.toFixed(3)}f;`,
-					`const float DEFAULT_CALIBRATION_TEMP_C = ${calibrated.calibrationTempC.toFixed(2)}f;`,
+					'// defaults.h, this board in ARM_CALIBRATIONS',
+					calibrationRow({
+						...boardCalibration(serial.calibration, serial.board?.mac),
+						remanenceMT: calibrated.remanenceMT,
+						zOffsetMM: calibrated.zOffsetMM,
+						calibrationTempC: calibrated.calibrationTempC
+					}),
+					'',
+					'// magnet.h, if the magnet changed',
 					`const float MAGNET_R_MM = ${(calibrated.diameterMM / 2).toFixed(2)}f;`,
 					`const float MAGNET_T_MM = ${calibrated.thicknessMM.toFixed(2)}f;`,
 					'',
@@ -257,8 +265,7 @@ Temperature: 25.40 C`;
 	<header>
 		<h2>Magnetometer</h2>
 		<p class="note">
-			Run <code>M</code> on the calibration firmware, paste its table, then type the probe reading for
-			each set point.
+			Run <code>M</code> on the arm, paste its table, then type the probe reading for each set point.
 		</p>
 	</header>
 
@@ -462,7 +469,13 @@ Temperature: 25.40 C`;
 					{/if}
 				</div>
 				{#if calibrated}
-					<p class="note">Paste into <code>firmware/common/magnet.h</code>.</p>
+					<p class="note">
+						Paste the row into <code>ARM_CALIBRATIONS</code> in
+						<code>firmware/common/defaults.h</code>, replacing this board's row if it has one.
+						{#if !serial.calibration}
+							The other columns are the defaults until the board prints its own (reset it).
+						{/if}
+					</p>
 					<pre><code>{cpp}</code></pre>
 				{:else}
 					<p class="note">Enter at least two probe readings to fit the remanence and z offset.</p>

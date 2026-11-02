@@ -3,6 +3,7 @@
 	import '#lib/calibration/calibration.css';
 	import CurrentCalibration from '#lib/calibration/CurrentCalibration.svelte';
 	import MagnetometerCalibration from '#lib/calibration/MagnetometerCalibration.svelte';
+	import Parameters from '#lib/calibration/Parameters.svelte';
 	import PidCalibration from '#lib/calibration/PidCalibration.svelte';
 	import RepeatabilityCalibration from '#lib/calibration/RepeatabilityCalibration.svelte';
 	import SerialMonitor from '#lib/serial/SerialMonitor.svelte';
@@ -10,14 +11,16 @@
 	import { runner, type RunMode } from '#lib/calibration/runner.svelte.ts';
 	import { pidCommand, validGains } from '#lib/pid.ts';
 
-	// Same order and letters as the calibration firmware's serial commands. `run`
+	// Same order and letters as the firmware's serial commands. `run`
 	// is the tab a sidebar run fills, or 'unavailable' while the firmware lacks it.
+	// Tools sit below the calibration modes.
 	const MODES: {
 		id: string;
 		command: string;
 		label: string;
 		component: Component;
 		run?: RunMode | 'unavailable';
+		tool?: boolean;
 	}[] = [
 		{
 			id: 'pid',
@@ -47,7 +50,14 @@
 			component: RepeatabilityCalibration,
 			run: 'repeatability'
 		},
-		{ id: 'serial', command: '>_', label: 'Serial monitor', component: SerialMonitor }
+		{ id: 'parameters', command: '{}', label: 'Parameters', component: Parameters, tool: true },
+		{
+			id: 'serial',
+			command: '>_',
+			label: 'Serial monitor',
+			component: SerialMonitor,
+			tool: true
+		}
 	];
 	const DEFAULT_CYCLES = 10; // the firmware's R with no count
 
@@ -95,8 +105,8 @@
 		<a class="home" href="/">← Home</a>
 		<h1>Calibration</h1>
 		<ul>
-			{#each MODES as m (m.id)}
-				<li class:tool={m.id === 'serial'}>
+			{#each MODES as m, i (m.id)}
+				<li class:first-tool={m.tool && !MODES[i - 1]?.tool}>
 					<button
 						class="nav-item"
 						aria-current={m.id === modeId ? 'page' : undefined}
@@ -128,11 +138,11 @@
 					</p>
 					<button class="secondary" onclick={() => runner.cancel()}>Stop listening</button>
 				{:else if serial.connected && mode.run === 'unavailable'}
-					<p class="hint">{mode.label} isn't in the calibration firmware yet.</p>
+					<p class="hint">{mode.label} isn't in the firmware yet.</p>
 				{:else if serial.connected && mode.run && !serial.calibrationFirmware}
 					<p class="hint">
-						Waiting to see the calibration firmware's menu. The arm firmware would read a command as
-						a 0 mm target, so reset the board to check.
+						Waiting to see the firmware's calibration menu. Older arm firmware would read a command
+						as a 0 mm target, so reset the board to check.
 					</p>
 					<button class="secondary" onclick={() => serial.reset()}>Reset board</button>
 				{:else if serial.connected && mode.run}
@@ -154,6 +164,22 @@
 				{/if}
 			</section>
 		{/if}
+
+		<!-- The firmware prints it at boot and after every calibration run -->
+		{#if serial.connected}
+			<footer class="board">
+				{#if serial.board}
+					<span class="mac" title="This board's MAC address">{serial.board.mac}</span>
+					{#if serial.board.id !== null}
+						<span class="id" title="This board's ID in defaults.h">ID {serial.board.id}</span>
+					{:else}
+						<span>Not in defaults.h, no ID yet</span>
+					{/if}
+				{:else}
+					MAC not seen yet, reset the board to print it
+				{/if}
+			</footer>
+		{/if}
 	</nav>
 
 	<main>
@@ -172,14 +198,18 @@
 		position: sticky;
 		top: 0;
 		align-self: start;
+		display: flex;
+		flex-direction: column;
 		height: 100vh;
 		box-sizing: border-box;
+		overflow-y: auto;
 		padding: 24px 12px;
 		border-right: 1px solid var(--border);
 		background: var(--surface-1);
 	}
 
 	.home {
+		align-self: flex-start;
 		padding: 0 8px;
 		color: var(--text-secondary);
 		font-size: 14px;
@@ -188,6 +218,32 @@
 	h1 {
 		margin: 12px 8px 16px;
 		font-size: 20px;
+	}
+
+	/* Pinned to the bottom of the sidebar */
+	.board {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		margin-top: auto;
+		padding: 12px 8px 0;
+		border-top: 1px solid var(--border);
+		color: var(--text-secondary);
+		font-size: 12px;
+	}
+
+	.mac {
+		color: var(--text-primary);
+		font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+		font-size: 13px;
+		font-weight: 700;
+		user-select: all;
+	}
+
+	.id {
+		color: var(--text-primary);
+		font-size: 13px;
+		font-weight: 600;
 	}
 
 	ul {
@@ -214,7 +270,7 @@
 	}
 
 	/* Tools sit below the calibration modes */
-	li.tool {
+	li.first-tool {
 		margin-top: 8px;
 		padding-top: 8px;
 		border-top: 1px solid var(--border);
@@ -320,10 +376,14 @@
 			width: auto;
 		}
 
-		li.tool {
+		li.first-tool {
 			margin-top: 0;
 			padding-top: 0;
 			border-top: 0;
+		}
+
+		.board {
+			margin-top: 16px;
 		}
 
 		main {

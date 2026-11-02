@@ -73,7 +73,7 @@ export function predictMotion(bzMT: number, p: MagnetParams, tempC: number | nul
 	return solveDistance(bzMT / scale, p) - p.zOffsetMM;
 }
 
-// Accepts the tables printed by the calibration firmware (M or R), with any
+// Accepts the tables printed by the firmware (M or R), with any
 // step size. Any line whose first three fields are numbers is a row.
 export function parseCalibration(text: string): ParsedCalibration {
 	const rows: CalibrationRow[] = [];

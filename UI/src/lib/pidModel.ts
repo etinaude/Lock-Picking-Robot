@@ -11,13 +11,14 @@ import {
 	type PidStep,
 	type RunSummary
 } from './pid.ts';
+import { DEFAULT_CALIBRATION } from './armCalibration.ts';
 
-// Mirrors firmware/common/config.h and motor.h
-const MOTOR_MIN_PWM = 20;
+// Mirrors firmware/common/defaults.h, config.h and motor.h
+const MOTOR_MIN_PWM = DEFAULT_CALIBRATION.minPWM;
 const MAX_PWM = 254; // MOTOR_MAX_PWM
 const OUTPUT_LIMIT = 255; // pid.SetOutputLimits
 const AVERAGE_COUNT = 3; // DISTANCE_AVERAGE_COUNT
-// Mirrors the step test in firmware/calibration/main.cpp
+// Mirrors the step test in firmware/arm/calibration.h
 // PID_v1's sample time: it computes on each magnet reading, unless this
 // hasn't passed since the last compute
 const PID_SAMPLE_MS = 20;

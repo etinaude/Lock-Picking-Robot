@@ -24,6 +24,7 @@
 	} from '#lib/pidModel.ts';
 	import { errorClass, loadState, mm, saveState, signedMM } from './shared.ts';
 	import { serial } from '#lib/serial/serial.svelte.ts';
+	import { boardCalibration, calibrationRow } from '#lib/armCalibration.ts';
 	import { runner } from './runner.svelte.ts';
 
 	const STORAGE_KEY = 'pid-calibration';
@@ -251,9 +252,13 @@ Temperature: 25.40 C`;
 		if (!gains) return '';
 		const [kp, ki, kd] = [gains.kp, gains.ki, gains.kd].map((value) => value.toFixed(4));
 		return [
-			`const double DEFAULT_KP = ${kp};`,
-			`const double DEFAULT_KI = ${ki};`,
-			`const double DEFAULT_KD = ${kd};`,
+			'// defaults.h, this board in ARM_CALIBRATIONS',
+			calibrationRow({
+				...boardCalibration(serial.calibration, serial.board?.mac),
+				kp: gains.kp,
+				ki: gains.ki,
+				kd: gains.kd
+			}),
 			'',
 			'// or at runtime:',
 			`// motor.setPIDCalibration(${kp}, ${ki}, ${kd});`
@@ -542,7 +547,7 @@ Temperature: 25.40 C`;
 					</button>
 				</div>
 				{#if !serial.connected || !serial.calibrationFirmware}
-					<p class="note">Connect to the calibration firmware on the Serial monitor tab first.</p>
+					<p class="note">Connect to the arm on the Serial monitor tab first.</p>
 				{/if}
 				{#if pulse}
 					{#each pulse.warnings as warning (warning)}
@@ -735,7 +740,11 @@ Temperature: 25.40 C`;
 				</div>
 				{#if cpp}
 					<p class="note">
-						The viewed run's gains. Paste into <code>firmware/common/motor.h</code>.
+						The viewed run's gains. Paste the row into <code>ARM_CALIBRATIONS</code> in
+						<code>firmware/common/defaults.h</code>, replacing this board's row if it has one.
+						{#if !serial.calibration}
+							The other columns are the defaults until the board prints its own (reset it).
+						{/if}
 					</p>
 					<pre><code>{cpp}</code></pre>
 				{:else}
