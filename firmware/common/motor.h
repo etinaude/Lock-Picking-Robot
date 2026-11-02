@@ -9,60 +9,68 @@
 #include <PID_v1.h>
 
 const double DEFAULT_TARGET_MM = 6.0;
-// PID_v1 scales Ki and Kd by this, but Compute runs once per magnet reading
-// (~25 ms). It must stay below the reading period or readings get skipped.
 const int PID_SAMPLE_TIME_MS = 20;
 
 class Motor {
 public:
+  double input = 0.0;
+  double output = 0.0;
+  double target = DEFAULT_TARGET_MM;
+  double pwmValue = 0.0;
+  float filteredCurrent = 0.0f;
+  float minPWM = DEFAULT_CALIBRATION.minPWM;
+
+  PID pid{&input,
+          &output,
+          &target,
+          DEFAULT_CALIBRATION.kp,
+          DEFAULT_CALIBRATION.ki,
+          DEFAULT_CALIBRATION.kd,
+          DIRECT};
+
   void begin() {
     analogReadResolution(12);
     analogSetPinAttenuation(PIN_IPROPI, ADC_11db);
-    pinMode(IN1_EN, OUTPUT);
-    pinMode(IN2_PH, OUTPUT);
+    pinMode(M_PWM_PIN, OUTPUT);
+    pinMode(M_DIR_PIN, OUTPUT);
     pinMode(PIN_nFAULT, INPUT);
     pinMode(PIN_nSLEEP, OUTPUT);
     digitalWrite(PIN_nSLEEP, HIGH);
-    delay(2);
+    delay(20);
     ledcSetup(0, 10000, 8);
-    ledcAttachPin(IN1_EN, 0);
+    ledcAttachPin(M_PWM_PIN, 0);
 
     pid.SetOutputLimits(-255, 255);
     pid.SetSampleTime(PID_SAMPLE_TIME_MS);
     pid.SetMode(AUTOMATIC);
   }
 
-  void setPIDCalibration(double kp, double ki, double kd) {
+  void setCalibration(double kp, double ki, double kd, float minPWM) {
     pid.SetTunings(kp, ki, kd);
+    this->minPWM = minPWM;
   }
 
   void setTarget(double targetMM) {
     pid.SetMode(MANUAL);
-    setpoint = constrain(targetMM, TRAVEL_MIN_MM, TRAVEL_MAX_MM);
+    target = constrain(targetMM, TRAVEL_MIN_MM, TRAVEL_MAX_MM);
     output = 0.0;
     pid.SetMode(AUTOMATIC);
   }
 
-  // One control step towards the target from the measured distance (mm)
   void update(float distanceMM) {
     input = distanceMM;
-    if (fabs(input - setpoint) <= DISTANCE_DEADBAND) {
-      pid.SetMode(MANUAL);
-      output = 0.0;
-      pid.SetMode(AUTOMATIC);
-      stop();
-      return;
-    }
+
+    if (fabs(input - target) <= DISTANCE_DEADBAND)
+      return stop();
 
     pid.Compute();
 
     // Near the target the derivative term pushes back against the approach.
     // Brake (EN low) for that rather than kicking into reverse at MIN_PWM.
-    if ((output > 0.0) != (setpoint > input)) {
-      stop();
-      return;
-    }
-    drive(output);
+    if ((output > 0.0) != (target > input))
+      return stop();
+
+    setPWM(output);
   }
 
   void stop() {
@@ -87,45 +95,16 @@ public:
     return filteredCurrent;
   }
 
-  void drive(double pidValue) {
-    if (pidValue == 0.0) {
-      stop();
-      return;
-    }
-
-    bool driveBackward = pidValue > 0.0;
-    double pwm = fabs(pidValue);
-    pwm += minPWM; // overcome static friction for small errors
-    setPWM(driveBackward ? pwm : -pwm);
-  }
-
-  // Signed PWM straight to the driver, no minimum added; positive drives
-  // towards larger distances
   void setPWM(double pwm) {
-    if (pwm == 0.0) {
-      stop();
-      return;
-    }
-    pwmValue = fmin(fabs(pwm), MOTOR_MAX_PWM);
-    digitalWrite(IN2_PH, pwm > 0.0 ? HIGH : LOW);
-    ledcWrite(0, static_cast<uint8_t>(pwmValue));
+    if (pwm == 0.0)
+      return stop();
+
+    bool direction = pwm > 0.0;
+    double pwmValue = fmin(fabs(pwm) + minPWM, MOTOR_MAX_PWM);
+
+    digitalWrite(M_DIR_PIN, direction);
+    ledcWrite(0, pwmValue);
   }
-
-  double input = 0.0;
-  double output = 0.0;
-  double setpoint = DEFAULT_TARGET_MM;
-  double pwmValue = 0.0;
-  float filteredCurrent = 0.0f;
-  // This and the gains are swapped for this board's row from defaults.h
-  float minPWM = DEFAULT_CALIBRATION.minPWM;
-
-  PID pid{&input,
-          &output,
-          &setpoint,
-          DEFAULT_CALIBRATION.kp,
-          DEFAULT_CALIBRATION.ki,
-          DEFAULT_CALIBRATION.kd,
-          DIRECT};
 };
 
 Motor motor;
