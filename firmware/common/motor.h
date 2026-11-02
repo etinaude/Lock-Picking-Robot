@@ -2,15 +2,12 @@
 #define MOTOR_H
 
 // DRV8876 MOTOR
-// PH high is towards Motor, PH low is away from Motor (PH/EN mode)
+// PH low is towards Motor, PH high is away from Motor (PH/EN mode)
 
 #include "config.h"
 #include <Arduino.h>
 #include <PID_v1.h>
 
-const double DEFAULT_KP = 3.0;
-const double DEFAULT_KI = 0.1;
-const double DEFAULT_KD = 1.0;
 const double DEFAULT_TARGET_MM = 6.0;
 // PID_v1 scales Ki and Kd by this, but Compute runs once per magnet reading
 // (~25 ms). It must stay below the reading period or readings get skipped.
@@ -98,7 +95,7 @@ public:
 
     bool driveBackward = pidValue > 0.0;
     double pwm = fabs(pidValue);
-    pwm += MOTOR_MIN_PWM; // overcome static friction for small errors
+    pwm += minPWM; // overcome static friction for small errors
     setPWM(driveBackward ? pwm : -pwm);
   }
 
@@ -110,7 +107,7 @@ public:
       return;
     }
     pwmValue = fmin(fabs(pwm), MOTOR_MAX_PWM);
-    digitalWrite(IN2_PH, pwm > 0.0 ? LOW : HIGH);
+    digitalWrite(IN2_PH, pwm > 0.0 ? HIGH : LOW);
     ledcWrite(0, static_cast<uint8_t>(pwmValue));
   }
 
@@ -119,9 +116,16 @@ public:
   double setpoint = DEFAULT_TARGET_MM;
   double pwmValue = 0.0;
   float filteredCurrent = 0.0f;
+  // This and the gains are swapped for this board's row from defaults.h
+  float minPWM = DEFAULT_CALIBRATION.minPWM;
 
-  PID pid{&input,     &output,    &setpoint, DEFAULT_KP,
-          DEFAULT_KI, DEFAULT_KD, DIRECT};
+  PID pid{&input,
+          &output,
+          &setpoint,
+          DEFAULT_CALIBRATION.kp,
+          DEFAULT_CALIBRATION.ki,
+          DEFAULT_CALIBRATION.kd,
+          DIRECT};
 };
 
 Motor motor;
