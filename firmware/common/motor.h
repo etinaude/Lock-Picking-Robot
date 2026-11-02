@@ -1,10 +1,7 @@
-#ifndef MOTOR_H
-#define MOTOR_H
-
-// DRV8876 MOTOR
-// PH low is towards Motor, PH high is away from Motor (PH/EN mode)
+#pragma once
 
 #include "config.h"
+#include "defaults.h"
 #include <Arduino.h>
 #include <PID_v1.h>
 
@@ -108,5 +105,3 @@ public:
 };
 
 Motor motor;
-
-#endif

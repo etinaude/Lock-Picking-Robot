@@ -1,8 +1,4 @@
-#include "defaults.h"
-#include "structure.h"
-
-#ifndef config_H
-#define config_H
+#pragma once
 
 // ~~~ PINS ~~~ (arm board, see PCB/README.md)
 int MAG_SDA_PIN = 2;
@@ -34,5 +30,3 @@ int COMMS_SCL_PIN = 22;
 
 #define TRAVEL_MIN_MM 2.5
 #define TRAVEL_MAX_MM 10.5
-
-#endif

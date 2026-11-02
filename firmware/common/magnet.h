@@ -1,7 +1,7 @@
-#ifndef MAGNET_H
-#define MAGNET_H
+#pragma once
 
 #include "config.h"
+#include "defaults.h"
 #include <Adafruit_MLX90393.h>
 #include <Arduino.h>
 #include <Wire.h>
@@ -150,5 +150,3 @@ void setupMagnet() {
   while (!magnet.begin(MAG_SDA_PIN, MAG_SCL_PIN))
     vTaskDelay(pdMS_TO_TICKS(1000));
 }
-
-#endif // MAGNET_H
