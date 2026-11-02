@@ -49,8 +49,8 @@ Pin 1 = OUT1, pin 2 = OUT2. The body overhangs the board edge by design.
 | GPIO9         | CAN_RX                      | CAN RX from U5                                |
 | GPIO10        | DRV_nFAULT                  | Driver fault, active low (10 k pull-up)       |
 | GPIO11        | DRV_nSLEEP                  | Drive **high** to run                         |
-| GPIO12        | DRV_IN2_PH                  | Direction                                     |
-| GPIO13        | DRV_IN1_EN                  | PWM                                           |
+| GPIO12        | DRV_M_DIR_PIN               | Direction                                     |
+| GPIO13        | DRV_M_PWM_PIN               | PWM                                           |
 | TX / RX       |                             | Not used. TX prints the ROM boot log at reset |
 | 5V / 3V3      | VBUS / +3V3                 | VBUS ≈ 4.7 V after D1                         |
 

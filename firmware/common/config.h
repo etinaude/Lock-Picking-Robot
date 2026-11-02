@@ -14,8 +14,8 @@ int COMMS_SCL_PIN = 22;
 // ~~~ DRV8876 MOTOR PINS ~~~
 // (PMODE tied to GND: PH/EN mode)
 #define PIN_IPROPI 1
-#define IN1_EN 13
-#define IN2_PH 12
+#define M_PWM_PIN 13
+#define M_DIR_PIN 12
 #define PIN_nSLEEP 11
 #define PIN_nFAULT 10
 

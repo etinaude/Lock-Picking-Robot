@@ -7,21 +7,21 @@ Open source lock picking robot ("Unlocked"). v1 fed wire through a hollow key to
 - **Only edit the lock-picking KiCad files** in `PCB/main-board/` (and their backups). Don't modify other KiCad projects or global libraries.
 - **Ask Etienne to close KiCad before writing any board file** (`.kicad_pcb`, `.kicad_sch`, `.kicad_pro`, `.kicad_sym`, library parts). KiCad overwrites external edits when it saves.
 - **Never commit or push unless asked.**
-- No trivial getters/setters in firmware classes: use public members (`motor.setpoint`). Methods that do real work are fine.
+- No trivial getters/setters in firmware classes: use public members (`motor.target`). Methods that do real work are fine.
 
 ## Layout
 
-| Path | What |
-|---|---|
-| `firmware/arm/` | Arm board firmware: FreeRTOS tasks for magnet sensing and PID motor control, `calibration.h` bench calibration routines driven from the serial monitor (same firmware on the test rig and in the robot), plus a JSON line (`{"kp": 250}`) that sets calibration values until reset, sent by the UI's Parameters tab, `comms.h` link to the motherboard |
-| `firmware/motherboard/` | Motherboard firmware (stub so far) |
-| `firmware/common/` | Shared headers: `motor.h`, `magnet.h`, `structure.h`, `config.h` (pins and constants, set for the arm board), `defaults.h` (per-board calibration table looked up by MAC at boot, mirrored in `UI/src/lib/armCalibration.ts`) |
-| `platformio.ini` | PlatformIO config at the repo root (`src_dir = firmware`) |
-| `UI/` | SvelteKit 5 (runes) + TypeScript calibration UI over Web Serial, managed with bun |
-| `PCB/main-board/` | KiCad 10 project for the per-arm board (Etienne calls it the "main board"; schematic title "Arm Board"). Not the motherboard |
-| `PCB/README.md` | Full board notes: components, layout decisions, checks, revision history |
-| `3D files/` | v1 mechanical parts (STL, 3MF, STEP zip, F3D) |
-| `unlocked/` | Leftover v1 editor config only |
+| Path                    | What                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `firmware/arm/`         | Arm board firmware: FreeRTOS tasks for magnet sensing and PID motor control, `calibration.h` bench calibration routines driven from the serial monitor (same firmware on the test rig and in the robot), plus a JSON line (`{"kp": 250}`) that sets calibration values until reset, sent by the UI's Parameters tab, `comms.h` link to the motherboard |
+| `firmware/motherboard/` | Motherboard firmware (stub so far)                                                                                                                                                                                                                                                                                                                     |
+| `firmware/common/`      | Shared headers: `motor.h`, `magnet.h`, `structure.h`, `config.h` (pins and constants, set for the arm board), `defaults.h` (per-board calibration table looked up by MAC at boot, mirrored in `UI/src/lib/armCalibration.ts`)                                                                                                                          |
+| `platformio.ini`        | PlatformIO config at the repo root (`src_dir = firmware`)                                                                                                                                                                                                                                                                                              |
+| `UI/`                   | SvelteKit 5 (runes) + TypeScript calibration UI over Web Serial, managed with bun                                                                                                                                                                                                                                                                      |
+| `PCB/main-board/`       | KiCad 10 project for the per-arm board (Etienne calls it the "main board"; schematic title "Arm Board"). Not the motherboard                                                                                                                                                                                                                           |
+| `PCB/README.md`         | Full board notes: components, layout decisions, checks, revision history                                                                                                                                                                                                                                                                               |
+| `3D files/`             | v1 mechanical parts (STL, 3MF, STEP zip, F3D)                                                                                                                                                                                                                                                                                                          |
+| `unlocked/`             | Leftover v1 editor config only                                                                                                                                                                                                                                                                                                                         |
 
 The splitter board was removed (commit `fedb49c`); `PCB/README.md` still mentions it.
 

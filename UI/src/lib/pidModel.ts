@@ -271,7 +271,7 @@ export function simulateRun(plant: Plant, gains: PidGains, plan: TestPlan): PidR
 	let lastComputeMs = -Infinity;
 
 	plan.targets.forEach((target, i) => {
-		const setpoint = clamp(target, plan.travelMM[0], plan.travelMM[1]);
+		const target = clamp(target, plan.travelMM[0], plan.travelMM[1]);
 		let output = 0;
 		let outputSum = 0;
 		let lastInput = rig.measuredMM;
@@ -293,14 +293,14 @@ export function simulateRun(plant: Plant, gains: PidGains, plan: TestPlan): PidR
 
 			if (rig.tick(pwm)) {
 				const input = rig.measuredMM;
-				if (Math.abs(input - setpoint) <= plan.deadbandMM) {
+				if (Math.abs(input - target) <= plan.deadbandMM) {
 					output = 0;
 					outputSum = 0;
 					lastInput = input;
 					pwm = 0;
 				} else {
 					if (clockMs - lastComputeMs >= PID_SAMPLE_MS) {
-						const error = setpoint - input;
+						const error = target - input;
 						outputSum = clamp(outputSum + ki * error, -OUTPUT_LIMIT, OUTPUT_LIMIT);
 						output = clamp(
 							gains.kp * error + outputSum - kd * (input - lastInput),
@@ -310,7 +310,7 @@ export function simulateRun(plant: Plant, gains: PidGains, plan: TestPlan): PidR
 						lastInput = input;
 						lastComputeMs = clockMs;
 					}
-					pwm = output > 0 !== setpoint > input ? 0 : drivePWM(output);
+					pwm = output > 0 !== target > input ? 0 : drivePWM(output);
 				}
 			}
 			clockMs++;
