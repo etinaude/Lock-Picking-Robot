@@ -1,7 +1,7 @@
 // Mirrors the magnet model in firmware/common/magnet.h so the UI predicts exactly
 // what the firmware will compute.
 
-export const MAGNET_TEMPCO_PER_C = -0.0012;
+export const MAGNET_TEMP_PER_C = -0.0012;
 
 export interface MagnetParams {
 	remanenceMT: number;
@@ -45,7 +45,7 @@ export function fieldAt(z: number, remanenceMT: number, radiusMM: number, thickn
 
 // Field at a distance from the magnet face, including the temperature drift
 export function fieldAtFace(faceMM: number, p: MagnetParams, tempC: number | null) {
-	const scale = tempC === null ? 1 : 1 + MAGNET_TEMPCO_PER_C * (tempC - p.calibrationTempC);
+	const scale = tempC === null ? 1 : 1 + MAGNET_TEMP_PER_C * (tempC - p.calibrationTempC);
 	return fieldAt(faceMM, p.remanenceMT, p.diameterMM / 2, p.thicknessMM) * scale;
 }
 
@@ -69,7 +69,7 @@ export function solveDistance(bzMT: number, p: MagnetParams) {
 
 // Carriage position the firmware would report for a raw reading
 export function predictMotion(bzMT: number, p: MagnetParams, tempC: number | null) {
-	const scale = tempC === null ? 1 : 1 + MAGNET_TEMPCO_PER_C * (tempC - p.calibrationTempC);
+	const scale = tempC === null ? 1 : 1 + MAGNET_TEMP_PER_C * (tempC - p.calibrationTempC);
 	return solveDistance(bzMT / scale, p) - p.zOffsetMM;
 }
 

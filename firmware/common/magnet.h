@@ -5,34 +5,39 @@
 #include <Adafruit_MLX90393.h>
 #include <Arduino.h>
 #include <Wire.h>
-#include <algorithm>
 
 const float MAGNET_R_MM = 2.00f;
 const float MAGNET_T_MM = 2.00f;
 
-const float MAGNET_TEMPCO_PER_C = -0.0012f;
-const uint32_t TEMP_READ_INTERVAL_MS = 1000;
+const float MAGNET_TEMP_PER_C = -0.0012f;
+const int TEMP_READ_INTERVAL_MS = 1000;
 
 const float SATURATION_THRESHOLD_MT = 20.0f; // RES_18 on Z: 0.968 uT/LSB
 const float OUT_OF_RANGE_THRESHOLD_MT = 2.0f;
 const uint8_t MLX90393_STATUS_ERROR_BIT = 0x10;
 
-// Reads taken under heavy motor current are sometimes wildly wrong, a few in a
-// row. A jump faster than the carriage can move (~8 mm/s flat out) is dropped,
-// unless it keeps happening, in which case the carriage really is there.
 const float MAX_SPEED_MM_S = 20.0f;
-const float JUMP_MARGIN_MM = 0.1f; // read noise on top
-const uint8_t MAX_REJECTED_READS = 3;
+const float JUMP_MARGIN_MM = 0.1f;
 
 class Magnet {
 public:
+  Adafruit_MLX90393 sensor;
+  TwoWire wire;
+
+  float remanenceMT = DEFAULT_CALIBRATION.remanenceMT;
+  float zOffsetMM = DEFAULT_CALIBRATION.zOffsetMM;
+  float calibrationTempC = DEFAULT_CALIBRATION.calibrationTempC;
+
+  bool ok = false;
+  float zmT = 0.0f;
+  float tempC = DEFAULT_CALIBRATION.calibrationTempC;
+  uint32_t lastTempRead = 0;
+  uint32_t lastGoodRead = 0; // 0 until the first reading
+  float distanceMM = 0.0f;   // latest reading, what the PID runs on
+
   Magnet() : wire(1) {}
 
-  // Safe to call again after a failure: Wire.begin() alone does nothing once
-  // the bus is started
   bool begin(int sdaPin, int sclPin) {
-    wire.end();
-    clearBus(sdaPin, sclPin);
     wire.begin(sdaPin, sclPin);
 
     if (!sensor.begin_I2C(MLX90393_DEFAULT_ADDR, &wire))
@@ -51,40 +56,17 @@ public:
     return true;
   }
 
-  static void clearBus(int sdaPin, int sclPin) {
-    pinMode(sdaPin, INPUT_PULLUP);
-    pinMode(sclPin, OUTPUT_OPEN_DRAIN);
-    digitalWrite(sclPin, HIGH);
-    delayMicroseconds(10);
-    for (int i = 0; i < 9 && digitalRead(sdaPin) == LOW; i++) {
-      digitalWrite(sclPin, LOW);
-      delayMicroseconds(10);
-      digitalWrite(sclPin, HIGH);
-      delayMicroseconds(10);
-    }
-    pinMode(sdaPin, OUTPUT_OPEN_DRAIN);
-    digitalWrite(sdaPin, LOW);
-    delayMicroseconds(10);
-    digitalWrite(sdaPin, HIGH); // SDA rising while SCL is high
-    delayMicroseconds(10);
-  }
-
-  // Values from a probe calibration: effective remanence (mT), the sensor to
-  // magnet distance at 0 mm, and the ">Magnet Temp" reading during the fit.
   void setCalibration(float remanenceMT, float zOffsetMM,
                       float calibrationTempC) {
     this->remanenceMT = remanenceMT;
     this->zOffsetMM = zOffsetMM;
     this->calibrationTempC = calibrationTempC;
-    sampleCount = 0; // don't average across the old and new calibration
+    lastGoodRead = 0;
   }
 
-  // One X/Y/Z conversion (blocks ~25 ms), plus a temperature read once a
-  // second. Returns false if the sensor didn't respond or the reading was
-  // dropped as implausible.
   bool read() {
     if (millis() - lastTempRead >= TEMP_READ_INTERVAL_MS) {
-      readTemperature(&tempC); // keeps last value on failure
+      readTemperature(&tempC);
       lastTempRead = millis();
     }
 
@@ -94,42 +76,19 @@ public:
       return false;
 
     float field = fabs(z_uT) / 1000.0f;
-    float fieldScale = 1.0f + MAGNET_TEMPCO_PER_C * (tempC - calibrationTempC);
+    float fieldScale = 1.0f + MAGNET_TEMP_PER_C * (tempC - calibrationTempC);
     float raw = solveDistance(field / fieldScale) - zOffsetMM;
 
     uint32_t now = millis();
     float allowedMM =
         MAX_SPEED_MM_S * (now - lastGoodRead) / 1000.0f + JUMP_MARGIN_MM;
-    if (sampleCount > 0 && fabs(raw - rawDistanceMM) > allowedMM &&
-        rejectedReads < MAX_REJECTED_READS) {
-      rejectedReads++;
+    if (lastGoodRead > 0 && fabs(raw - distanceMM) > allowedMM)
       return false;
-    }
-    if (rejectedReads >= MAX_REJECTED_READS)
-      sampleCount = 0; // it really moved, so restart the median there
-    rejectedReads = 0;
+
     lastGoodRead = now;
-
     zmT = field;
-    rawDistanceMM = raw;
-    distanceMM = smooth(rawDistanceMM);
-    if (readingTask)
-      xTaskNotifyGive(readingTask);
+    distanceMM = raw;
     return true;
-  }
-
-  void printErrors() const {
-    if (!ok) {
-      Serial.println("MAGNET ERROR -> Can not read data.");
-    } else if (zmT >= SATURATION_THRESHOLD_MT) {
-      Serial.print("MAGNET ERROR -> SATURATED (B_z = ");
-      Serial.print(zmT, 2);
-      Serial.println(" mT)");
-    } else if (zmT < OUT_OF_RANGE_THRESHOLD_MT) {
-      Serial.print("MAGNET ERROR -> OUT OF RANGE (B_z = ");
-      Serial.print(zmT, 2);
-      Serial.println(" mT)");
-    }
   }
 
   // On-axis field of a cylindrical magnet at distance z from its face
@@ -147,7 +106,6 @@ public:
            (r2 / pow(z1 * z1 + r2, 1.5f) - r2 / pow(z * z + r2, 1.5f));
   }
 
-  // Newton's method on fieldAt(z) = bz
   float solveDistance(float bz) const {
     float z = 5.0f; // Initial guess
     for (int i = 0; i < 10; i++) {
@@ -162,26 +120,6 @@ public:
     return z;
   }
 
-  // Median of the last DISTANCE_AVERAGE_COUNT reads. A single bad read (seen
-  // at high motor current) can't move it, where a mean would shift for N reads.
-  float smooth(float sample) {
-    if (sampleCount == 0)
-      sampleIndex = 0;
-    samples[sampleIndex] = sample;
-    sampleIndex = (sampleIndex + 1) % DISTANCE_AVERAGE_COUNT;
-    if (sampleCount < DISTANCE_AVERAGE_COUNT)
-      sampleCount++;
-
-    float sorted[DISTANCE_AVERAGE_COUNT];
-    std::copy(samples, samples + sampleCount, sorted);
-    std::sort(sorted, sorted + sampleCount);
-    int middle = sampleCount / 2;
-    return sampleCount % 2 ? sorted[middle]
-                           : (sorted[middle - 1] + sorted[middle]) / 2.0f;
-  }
-
-  // The Adafruit driver only measures X/Y/Z, so run a temperature-only single
-  // measurement with raw commands: SM|T (0x31) then RM|T (0x41).
   bool readTemperature(float *result) {
     wire.beginTransmission(MLX90393_DEFAULT_ADDR);
     wire.write(0x31);
@@ -204,30 +142,13 @@ public:
     *result = 25.0f + (raw - 46244.0f) / 45.2f; // datasheet typical TREF
     return true;
   }
-
-  Adafruit_MLX90393 sensor;
-  TwoWire wire;
-
-  // setCalibration() swaps in this board's row from defaults.h
-  float remanenceMT = DEFAULT_CALIBRATION.remanenceMT;
-  float zOffsetMM = DEFAULT_CALIBRATION.zOffsetMM;
-  float calibrationTempC = DEFAULT_CALIBRATION.calibrationTempC;
-
-  bool ok = false;
-  float zmT = 0.0f;
-  float tempC = DEFAULT_CALIBRATION.calibrationTempC;
-  uint32_t lastTempRead = 0;
-  uint32_t lastGoodRead = 0;
-  uint8_t rejectedReads = 0;          // in a row
-  float rawDistanceMM = 0.0f;         // latest reading
-  float distanceMM = 0.0f;            // rolling median, what the PID runs on
-  TaskHandle_t readingTask = nullptr; // notified after each new reading
-
-  float samples[DISTANCE_AVERAGE_COUNT];
-  uint8_t sampleIndex = 0;
-  uint8_t sampleCount = 0;
 };
 
 Magnet magnet;
+
+void setupMagnet() {
+  while (!magnet.begin(MAG_SDA_PIN, MAG_SCL_PIN))
+    vTaskDelay(pdMS_TO_TICKS(1000));
+}
 
 #endif // MAGNET_H
