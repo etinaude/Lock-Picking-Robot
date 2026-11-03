@@ -5,10 +5,7 @@
 #include <Arduino.h>
 
 static void sensingTask(void *parameter) {
-  printMenu();
   while (true) {
-    handleSerial();
-    printStatus();
     motor.readCurrent();
     magnet.read();
     vTaskDelay(pdMS_TO_TICKS(10));
@@ -17,14 +14,10 @@ static void sensingTask(void *parameter) {
 
 static void motorTask(void *parameter) {
   motor.begin();
-  moveTo(NEUTRAL_MM);
+  motor.target = NEUTRAL_MM;
 
-  while (true) {
-    if (pidEnabled)
-      motor.update(magnet.distanceMM);
-    else
-      motor.stop();
-  }
+  while (true)
+    motor.update(magnet.distanceMM);
 }
 
 void setup() {
@@ -35,7 +28,11 @@ void setup() {
   xTaskCreatePinnedToCore(sensingTask, "sensing", 10000, nullptr, 1, nullptr,
                           0);
   xTaskCreatePinnedToCore(motorTask, "motor", 2048, nullptr, 1, nullptr, 1);
+  printMenu();
 }
 
-// tasks handle loop
-void loop() {}
+void loop() {
+  handleSerial();
+  printStatus();
+  vTaskDelay(pdMS_TO_TICKS(10));
+}

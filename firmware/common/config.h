@@ -21,12 +21,8 @@ int COMMS_SCL_PIN = 22;
 #define CURRENT_FILTER_ALPHA 0.15f
 
 // ~~~ PID & CONTROL ~~~
-#define DISTANCE_AVERAGE_COUNT 3 // rolling median, adds (N-1)/2 reads of lag
-// DISTANCE_DEADBAND and each board's min PWM and gains are in defaults.h
 
 // ledcWrite turns 255 (8-bit) into "full on", which the S3 outputs as off
 #define MOTOR_MAX_PWM 254.0
-#define MAGNET_TIMEOUT_MS 100
-
 #define TRAVEL_MIN_MM 2.5
 #define TRAVEL_MAX_MM 10.5

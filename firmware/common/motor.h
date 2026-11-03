@@ -97,7 +97,7 @@ public:
       return stop();
 
     bool direction = pwm > 0.0;
-    double pwmValue = fmin(fabs(pwm) + minPWM, MOTOR_MAX_PWM);
+    pwmValue = fmin(fabs(pwm) + minPWM, MOTOR_MAX_PWM);
 
     digitalWrite(M_DIR_PIN, direction);
     ledcWrite(0, pwmValue);

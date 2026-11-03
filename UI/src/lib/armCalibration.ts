@@ -53,9 +53,9 @@ export function parseCalibrationRow(text: string): ArmCalibration | null {
 	};
 }
 
-// The values the firmware's JSON command takes, e.g. {"kp": 250, "kd": 8}, with
-// the limits setParameter in firmware/arm/calibration.h checks. The board
-// keeps them until it resets.
+// The values the firmware's V command takes, all of them in one JSON object,
+// e.g. V {"minPWM": 30, "kp": 250, ...}. The board keeps them until it resets.
+// It doesn't check them, so the form holds them to these limits.
 export type ParameterKey = Exclude<keyof ArmCalibration, 'mac' | 'id'>;
 
 const nonNegative = (value: number) => (value < 0 ? 'Must be 0 or more' : null);

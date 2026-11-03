@@ -14,8 +14,8 @@
 	import { moveBetweenProbes } from '#lib/calibration/shared.ts';
 	import { serial } from '#lib/serial/serial.svelte.ts';
 
-	// The firmware answers a JSON line with its Calibration row, or a
-	// "Parameters not set" line saying which value it refused
+	// The firmware answers V with its Calibration row, or a "Parameters not set"
+	// line if the JSON after it doesn't parse
 	const REJECTED = 'Parameters not set:';
 	const CALIBRATION_ROW = 'Calibration row:';
 	const REPLY_TIMEOUT_MS = 3000;
@@ -36,7 +36,7 @@
 		PARAMETERS.map((parameter) => parameterProblem(parameter, values[parameter.key]))
 	);
 	const valid = $derived(problems.every((problem) => problem === null));
-	const json = $derived(JSON.stringify(values));
+	const command = $derived(`V ${JSON.stringify(values)}`);
 	const ready = $derived(
 		serial.connected && serial.calibrationFirmware && !runner.running && !waiting
 	);
@@ -101,8 +101,8 @@
 	<header>
 		<h2>Parameters</h2>
 		<p class="note">
-			Sends this board's calibration values as one JSON line. It uses them until it resets, so paste
-			the row into <code>defaults.h</code> to keep them.
+			Sends this board's calibration values as V and one JSON object. It uses them until it resets,
+			so paste the row into <code>defaults.h</code> to keep them.
 		</p>
 	</header>
 
@@ -114,13 +114,13 @@
 					<div class="actions">
 						<button
 							class="secondary"
-							onclick={() => request('{}', 'Read the values the board is using.')}
+							onclick={() => request('V', 'Read the values the board is using.')}
 							disabled={!ready}
 						>
 							Read from board
 						</button>
 						<button
-							onclick={() => request(json, 'Sent. The board uses these until it resets.')}
+							onclick={() => request(command, 'Sent. The board uses these until it resets.')}
 							disabled={!ready || !valid}
 						>
 							{waiting ? 'Waiting...' : 'Send to board'}
@@ -188,12 +188,12 @@
 
 		<aside class="side-col">
 			<section class="card">
-				<h3>JSON</h3>
+				<h3>Command</h3>
 				<p class="note">
-					What Send writes to the board. From the Serial monitor it also takes a few at a time, e.g.
-					<code>{'{"kp": 250}'}</code>, and <code>{'{}'}</code> prints the values in use.
+					What Send writes to the board, always with all the values. <code>V</code> on its own prints
+					the values in use.
 				</p>
-				<pre><code>{json}</code></pre>
+				<pre><code>{command}</code></pre>
 			</section>
 
 			<section class="card">

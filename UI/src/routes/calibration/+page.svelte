@@ -50,7 +50,7 @@
 			component: RepeatabilityCalibration,
 			run: 'repeatability'
 		},
-		{ id: 'parameters', command: '{}', label: 'Parameters', component: Parameters, tool: true },
+		{ id: 'parameters', command: 'V', label: 'Parameters', component: Parameters, tool: true },
 		{
 			id: 'serial',
 			command: '>_',
