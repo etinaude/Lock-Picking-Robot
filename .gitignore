@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+
+.vscode/
+
+.pio/
+
+# KiCad local history (its own git repo)
+PCB/**/.history/

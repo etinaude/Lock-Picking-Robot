@@ -1,0 +1,137 @@
+** Drc report for main-board.kicad_pcb **
+** Created on 2026-10-09T15:57:29 **
+** Report includes: Errors, Warnings, Exclusions **
+
+** Found 31 DRC violations **
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(19.0750 mm, 21.6250 mm): Segment on Edge.Cuts
+    @(22.3500 mm, 19.7000 mm): Segment of J2 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(19.0750 mm, 21.6250 mm): Segment on Edge.Cuts
+    @(24.3500 mm, 19.7000 mm): Segment of J2 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(19.0750 mm, 21.6250 mm): Segment on Edge.Cuts
+    @(26.3500 mm, 24.0000 mm): Segment of J2 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(19.0750 mm, 21.6250 mm): Segment on Edge.Cuts
+    @(28.3500 mm, 27.3000 mm): Segment of J2 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(42.8000 mm, 22.6500 mm): Segment on Edge.Cuts
+    @(41.2750 mm, 26.2650 mm): Segment of CN2 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(42.8000 mm, 22.6500 mm): Segment on Edge.Cuts
+    @(42.7750 mm, 26.2650 mm): Segment of CN2 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(42.8000 mm, 22.6500 mm): Segment on Edge.Cuts
+    @(42.7750 mm, 40.7750 mm): Segment of CN2 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(42.8000 mm, 22.6500 mm): Segment on Edge.Cuts
+    @(42.7750 mm, 40.7650 mm): Circle of CN2 on F.Silkscreen
+[text_height]: Text height out of range (board setup constraints silk text height min height 0.8000 mm; actual 0.5000 mm)
+    Rule: board setup constraints silk text height; warning
+    @(22.0000 mm, 42.2500 mm): PCB text 'IO7' on F.Silkscreen
+[text_height]: Text height out of range (board setup constraints silk text height min height 0.8000 mm; actual 0.5000 mm)
+    Rule: board setup constraints silk text height; warning
+    @(24.5000 mm, 42.2500 mm): PCB text 'IO6' on F.Silkscreen
+[text_height]: Text height out of range (board setup constraints silk text height min height 0.8000 mm; actual 0.5000 mm)
+    Rule: board setup constraints silk text height; warning
+    @(27.0000 mm, 42.2500 mm): PCB text 'IO5
+' on F.Silkscreen
+[text_height]: Text height out of range (board setup constraints silk text height min height 0.8000 mm; actual 0.5000 mm)
+    Rule: board setup constraints silk text height; warning
+    @(29.5000 mm, 42.2500 mm): PCB text 'GND' on F.Silkscreen
+[text_height]: Text height out of range (board setup constraints silk text height min height 0.8000 mm; actual 0.5000 mm)
+    Rule: board setup constraints silk text height; warning
+    @(32.0000 mm, 42.2500 mm): PCB text '3V3' on F.Silkscreen
+[text_height]: Text height out of range (board setup constraints silk text height min height 0.8000 mm; actual 0.5000 mm)
+    Rule: board setup constraints silk text height; warning
+    @(37.5000 mm, 32.5000 mm): PCB text 'Nothing to see here' on F.Silkscreen
+[text_height]: Text height out of range (board setup constraints silk text height min height 0.8000 mm; actual 0.5000 mm)
+    Rule: board setup constraints silk text height; warning
+    @(26.2500 mm, 43.5000 mm): PCB text 'Unlocked v2
+Arm PCB v1.0
+By @etinaude' on B.Silkscreen
+[text_height]: Text height out of range (board setup constraints silk text height min height 0.8000 mm; actual 0.5000 mm)
+    Rule: board setup constraints silk text height; warning
+    @(32.9000 mm, 24.4500 mm): PCB text '5V' on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.3500 mm, 19.7000 mm): Segment of J2 on F.Silkscreen
+    @(19.2000 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+    @(23.3500 mm, 21.9000 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+    @(28.3500 mm, 27.3000 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+    @(23.3500 mm, 25.7000 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+    @(23.9500 mm, 21.9000 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(26.7500 mm, 21.9000 mm): Segment of J2 on F.Silkscreen
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+    @(26.7500 mm, 25.7000 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+    @(27.3500 mm, 21.9000 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+    @(24.3500 mm, 19.7000 mm): Segment of J2 on F.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(22.5900 mm, 21.7500 mm): Segment of U1 on F.Silkscreen
+    @(26.3500 mm, 24.0000 mm): Segment of J2 on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(23.9500 mm, 21.9000 mm): Segment of J2 on F.Silkscreen
+    @(24.3500 mm, 25.9000 mm): PTH pad 2 [/MOT_OUT2] of J2
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(26.7500 mm, 25.7000 mm): Segment of J2 on F.Silkscreen
+    @(26.3500 mm, 25.9000 mm): PTH pad 1 [/MOT_OUT1] of J2
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.6000 mm, 44.6500 mm): Circle on B.Silkscreen
+    @(39.6000 mm, 44.6500 mm): PTH pad 1 [GND] of H2
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(39.6000 mm, 22.6241 mm): Circle on B.Silkscreen
+    @(39.6000 mm, 22.6500 mm): PTH pad 1 [GND] of H1
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(30.7125 mm, 28.2400 mm): Polygon of U2 on B.Silkscreen
+    @(30.4700 mm, 28.8500 mm): Pad 1 [/DRV_nFAULT] of R2 on B.Cu
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** Ignored checks **
+    - Footprint has no courtyard defined
+    - Track endpoint not centered on via
+    - Tuning profile track geometries
+    - Footprint doesn't match symbol's footprint filters
+    - Footprint component type doesn't match footprint pads
+
+** End of Report **

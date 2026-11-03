@@ -1,0 +1,18 @@
+# KiCad per-user state, locks and caches
+*.kicad_prl
+~*.lck
+fp-info-cache
+
+# KiCad backups and autosaves
+*-backups/
+_restore_backup_*/
+.history/
+_autosave-*
+*-bak
+*-save.kicad_*
+
+# Gerber export scratch folder
+production/.tmp_*/
+
+# Python
+__pycache__/
